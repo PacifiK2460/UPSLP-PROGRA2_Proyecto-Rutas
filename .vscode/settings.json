@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "auth.h": "c",
+        "tui.h": "c",
+        "llist.h": "c",
+        "random": "c"
+    }
+}

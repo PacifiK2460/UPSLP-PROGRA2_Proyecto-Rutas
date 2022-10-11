@@ -1,14 +1,23 @@
-#include "../libs/proyecto/auth.h"
-#include "../libs/proyecto/routes.h"
-#include "../libs/proyecto/tui.h"
-#include "../libs/proyecto/proyecto.h"
+#include "libs/auth/auth.h"
+#include "libs/routes/routes.h"
+#include "libs/tui/tui.h"
+#include "libs/core/core.h"
 
 #include <stdio.h>
 #include <wchar.h>
 #include <locale.h>
 
+void cleanUp()
+{
+    freeUsers();
+    freeRoutes();
+    CLOSE_SCREEN();
+    return 0;
+}
 
 int main() {
+
+    atexit(cleanUp);
 
     {// TUI initialization
         Result result = initTUI();
@@ -21,6 +30,7 @@ int main() {
     {// User Management initialization
         Result result = loadAllUsers();
         if (result.Error_state != OK) {
+            CLOSE_SCREEN();
             printf("Error: %d\n", result.Error_state);
             return 1;
         }
@@ -29,10 +39,12 @@ int main() {
     {// Routes Management initialization
         Result result = loadAllRoutes();
         if (result.Error_state != OK) {
+            CLOSE_SCREEN();
             printf("Error: %d\n", result.Error_state);
             return 1;
         }
 
     }
     
+    Login();    
 }

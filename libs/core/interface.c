@@ -5,6 +5,8 @@
     * @return Result
     
 */
-Result Login(){
-    
+Result TuiLogin(){
+    print_status_bar();
+
+    // getc();
 }

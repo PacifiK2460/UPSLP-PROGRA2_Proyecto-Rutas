@@ -12,7 +12,6 @@ void cleanUp()
     freeUsers();
     freeRoutes();
     CLOSE_SCREEN();
-    return 0;
 }
 
 int main() {
@@ -46,5 +45,5 @@ int main() {
 
     }
     
-    Login();    
+    TuiLogin();
 }

@@ -38,7 +38,11 @@ void gotoxy(int x, int y){
 }
 
 void print_status_bar(){
-    // todo: print the status bar
+    // move to the bottom 
+    int cols, rows;
+    get_window_size(&rows, &cols);
+    gotoxy(0, rows);
+    wprintf(L"TEST");
 }
 
 wchar_t* FRGB(int r, int g, int b){

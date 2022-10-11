@@ -1,6 +1,8 @@
 #ifndef CORE_H
 #define CORE_H
 
+#include <wchar.h>
+
 enum ErrorType{
     UserERR = 0x100,
     RouteERR = 0x200,
@@ -29,5 +31,7 @@ typedef struct Result{
     // if not, the pointer may be safe to use
     void* result;
 } Result;
+
+Result TuiLogin();
 
 #endif

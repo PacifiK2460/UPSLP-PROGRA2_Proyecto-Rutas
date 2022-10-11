@@ -4,30 +4,29 @@
 
 
 # Configuration directories and files
-SourceDirectory: /home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programación II/UPSLP-PROGRA2_Proyecto-Rutas
-BuildDirectory: /home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programación II/UPSLP-PROGRA2_Proyecto-Rutas/build
+SourceDirectory: /home/lara/Documents/UPSLP-PROGRA2_Proyecto-Rutas
+BuildDirectory: /home/lara/Documents/UPSLP-PROGRA2_Proyecto-Rutas/build
 
 # Where to place the cost data store
 CostDataFile: 
 
 # Site is something like machine.domain, i.e. pragmatic.crd
-Site: pk
+Site: portable
 
 # Build name is osname-revision-compiler, i.e. Linux-2.4.2-2smp-c++
-BuildName: Linux-g++
+BuildName: Linux-c++
 
 # Subprojects
 LabelsForSubprojects: 
 
 # Submission information
 SubmitURL: http://
-SubmitInactivityTimeout: 
 
 # Dashboard start time
 NightlyStartTime: 00:00:00 EDT
 
 # Commands for the build/test/submit cycle
-ConfigureCommand: "/usr/bin/cmake" "/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programación II/UPSLP-PROGRA2_Proyecto-Rutas"
+ConfigureCommand: "/usr/bin/cmake" "/home/lara/Documents/UPSLP-PROGRA2_Proyecto-Rutas"
 MakeCommand: /usr/bin/cmake --build . --config "${CTEST_CONFIGURATION_TYPE}"
 DefaultCTestConfigurationType: Release
 
@@ -63,8 +62,8 @@ UpdateOptions:
 UpdateType: git
 
 # Compiler info
-Compiler: /usr/bin/g++
-CompilerVersion: 12.2.0
+Compiler: /usr/bin/c++
+CompilerVersion: 11.2.0
 
 # Dynamic analysis (MemCheck)
 PurifyCommand: 
@@ -76,7 +75,7 @@ CudaSanitizerCommand:
 CudaSanitizerCommandOptions: 
 MemoryCheckType: 
 MemoryCheckSanitizerOptions: 
-MemoryCheckCommand: /usr/bin/valgrind
+MemoryCheckCommand: MEMORYCHECK_COMMAND-NOTFOUND
 MemoryCheckCommandOptions: 
 MemoryCheckSuppressionFile: 
 

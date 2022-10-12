@@ -35,9 +35,9 @@ void freeUserRoutes(struct User *user)
     }
 }
 
-Result loadAllRoutes()
+struct Result loadAllRoutes()
 {
-    Result result;
+    struct Result result = {OK, NULL};
     result.Error_state = OK;
 
 

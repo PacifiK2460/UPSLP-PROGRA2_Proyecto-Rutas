@@ -4,6 +4,8 @@
         "tui.h": "c",
         "llist.h": "c",
         "random": "c",
-        "core.h": "c"
+        "core.h": "c",
+        "wchar.h": "c",
+        "routes.h": "c"
     }
 }

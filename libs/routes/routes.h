@@ -1,5 +1,5 @@
 #ifndef ROUTES_H
-#define ROUTES_H
+#define ROUTES_H 1
 
 #include "../core/core.h"
 #include "../auth/auth.h"
@@ -53,8 +53,19 @@ typedef struct UserRoute{
     // Hour (0 - 23)
 } UserRoute;
 
-Result loadAllRoutes();
+struct Result loadAllRoutes();
 
+/**
+ * @brief Frees all user routes
+ * 
+ * @param user 
+ */
 void freeUserRoutes(struct User* user);
+
+/**
+ * @brief Frees all the routes in the system
+ * 
+ */
+void freeRoutes();
 
 #endif

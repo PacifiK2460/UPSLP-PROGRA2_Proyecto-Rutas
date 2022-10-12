@@ -2,9 +2,6 @@
 
 #define USERS_FILE "users.db"
 
-#include <stdio.h>
-#include <errno.h>
-
 static LList users;
 
 void freeUsers(){
@@ -19,12 +16,12 @@ void freeUsers(){
 
         free(user);
     }
+    return;
 }
 
 // TODO: #1 Save users to file
-Result loadAllUsers() {
-    Result result;
-    result.Error_state = OK;
+struct Result loadAllUsers() {
+    struct Result result = {OK, NULL};
 
     FILE* file = fopen(USERS_FILE, "r, ccs=UTF-8");
     if (file == 0) {
@@ -36,7 +33,7 @@ Result loadAllUsers() {
                 if(errno == EACCES) {
                     result.Error_state = FILE_PERMISSION_DENIED;
                 } else {
-                    result.Error_state = FOPEN_FAULT;
+                     result.Error_state = FOPEN_FAULT;
                 }
             } else {
                 result.Error_state = OK;
@@ -139,8 +136,8 @@ Result loadAllUsers() {
     return result;
 }
 
-Result login(const wchar_t* name, const wchar_t* pass){
-    Result result;
+struct Result login(const wchar_t* name, const wchar_t* pass){
+    struct Result result = {OK, NULL};
 
     for(int i = 0; i < llist_size(&users); i++){
         User* user = llist_get(&users, i);
@@ -148,7 +145,7 @@ Result login(const wchar_t* name, const wchar_t* pass){
             if(wcscmp(user->pass, pass) == 0){
                 if(user->state == ENABLED){
                     result.Error_state = OK;
-                    result.result = user;
+                    result.Result = user;
                     return result;
                 } else {
                     result.Error_state = USER_DISABLED;
@@ -165,8 +162,8 @@ Result login(const wchar_t* name, const wchar_t* pass){
     return result;
 }
 
-Result add_user(const User Requester,const wchar_t* NewUserName, const wchar_t* NewUserPass, const Type NewUserType){
-    Result result;
+struct Result add_user(const User Requester,const wchar_t* NewUserName, const wchar_t* NewUserPass, const Type NewUserType){
+    struct Result result = {OK, NULL};
 
     if(Requester.type != ADMIN){
         result.Error_state = USER_NOT_ALLOWED;
@@ -210,8 +207,8 @@ Result add_user(const User Requester,const wchar_t* NewUserName, const wchar_t* 
     return result;
 }
 
-Result modify_user(const User Requester, const wchar_t* UserName, const wchar_t* NewUserPass, Type NewUserType){
-    Result result;
+struct Result modify_user(const User Requester, const wchar_t* UserName, const wchar_t* NewUserPass, Type NewUserType){
+    struct Result result = {OK, NULL};
 
     if(Requester.type != ADMIN){
         result.Error_state = USER_NOT_ALLOWED;
@@ -233,7 +230,7 @@ Result modify_user(const User Requester, const wchar_t* UserName, const wchar_t*
             user->type = NewUserType;
 
             if(user->type == ADMIN){
-                freeUserRoutes(query_user(Requester, UserName).result);
+                freeUserRoutes(query_user(Requester, UserName).Result);
             }
 
             result.Error_state = OK;
@@ -245,8 +242,8 @@ Result modify_user(const User Requester, const wchar_t* UserName, const wchar_t*
     return result;
 }
 
-Result remove_user(const User Requester, const wchar_t* UserName){
-    Result result;
+struct Result remove_user(const User Requester, const wchar_t* UserName){
+    struct Result result = {OK, NULL};
 
     if(Requester.type != ADMIN){
         result.Error_state = USER_NOT_ALLOWED;
@@ -268,8 +265,8 @@ Result remove_user(const User Requester, const wchar_t* UserName){
     return result;
 }
 
-Result query_user(const User Requester, const wchar_t* UserName){
-    Result result;
+struct Result query_user(const User Requester, const wchar_t* UserName){
+    struct Result result = {OK, NULL};
 
     if(Requester.type != ADMIN){
         result.Error_state = USER_NOT_ALLOWED;
@@ -280,7 +277,7 @@ Result query_user(const User Requester, const wchar_t* UserName){
         User* user = llist_get(&users, i);
         if(wcscmp(user->name, UserName) == 0){
             result.Error_state = OK;
-            result.result = user;
+            result.Result = user;
             return result;
         }
     }

@@ -1,50 +1,54 @@
 #ifndef AUTH_H
-#define AUTH_H
+#define AUTH_H 1
 
 #include "../core/core.h"
 #include "../llist/llist.h"
-#include "../routes/routes.h"
+// #include "../routes/routes.h"
 
 #include <stdlib.h>
 #include <wchar.h>
+#include <stdio.h>
+#include <errno.h>
 
 // [!] User Management structures
 
 enum UserErrors
 {
-    //OK = 0,
+    // OK = 0,
     USER_NOT_FOUND = UserERR,
     INCORRECT_PASSWORD,
     USER_DISABLED,
     USER_ALREADY_EXISTS,
     USER_NOT_ALLOWED,
     UNKNOWN_USER_ERROR,
-};
+} UserErrors;
 
 // Those structures define the level of users available in the system
 // and the level of access to the system that each user has.
 
-typedef enum {
+typedef enum State
+{
     ENABLED,
     DISABLED
-} State;
+} state;
 
-typedef enum{
+typedef enum Type
+{
     PASSANGER,
     ADMIN
 } Type;
 
 typedef struct User
 {
-    wchar_t* name;
-    wchar_t* pass;
-    State  state;
-    Type  type;
+    wchar_t *name;
+    wchar_t *pass;
+    Type type;
+    state state;
     // if the user is an admin, this field will be 0
     LList queued_routes;
 } User;
 
-Result loadAllUsers();
+struct Result loadAllUsers();
 
 // [!] User Management functions
 
@@ -63,7 +67,7 @@ Result loadAllUsers();
     If the password is incorrect, the function returns INCORRECT_PASSWORD.
     If the user is disabled, the function returns USER_DISABLED.
 */
-Result login(const wchar_t* name, const wchar_t* pass);
+struct Result login(const wchar_t *name, const wchar_t *pass);
 
 /*
     Attempts to create a new user with the given credentials.
@@ -71,7 +75,7 @@ Result login(const wchar_t* name, const wchar_t* pass);
 
     If the user already exists, the function returns USER_ALREADY_EXISTS.
 */
-Result add_user(const User Requester,const wchar_t* NewUserName, const wchar_t* NewUserPass, const Type NewUserType);
+struct Result add_user(const User Requester, const wchar_t *NewUserName, const wchar_t *NewUserPass, const Type NewUserType);
 
 /*
     Attempts to modify the user with the given credentials.
@@ -79,7 +83,7 @@ Result add_user(const User Requester,const wchar_t* NewUserName, const wchar_t* 
 
     If the user does not exists, the function returns USER_NOT_FOUND.
 */
-Result modify_user(const User Requester, const wchar_t* UserName, const wchar_t* NewUserPass, Type NewUserType);
+struct Result modify_user(const User Requester, const wchar_t *UserName, const wchar_t *NewUserPass, Type NewUserType);
 
 /*
     Attempts to disable the user with the given credentials.
@@ -87,7 +91,7 @@ Result modify_user(const User Requester, const wchar_t* UserName, const wchar_t*
 
     If the user does not exists, the function returns USER_NOT_FOUND.
 */
-Result remove_user(const User Requester, const wchar_t* UserName);
+struct Result remove_user(const User Requester, const wchar_t *UserName);
 
 /*
     Attempts to query the user with the given username.
@@ -95,6 +99,15 @@ Result remove_user(const User Requester, const wchar_t* UserName);
 
     If the user does not exists, the function returns USER_NOT_FOUND.
 */
-Result query_user(const User Requester, const wchar_t* UserName);
+struct Result query_user(const User Requester, const wchar_t *UserName);
+
+/**
+ * @brief Free all users from memory
+ *
+ */
+void freeUsers();
+
+extern void freeUserRoutes(struct User* user);
+
 
 #endif

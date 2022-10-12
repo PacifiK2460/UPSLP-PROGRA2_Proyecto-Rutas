@@ -1,7 +1,7 @@
 #include "tui.h"
 
-Result initTUI(){
-    Result result;
+struct Result initTUI(){
+    struct Result result;
     
     result.Error_state = OK;
 
@@ -45,22 +45,10 @@ void print_status_bar(){
     wprintf(L"TEST");
 }
 
-wchar_t* FRGB(int r, int g, int b){
-    wchar_t* color = malloc(sizeof(wchar_t) * 20);
-    swprintf(color, 20, L"\e[38;2;%d;%d;%dm", r, g, b);
-    return color;
-}
-
-wchar_t* BRGB(int r, int g, int b){
-    wchar_t* color = malloc(sizeof(wchar_t) * 20);
-    swprintf(color, 20, L"\e[48;2;%d;%d;%dm", r, g, b);
-    return color;
-}
-
 // Test the code to see if it works
 
-Result noEcho(){
-    Result result;
+struct Result noEcho(){
+    struct Result result = {OK, NULL};
     result.Error_state = OK;
 
     //if windows
@@ -93,8 +81,8 @@ Result noEcho(){
     return result;
 }
 
-Result echo(){
-    Result result;
+struct Result echo(){
+    struct Result result = {OK, NULL};
     result.Error_state = OK;
 
     //if windows
@@ -127,8 +115,8 @@ Result echo(){
     return result;
 }
 
-Result rawMode(){
-    Result result;
+struct Result rawMode(){
+    struct Result result = {OK, NULL};
     result.Error_state = OK;
 
     //if windows
@@ -161,8 +149,8 @@ Result rawMode(){
     return result;
 }
 
-Result cookedMode(){
-    Result result;
+struct Result cookedMode(){
+    struct Result result = {OK, NULL};
     result.Error_state = OK;
 
     //if windows
@@ -217,6 +205,149 @@ void get_window_size(int *rows, int *cols){
 }
 
 
-Result focus(LList *widgets){
+struct Result focus(LList *widgets){
     // TODO: Make this work
+}
+
+void ConvertColorToRGB(COLOR color)
+{
+    switch (color.Color_Mode)
+    {
+    case RGB:
+        return; // already RGB
+        break;
+    case HEX:
+    {
+        int r = color.color.RGB.R % 256, g = color.color.RGB.G % 256, b = color.color.RGB.B % 256;
+
+        sscanf(color.color.HEX.HEX, "%02x%02x%02x", &r, &g, &b);
+
+        color.color.RGB.R = r;
+        color.color.RGB.G = g;
+        color.color.RGB.B = b;
+    }
+    break;
+    case HSL:
+    { // https://stackoverflow.com/questions/2353211/hsl-to-rgb-color-conversion
+        int r, g, b;
+
+        int h = color.color.HSL.H % 360, s = color.color.HSL.S % 100, l = color.color.HSL.L % 100;
+
+        float c = (1 - abs(2 * l - 1)) * s;
+        float x = c * (1 - abs(fmod(h / 60.0, 2) - 1));
+        float m = l - c / 2;
+
+        if (h >= 0 && h < 60)
+        {
+            r = c;
+            g = x;
+            b = 0;
+        }
+        else if (h >= 60 && h < 120)
+        {
+            r = x;
+            g = c;
+            b = 0;
+        }
+        else if (h >= 120 && h < 180)
+        {
+            r = 0;
+            g = c;
+            b = x;
+        }
+        else if (h >= 180 && h < 240)
+        {
+            r = 0;
+            g = x;
+            b = c;
+        }
+        else if (h >= 240 && h < 300)
+        {
+            r = x;
+            g = 0;
+            b = c;
+        }
+        else if (h >= 300 && h < 360)
+        {
+            r = c;
+            g = 0;
+            b = x;
+        }
+
+        color.color.RGB.R = (r + m) * 255;
+        color.color.RGB.G = (g + m) * 255;
+        color.color.RGB.B = (b + m) * 255;
+    }
+    break;
+    }
+    return;
+}
+
+wchar_t *ColorString(COLOR color)
+{
+    wchar_t *color_string = malloc(sizeof(wchar_t) * 20);
+    if (color_string == NULL)
+    {
+        return NULL;
+    }
+
+    ConvertColorToRGB(color);
+
+    switch (color.Color_Type)
+    {
+    case FOREGROUND:
+        wcscat(color_string, L"\e[38;2;");
+        break;
+    default: // incluiding BACKGROUND
+        wcscat(color_string, L"\e[48;2;");
+        break;
+    }
+
+    wchar_t *r = malloc(sizeof(wchar_t) * 4);
+    wchar_t *g = malloc(sizeof(wchar_t) * 4);
+    wchar_t *b = malloc(sizeof(wchar_t) * 4);
+
+    if (r == NULL || g == NULL || b == NULL)
+    {
+        return NULL;
+    }
+
+    swprintf(r, 4, L"%d;", color.color.RGB.R);
+    swprintf(g, 4, L"%d;", color.color.RGB.G);
+    swprintf(b, 4, L"%dm", color.color.RGB.B);
+
+    wcscat(color_string, r);
+    wcscat(color_string, g);
+    wcscat(color_string, b);
+
+    free(r);
+    free(g);
+    free(b);
+
+    return color_string;
+}
+
+wchar_t** monogradient(COLOR start, COLOR end, int steps){
+    wchar_t** gradient = malloc(sizeof(wchar_t*) * steps);
+    if(gradient == NULL){
+        return NULL;
+    }
+
+    ConvertColorToRGB(start);
+    ConvertColorToRGB(end);
+
+    int r = start.color.RGB.R, g = start.color.RGB.G, b = start.color.RGB.B;
+    int r_step = (end.color.RGB.R - start.color.RGB.R) / steps;
+    int g_step = (end.color.RGB.G - start.color.RGB.G) / steps;
+    int b_step = (end.color.RGB.B - start.color.RGB.B) / steps;
+
+    for(int i = 0; i < steps; i++){
+        COLOR color = {BACKGROUND, RGB, {r, g, b}};
+        gradient[i] = ColorString(color);
+        r += r_step;
+        g += g_step;
+        b += b_step;
+    }
+
+    return gradient;
 }

@@ -19,7 +19,7 @@ int main() {
     atexit(cleanUp);
 
     {// TUI initialization
-        Result result = initTUI();
+        struct Result result = initTUI();
         if (result.Error_state != OK) {
             printf("Error: %d\n", result.Error_state);
             return 1;
@@ -27,7 +27,7 @@ int main() {
     }
 
     {// User Management initialization
-        Result result = loadAllUsers();
+        struct Result result = loadAllUsers();
         if (result.Error_state != OK) {
             CLOSE_SCREEN();
             printf("Error: %d\n", result.Error_state);
@@ -36,7 +36,7 @@ int main() {
     }
 
     {// Routes Management initialization
-        Result result = loadAllRoutes();
+        struct Result result = loadAllRoutes();
         if (result.Error_state != OK) {
             CLOSE_SCREEN();
             printf("Error: %d\n", result.Error_state);

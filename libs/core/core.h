@@ -1,7 +1,10 @@
 #ifndef CORE_H
-#define CORE_H
+#define CORE_H 1
+
+#include "../tui/tui.h"
 
 #include <wchar.h>
+#include <string.h>
 
 enum ErrorType{
     UserERR = 0x100,
@@ -25,13 +28,18 @@ enum SystemErrors
     WINDOWS_UNABLE_TO_ENABLE_COOKED_MODE,
 };
 
-typedef struct Result{
+struct Result{
     // If an error occurs, this will be set in the error field
     int Error_state;
     // if not, the pointer may be safe to use
-    void* result;
+    void* Result;
 } Result;
 
-Result TuiLogin();
+/**
+ * @brief First screen of program, asks for user and password
+ * 
+ * @return int Exit code
+ */
+int TuiLogin();
 
 #endif

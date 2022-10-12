@@ -1,15 +1,12 @@
 # ninja log v5
-4	680	1665461902853996722	libs/auth/CMakeFiles/auth.dir/auth.c.o	b8c3d37c26f96c85
-732	899	1665461903073997867	libs/tui/libtui.so	51b39c197c1b3a71
-128	220	1665462785180124357	RutasDeTransporte	c2e7ee3c2b48219a
-4	128	1665462785090123643	CMakeFiles/RutasDeTransporte.dir/main.c.o	50017877390c11c4
-680	845	1665461903013997555	libs/auth/libauth.so	9b452d842a017e62
-1	922	0	/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programación II/UPSLP-PROGRA2_Proyecto-Rutas/build/CMakeFiles/NightlyUpdate	37f0306cb664d1b
-512	698	1665461902863996774	libs/routes/libroutes.so	44420b01f5cc603
-18	512	1665461902693995889	libs/routes/CMakeFiles/routes.dir/routes.c.o	41d6b2c81e5f2c0e
-1	922	0	CMakeFiles/NightlyUpdate	37f0306cb664d1b
-40	732	1665461902913997034	libs/tui/CMakeFiles/tui.dir/tui.c.o	c19aac0ae43d81dd
+465	741	1665461902903996982	libs/llist/libllist.a	c983fa70b88a887c
+89	465	1665461902643995629	libs/llist/CMakeFiles/llist.dir/llist.c.o	f1023d1d0edce4ec
 272	596	1665461902763996253	libs/core/libcore.so	a42353e52da930df
 17	272	1665461902453994640	libs/core/CMakeFiles/core.dir/core.c.o	6525d36b43255c02
-89	465	1665461902643995629	libs/llist/CMakeFiles/llist.dir/llist.c.o	f1023d1d0edce4ec
-465	741	1665461902903996982	libs/llist/libllist.a	c983fa70b88a887c
+40	732	1665461902913997034	libs/tui/CMakeFiles/tui.dir/tui.c.o	c19aac0ae43d81dd
+18	512	1665461902693995889	libs/routes/CMakeFiles/routes.dir/routes.c.o	41d6b2c81e5f2c0e
+512	698	1665461902863996774	libs/routes/libroutes.so	44420b01f5cc603
+680	845	1665461903013997555	libs/auth/libauth.so	9b452d842a017e62
+4	128	1665462785090123643	CMakeFiles/RutasDeTransporte.dir/main.c.o	50017877390c11c4
+732	899	1665461903073997867	libs/tui/libtui.so	51b39c197c1b3a71
+4	680	1665461902853996722	libs/auth/CMakeFiles/auth.dir/auth.c.o	b8c3d37c26f96c85

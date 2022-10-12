@@ -285,7 +285,7 @@ void ConvertColorToRGB(COLOR color)
 
 wchar_t *ColorString(COLOR color)
 {
-    wchar_t *color_string = malloc(sizeof(wchar_t) * 20);
+    wchar_t *color_string = malloc(sizeof(wchar_t) * 30);
     if (color_string == NULL)
     {
         return NULL;
@@ -303,9 +303,9 @@ wchar_t *ColorString(COLOR color)
         break;
     }
 
-    wchar_t *r = malloc(sizeof(wchar_t) * 4);
-    wchar_t *g = malloc(sizeof(wchar_t) * 4);
-    wchar_t *b = malloc(sizeof(wchar_t) * 4);
+    wchar_t *r = malloc(sizeof(wchar_t) * 4+1);
+    wchar_t *g = malloc(sizeof(wchar_t) * 4+1);
+    wchar_t *b = malloc(sizeof(wchar_t) * 4+1);
 
     if (r == NULL || g == NULL || b == NULL)
     {
@@ -333,6 +333,7 @@ wchar_t** monogradient(COLOR start, COLOR end, int steps){
         return NULL;
     }
 
+    //Values are changed locally, fix
     ConvertColorToRGB(start);
     ConvertColorToRGB(end);
 

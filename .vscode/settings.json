@@ -6,6 +6,8 @@
         "random": "c",
         "core.h": "c",
         "wchar.h": "c",
-        "routes.h": "c"
+        "routes.h": "c",
+        "stdlib.h": "c",
+        "locale.h": "c"
     }
 }

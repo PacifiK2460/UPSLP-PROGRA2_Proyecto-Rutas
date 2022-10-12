@@ -343,8 +343,17 @@ wchar_t** monogradient(COLOR start, COLOR end, int steps){
     int b_step = (end.color.RGB.B - start.color.RGB.B) / steps;
 
     for(int i = 0; i < steps; i++){
-        COLOR color = {BACKGROUND, RGB, {r, g, b}};
-        gradient[i] = ColorString(color);
+        COLOR *color = malloc(sizeof(COLOR));
+        if(color == NULL){
+            return NULL;
+        }
+        color->Color_Type = BACKGROUND;
+        color->Color_Mode = RGB;
+        color->color.RGB.R = r;
+        color->color.RGB.G = g;
+        color->color.RGB.B = b;
+
+        gradient[i] = ColorString(*color);
         r += r_step;
         g += g_step;
         b += b_step;

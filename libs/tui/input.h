@@ -1,7 +1,7 @@
 #ifndef INPUT_H
 #define INPUT_H 1
 
-extern struct Result;
+extern struct Result ;
 extern enum input_type;
 
 #define KEY_UP 72

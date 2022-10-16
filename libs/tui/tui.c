@@ -5,27 +5,6 @@ struct Result initTUI(){
     
     result.Error_state = OK;
 
-    // if in windows, use the windows API to enable ANSI escape codes
-    #ifdef _WIN32
-        HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-        if (hOut == INVALID_HANDLE_VALUE) {
-            result.Error_state = WINDOWS_UNABLE_TO_ENABLE_ANSI;
-            return result;
-        }
-        DWORD dwMode = 0;
-        if (!GetConsoleMode(hOut, &dwMode)) {
-            result.Error_state = WINDOWS_UNABLE_TO_ENABLE_ANSI;
-            return result;
-        }
-        dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-        if (!SetConsoleMode(hOut, dwMode)) {
-            result.Error_state = WINDOWS_UNABLE_TO_ENABLE_ANSI;
-            return result;
-        }
-    #endif
-
-    // if in linux, nothing needs to be done
-
     setlocale(LC_CTYPE, "");
 
     NEW_SCREEN();
@@ -51,25 +30,6 @@ struct Result noEcho(){
     struct Result result = {OK, NULL};
     result.Error_state = OK;
 
-    //if windows
-    #ifdef _WIN32
-        HANDLE hIn = GetStdHandle(STD_INPUT_HANDLE);
-        if (hIn == INVALID_HANDLE_VALUE) {
-            result.Error_state = WINDOWS_UNABLE_TO_DISABLE_ECHO;
-            return result;
-        }
-        DWORD dwMode = 0;
-        if (!GetConsoleMode(hIn, &dwMode)) {
-            result.Error_state = WINDOWS_UNABLE_TO_DISABLE_ECHO;
-            return result;
-        }
-        dwMode &= ~ENABLE_ECHO_INPUT;
-        if (!SetConsoleMode(hIn, dwMode)) {
-            result.Error_state = WINDOWS_UNABLE_TO_DISABLE_ECHO;
-            return result;
-        }
-    #endif
-
     //if linux
     #ifdef __linux__
         struct termios tty;
@@ -84,25 +44,6 @@ struct Result noEcho(){
 struct Result echo(){
     struct Result result = {OK, NULL};
     result.Error_state = OK;
-
-    //if windows
-    #ifdef _WIN32
-        HANDLE hIn = GetStdHandle(STD_INPUT_HANDLE);
-        if (hIn == INVALID_HANDLE_VALUE) {
-            result.Error_state = WINDOWS_UNABLE_TO_ENABLE_ECHO;
-            return result;
-        }
-        DWORD dwMode = 0;
-        if (!GetConsoleMode(hIn, &dwMode)) {
-            result.Error_state = WINDOWS_UNABLE_TO_ENABLE_ECHO;
-            return result;
-        }
-        dwMode |= ENABLE_ECHO_INPUT;
-        if (!SetConsoleMode(hIn, dwMode)) {
-            result.Error_state = WINDOWS_UNABLE_TO_ENABLE_ECHO;
-            return result;
-        }
-    #endif
 
     //if linux
     #ifdef __linux__
@@ -119,26 +60,6 @@ struct Result rawMode(){
     struct Result result = {OK, NULL};
     result.Error_state = OK;
 
-    //if windows
-    #ifdef _WIN32
-        HANDLE hIn = GetStdHandle(STD_INPUT_HANDLE);
-        if (hIn == INVALID_HANDLE_VALUE) {
-            result.Error_state = WINDOWS_UNABLE_TO_ENABLE_RAW_MODE;
-            return result;
-        }
-        DWORD dwMode = 0;
-        if (!GetConsoleMode(hIn, &dwMode)) {
-            result.Error_state = WINDOWS_UNABLE_TO_ENABLE_RAW_MODE;
-            return result;
-        }
-        dwMode |= ENABLE_ECHO_INPUT;
-        if (!SetConsoleMode(hIn, dwMode)) {
-            result.Error_state = WINDOWS_UNABLE_TO_ENABLE_RAW_MODE;
-            return result;
-        }
-    #endif
-
-    //if linux
     #ifdef __linux__
         struct termios tty;
         tcgetattr(0, &tty);
@@ -153,26 +74,6 @@ struct Result cookedMode(){
     struct Result result = {OK, NULL};
     result.Error_state = OK;
 
-    //if windows
-    #ifdef _WIN32
-        HANDLE hIn = GetStdHandle(STD_INPUT_HANDLE);
-        if (hIn == INVALID_HANDLE_VALUE) {
-            result.Error_state = WINDOWS_UNABLE_TO_ENABLE_COOKED_MODE;
-            return result;
-        }
-        DWORD dwMode = 0;
-        if (!GetConsoleMode(hIn, &dwMode)) {
-            result.Error_state = WINDOWS_UNABLE_TO_ENABLE_COOKED_MODE;
-            return result;
-        }
-        dwMode |= ENABLE_ECHO_INPUT;
-        if (!SetConsoleMode(hIn, dwMode)) {
-            result.Error_state = WINDOWS_UNABLE_TO_ENABLE_COOKED_MODE;
-            return result;
-        }
-    #endif
-
-    //if linux
     #ifdef __linux__
         struct termios tty;
         tcgetattr(0, &tty);
@@ -186,14 +87,6 @@ struct Result cookedMode(){
 // Stop testing
 
 void get_window_size(int *rows, int *cols){
-    // if windows
-    #ifdef _WIN32
-        CONSOLE_SCREEN_BUFFER_INFO csbi;
-        if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi)) {
-            *rows = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
-            *cols = csbi.srWindow.Right - csbi.srWindow.Left + 1;
-        }
-    #endif
 
     // if linux
     #ifdef __linux__
@@ -204,34 +97,87 @@ void get_window_size(int *rows, int *cols){
     #endif
 }
 
+struct Result focus(listWidget list){
+    // print the listed widgets
+    struct Result result = {OK, NULL};
 
-struct Result focus(LList *widgets){
-    // TODO: Make this work
+    for(int i = 0; i < llist_size(list.items); i++){
+        // the printing is done by the focus/unfocus functions
+        if(i == list.selected)
+            list.on_focus(llist_get(list.items, i));
+        else
+            list.on_unfocus(llist_get(list.items, i));
+
+    }
+
+    // here we manage the user input
+    /*
+        The process is:
+        Disable echo
+        Get the input && manage it
+        Enable echo only if the user selected a widget
+    */
+    noEcho();
+    {// input management
+        int c = fgetwc(stdin);
+        switch(c){
+            case KEY_UP:
+            case KEY_SHIFT_n_TAB:
+                if(list.selected > 0)
+                    list.selected--;
+                else
+                    list.selected = llist_size(list.items) - 1;
+                break;
+            case KEY_DOWN:
+            case KEY_TAB:
+                if(list.selected < llist_size(list.items) - 1)
+                    list.selected++;
+                else
+                    list.selected = 0;
+                break;
+            case KEY_ENTER:
+                echo();
+                // Run the callback
+                // todo
+                return result;
+                break;
+            case KEY_ESC:
+                echo();
+                // return to the main menu
+                // todo
+                return result;
+                break;
+            default:
+                break;
+        }
+    }
 }
 
-void ConvertColorToRGB(COLOR color)
+void ConvertColorToRGB(COLOR* color)
 {
-    switch (color.Color_Mode)
+    switch (color->Color_Mode)
     {
     case RGB:
         return; // already RGB
         break;
     case HEX:
     {
-        int r = color.color.RGB.R % 256, g = color.color.RGB.G % 256, b = color.color.RGB.B % 256;
+        int r,g,b;// = color->color.RGB.R % 256, g = color->color.RGB.G % 256, b = color->color.RGB.B % 256;
 
-        sscanf(color.color.HEX.HEX, "%02x%02x%02x", &r, &g, &b);
+        sscanf(color->color.HEX.HEX, "%02x%02x%02x", &r, &g, &b);
 
-        color.color.RGB.R = r;
-        color.color.RGB.G = g;
-        color.color.RGB.B = b;
+        color->color.RGB.R = r;
+        color->color.RGB.G = g;
+        color->color.RGB.B = b;
+
+        color->Color_Mode = RGB;
     }
     break;
     case HSL:
     { // https://stackoverflow.com/questions/2353211/hsl-to-rgb-color-conversion
         int r, g, b;
 
-        int h = color.color.HSL.H % 360, s = color.color.HSL.S % 100, l = color.color.HSL.L % 100;
+        int h = color->color.HSL.H % 360, s = color->color.HSL.S % 100, l = color->color.HSL.L % 100;
 
         float c = (1 - abs(2 * l - 1)) * s;
         float x = c * (1 - abs(fmod(h / 60.0, 2) - 1));
@@ -274,9 +220,11 @@ void ConvertColorToRGB(COLOR color)
             b = x;
         }
 
-        color.color.RGB.R = (r + m) * 255;
-        color.color.RGB.G = (g + m) * 255;
-        color.color.RGB.B = (b + m) * 255;
+        color->color.RGB.R = (r + m) * 255;
+        color->color.RGB.G = (g + m) * 255;
+        color->color.RGB.B = (b + m) * 255;
+
+        color->Color_Mode = RGB;
     }
     break;
     }
@@ -285,36 +233,37 @@ void ConvertColorToRGB(COLOR color)
 
 wchar_t *ColorString(COLOR color)
 {
-    wchar_t *color_string = malloc(sizeof(wchar_t) * 30);
+    wchar_t *color_string = calloc(30, sizeof(wchar_t));
     if (color_string == NULL)
     {
         return NULL;
     }
 
-    ConvertColorToRGB(color);
+    ConvertColorToRGB(&color);
 
     switch (color.Color_Type)
     {
     case FOREGROUND:
-        wcscat(color_string, L"\e[38;2;");
+        wcscpy(color_string, L"\e[38;2;");
         break;
     default: // incluiding BACKGROUND
-        wcscat(color_string, L"\e[48;2;");
+        wcscpy(color_string, L"\e[48;2;");
         break;
     }
 
-    wchar_t *r = malloc(sizeof(wchar_t) * 4+1);
-    wchar_t *g = malloc(sizeof(wchar_t) * 4+1);
-    wchar_t *b = malloc(sizeof(wchar_t) * 4+1);
+    wchar_t *r = calloc(10 + 1, sizeof(wchar_t));
+    wchar_t *g = calloc(10 + 1, sizeof(wchar_t));
+    wchar_t *b = calloc(10 + 1, sizeof(wchar_t));
 
     if (r == NULL || g == NULL || b == NULL)
     {
+        free(color_string);
         return NULL;
     }
 
-    swprintf(r, 4, L"%d;", color.color.RGB.R);
-    swprintf(g, 4, L"%d;", color.color.RGB.G);
-    swprintf(b, 4, L"%dm", color.color.RGB.B);
+    swprintf(r, 6, L"%d;", color.color.RGB.R);
+    swprintf(g, 6, L"%d;", color.color.RGB.G);
+    swprintf(b, 6, L"%dm", color.color.RGB.B);
 
     wcscat(color_string, r);
     wcscat(color_string, g);
@@ -328,36 +277,34 @@ wchar_t *ColorString(COLOR color)
 }
 
 wchar_t** monogradient(COLOR start, COLOR end, int steps){
-    wchar_t** gradient = malloc(sizeof(wchar_t*) * steps);
+    wchar_t** gradient = malloc(sizeof(wchar_t*) * (steps +1));
     if(gradient == NULL){
         return NULL;
     }
 
     //Values are changed locally, fix
-    ConvertColorToRGB(start);
-    ConvertColorToRGB(end);
+    ConvertColorToRGB(&start);
+    ConvertColorToRGB(&end);
 
-    int r = start.color.RGB.R, g = start.color.RGB.G, b = start.color.RGB.B;
-    int r_step = (end.color.RGB.R - start.color.RGB.R) / steps;
-    int g_step = (end.color.RGB.G - start.color.RGB.G) / steps;
-    int b_step = (end.color.RGB.B - start.color.RGB.B) / steps;
+    // generate the evenly spaced gradient
+    double r = start.color.RGB.R;
+    double g = start.color.RGB.G;
+    double b = start.color.RGB.B;
+
+    // what if the steps are bigger than the difference between the colors?
+    double r_step = ((double)end.color.RGB.R - (double)start.color.RGB.R) / (double)steps;
+    double g_step = ((double)end.color.RGB.G - (double)start.color.RGB.G) / (double)steps;
+    double b_step = ((double)end.color.RGB.B - (double)start.color.RGB.B) / (double)steps;
 
     for(int i = 0; i < steps; i++){
-        COLOR *color = malloc(sizeof(COLOR));
-        if(color == NULL){
-            return NULL;
-        }
-        color->Color_Type = BACKGROUND;
-        color->Color_Mode = RGB;
-        color->color.RGB.R = r;
-        color->color.RGB.G = g;
-        color->color.RGB.B = b;
-
-        gradient[i] = ColorString(*color);
+        COLOR color = {start.Color_Type,RGB, {(int)r, (int)g, (int)b}};
+        gradient[i] = ColorString(color);
         r += r_step;
         g += g_step;
         b += b_step;
     }
+
+    gradient[steps] = NULL;
 
     return gradient;
 }

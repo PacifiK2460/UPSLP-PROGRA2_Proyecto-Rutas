@@ -5,6 +5,8 @@
 #include "../llist/llist.h"
 #include "../core/core.h"
 
+#include "input.h"
+
 #include <wchar.h>
 #include <locale.h>
 #include <stdlib.h>
@@ -88,6 +90,8 @@ typedef struct inputWidget
     // Type of input to accept
     enum input_type
     {
+        INTEGER,
+        FLOAT,
         NUMERIC,
         ALPHA,
         ALPHANUMERIC,
@@ -124,13 +128,6 @@ typedef struct inputWidget
  */
 typedef struct listWidget
 {
-    // Position of the widget
-    int x, y;
-    // Size of the widget
-    int width, height;
-
-    // Title of the widget
-    wchar_t *title;
 
     // List of items
     LList *items;
@@ -183,7 +180,7 @@ typedef struct buttonWidget
  * @param widgets List of widgets to focus
  *
  */
-struct Result focus(LList *widgets);
+struct Result focus(listWidget list);
 
 /**
  * @brief Generic Widget type definition, meant to be used in the list of widgets.
@@ -200,7 +197,12 @@ typedef struct Widget
     } type;
 
     // Pointer to the widget
-    void *widget;
+    union widget
+    {
+        inputWidget input;
+        listWidget list;
+        buttonWidget button;
+    } widget;
 } Widget;
 
 // Color Definitions
@@ -224,9 +226,9 @@ typedef struct COLOR{
     union color
     {
         struct RGB{
-            char R;
-            char G;
-            char B;
+            int R;
+            int G;
+            int B;
         } RGB;
 
         struct HEX{
@@ -234,9 +236,9 @@ typedef struct COLOR{
         } HEX;
 
         struct HSL{
-            char H;
-            char S;
-            char L;
+            int H;
+            int S;
+            int L;
         } HSL;
     } color;
     

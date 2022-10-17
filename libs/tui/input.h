@@ -1,8 +1,24 @@
-#ifndef INPUT_H
-#define INPUT_H 1
+#pragma once
 
-extern struct Result ;
-extern enum input_type;
+// extern struct Result Result;
+
+#include "../core/core.h"
+// #include "../tui/tui.h"
+
+#include <wchar.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+
+enum input_type
+{
+    INTEGER,
+    FLOAT,
+    NUMERIC,
+    ALPHA,
+    ALPHANUMERIC,
+    ANY,
+};
 
 #define KEY_UP 72
 #define KEY_DOWN 80
@@ -17,6 +33,4 @@ extern enum input_type;
 #define KEY_TAB 9
 #define KEY_SHIFT_n_TAB 353
 
-struct Result input(enum Input_Type type, wchar_t *buffer, int buffer_size);
-
-#endif
+struct Result input(int type, wchar_t *buffer, int buffer_size);

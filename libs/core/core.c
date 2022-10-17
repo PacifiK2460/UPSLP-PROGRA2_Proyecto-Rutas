@@ -41,7 +41,7 @@ int TuiLogin()
             UsernameInput.widget.input.height = 1;
 
             //set text type
-            UsernameInput.widget.input.type = ALPHA;
+            UsernameInput.widget.input.type = input_type;
 
             // set text mode
             UsernameInput.widget.input.mode = PLAIN;

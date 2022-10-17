@@ -1,5 +1,4 @@
-#ifndef LLIST_H
-#define LLIST_H 1
+#pragma once
 
 #include <stdlib.h>
 
@@ -20,5 +19,3 @@ int llist_insert(LList* list, int index, void* data);
 void* llist_get(LList* list, int index);
 int llist_set(LList* list, int index, void* data);
 int llist_size(LList* list);
-
-#endif

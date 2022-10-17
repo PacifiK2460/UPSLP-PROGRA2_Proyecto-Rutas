@@ -1,7 +1,7 @@
+#include "libs/core/core.h"
 #include "libs/auth/auth.h"
 #include "libs/routes/routes.h"
 #include "libs/tui/tui.h"
-#include "libs/core/core.h"
 
 #include <stdio.h>
 #include <wchar.h>

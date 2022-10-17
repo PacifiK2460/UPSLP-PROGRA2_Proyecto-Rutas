@@ -1,5 +1,4 @@
-#ifndef AUTH_H
-#define AUTH_H 1
+#pragma once
 
 #include "../core/core.h"
 #include "../llist/llist.h"
@@ -9,6 +8,8 @@
 #include <wchar.h>
 #include <stdio.h>
 #include <errno.h>
+
+// extern struct Result Result;
 
 // [!] User Management structures
 
@@ -109,5 +110,3 @@ void freeUsers();
 
 extern void freeUserRoutes(struct User* user);
 
-
-#endif

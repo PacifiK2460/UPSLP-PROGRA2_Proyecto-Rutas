@@ -1,11 +1,11 @@
-#ifndef TUI_H
-#define TUI_H 1
+#pragma once
 
 // Needed to store the list of focusable widgets
 #include "../llist/llist.h"
 #include "../core/core.h"
+// extern struct Result Result;
 
-#include "input.h"
+// #include "input.h"
 
 #include <wchar.h>
 #include <locale.h>
@@ -19,7 +19,6 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 
-extern struct Result Result;
 
 /**
  * @brief The TUI class
@@ -55,10 +54,10 @@ void gotoxy(int x, int y);
 void print_status_bar();
 
 // Text styles
-#define NORMAL  L"\e[0m"
-#define BOLD    L"\e[1m"
-#define DIM     L"\e[2m"
-#define ITALIC  L"\e[3m"
+#define NORMAL L"\e[0m"
+#define BOLD L"\e[1m"
+#define DIM L"\e[2m"
+#define ITALIC L"\e[3m"
 #define INVERSE L"\e[7m"
 
 // MISC
@@ -76,6 +75,8 @@ struct Result cookedMode();
 // Get window size
 void get_window_size(int *rows, int *cols);
 
+extern enum input_type input_type;
+
 /**
  * @brief Input widget definition
  *
@@ -88,15 +89,7 @@ typedef struct inputWidget
     int width, height;
 
     // Type of input to accept
-    enum input_type
-    {
-        INTEGER,
-        FLOAT,
-        NUMERIC,
-        ALPHA,
-        ALPHANUMERIC,
-        ANY,
-    } type;
+    int type;
 
     // Password mode
     enum text_mode
@@ -209,57 +202,61 @@ typedef struct Widget
 
 /**
  * @brief Color Struct management
- * 
+ *
  */
-typedef struct COLOR{
-    enum COLOR_TYPE{
+typedef struct COLOR
+{
+    enum COLOR_TYPE
+    {
         FOREGROUND,
         BACKGROUND
     } Color_Type;
 
-    enum COLOR_MODE{
+    enum COLOR_MODE
+    {
         RGB,
         HEX,
-        HSL,        
+        HSL,
     } Color_Mode;
 
     union color
     {
-        struct RGB{
+        struct RGB
+        {
             int R;
             int G;
             int B;
         } RGB;
 
-        struct HEX{
+        struct HEX
+        {
             char HEX[7];
         } HEX;
 
-        struct HSL{
+        struct HSL
+        {
             int H;
             int S;
             int L;
         } HSL;
     } color;
-    
+
 } COLOR;
 
 /**
- * @brief Converts the defined color to a string that can be used in the terminal. 
- * 
+ * @brief Converts the defined color to a string that can be used in the terminal.
+ *
  * @param color The color to convert
  * @return wchar_t* The resulting string
  */
-wchar_t* ColorString(COLOR color);
+wchar_t *ColorString(COLOR color);
 
 /**
  * @brief Mono gradient conversion
- * 
+ *
  * @param start The initial color to begin the gradient
  * @param end The final color to end the gradient
  * @param steps The number of steps between the initial and final color
  * @return wchar_t** The resulting gradient array
  */
-wchar_t** monogradient(COLOR start, COLOR end, int steps);
-
-#endif
+wchar_t **monogradient(COLOR start, COLOR end, int steps);

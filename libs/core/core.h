@@ -1,10 +1,12 @@
-#ifndef CORE_H
-#define CORE_H 1
+#pragma once
 
 #include "../tui/tui.h"
+// #include "../tui/input.h"
 
 #include <wchar.h>
 #include <string.h>
+
+extern enum input_type;
 
 enum ErrorType{
     UserERR = 0x100,
@@ -54,5 +56,3 @@ struct Result{
  * @return int Exit code
  */
 int TuiLogin();
-
-#endif

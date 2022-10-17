@@ -8,6 +8,8 @@
         "wchar.h": "c",
         "routes.h": "c",
         "stdlib.h": "c",
-        "locale.h": "c"
+        "locale.h": "c",
+        "input.h": "c",
+        "stdio.h": "c"
     }
 }

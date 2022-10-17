@@ -1,7 +1,6 @@
-#ifndef ROUTES_H
-#define ROUTES_H 1
+#pragma once
 
-#include "../core/core.h"
+// #include "../core/core.h"
 #include "../auth/auth.h"
 #include "../llist/llist.h"
 
@@ -9,6 +8,7 @@
 #include <stdio.h>
 #include <wchar.h>
 
+extern struct Result Result;
 
 // [!] Routes Management structures
 
@@ -67,5 +67,3 @@ void freeUserRoutes(struct User* user);
  * 
  */
 void freeRoutes();
-
-#endif

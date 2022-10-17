@@ -1,9 +1,9 @@
 #include "input.h"
 
-struct Result input(enum Input_Type type, wchar_t *buffer, int buffer_size){
+struct Result input(int type, wchar_t *buffer, int buffer_size){
+    struct Result result = noEcho();
     {// init and error handlingq
         //disable echo
-        struct Result result = noEcho();
         if(result.Error_state != OK){
             return result;
         }
@@ -15,17 +15,17 @@ struct Result input(enum Input_Type type, wchar_t *buffer, int buffer_size){
         }
 
         if(buffer_size < 1){
-            result.Error_state = BUFFER_SIZE_TOO_SMALL;
+            result.Error_state = INPUT_BUFFER_SIZE_TOO_SMALL;
             return result;
         }
 
         if(buffer == NULL){
-            result.Error_state = BUFFER_IS_NULL;
+            result.Error_state = INPUT_BUFFER_NULL;
             return result;
         }
 
         if(buffer_size < 1){
-            result.Error_state = BUFFER_SIZE_TOO_SMALL;
+            result.Error_state = INPUT_BUFFER_SIZE_TOO_SMALL;
             return result;
         }
 
@@ -68,4 +68,6 @@ struct Result input(enum Input_Type type, wchar_t *buffer, int buffer_size){
         return result;
         break;
     }
+
+    return result;
 }

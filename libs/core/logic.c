@@ -1,5 +1,66 @@
 #include "logic.h"
 
+void focusText(Widget *widget)
+{
+    int width = widget->widget.input.width;
+
+    COLOR input_background = {BACKGROUND, HEX, 0};
+    strcpy(input_background.color.HEX.HEX, "181818");
+
+    wchar_t* back = ColorString(input_background);
+
+    // print the gradient bar
+    COLOR start = {FOREGROUND, HEX, 0};
+    strcpy(start.color.HEX.HEX, "003a81");
+    COLOR end = {FOREGROUND, HEX, 0};
+    strcpy(end.color.HEX.HEX, "00acff");
+    wchar_t **gradient = monogradient(start, end, width);
+
+    gotoxy(widget->widget.input.x, widget->widget.input.y);
+    wprintf(L"%ls", BOLD);
+    for (int i = 0; i < width; i++)
+    {
+        wprintf(L"%ls%lc",gradient[i], widget->widget.input.title[i]);
+    }
+    wprintf(L"%ls", NORMAL);
+
+    // print line for the input field
+    gotoxy(widget->widget.input.x, widget->widget.input.y + 1);
+    for (int i = 0; i < width; i++)
+    {
+        wprintf(L"%ls▁", back);
+    }
+    wprintf(L"%ls", NORMAL);
+}
+
+void unfocusText(Widget *widget)
+{
+    int width = widget->widget.input.width;
+
+    // print the gradient bar
+    COLOR start = {FOREGROUND, HEX, 0};
+    strcpy(start.color.HEX.HEX, "9d9d9d");
+    COLOR end = {FOREGROUND, HEX, 0};
+    strcpy(end.color.HEX.HEX, "dcdfe0");
+    wchar_t **gradient = monogradient(start, end, width);
+
+    gotoxy(widget->widget.input.x, widget->widget.input.y);
+    for (int i = 0; i < wcslen(widget->widget.input.title); i++)
+    {
+        wprintf(L"%ls%ls%lc%ls", BOLD, gradient[i], widget->widget.input.title[i], NORMAL);
+    }
+}
+
+void focusButton(Widget *widget)
+{
+    wprintf(L"UNIMPLEMENTED");
+}
+
+void unfocusButton(Widget *widget)
+{
+    wprintf(L"UNIMPLEMENTED");
+}
+
 int TuiLogin()
 {
     { // Print temporary status bar
@@ -19,15 +80,15 @@ int TuiLogin()
 
         for (int i = 0; i < width; i++)
         {
-            wprintf(L"%ls%lc%ls",gradient[i],L' ', NORMAL);
+            wprintf(L"%ls%lc%ls", gradient[i], L' ', NORMAL);
         }
 
         free(gradient);
     }
-    
+
     { // Make input widgets for username and password input
         Widget UsernameInput = {TEXT_INPUT};
-        {   // username input configurations
+        { // username input configurations
             // set x coords to the center of the screen
             int height, width;
             get_window_size(&height, &width);
@@ -40,7 +101,7 @@ int TuiLogin()
             UsernameInput.widget.input.width = 20;
             UsernameInput.widget.input.height = 1;
 
-            //set text type
+            // set text type
             UsernameInput.widget.input.type = ALPHANUMERIC;
 
             // set text mode
@@ -48,6 +109,9 @@ int TuiLogin()
 
             // set title
             UsernameInput.widget.input.title = L"Username";
+
+            UsernameInput.on_focus = focusText;
+            UsernameInput.on_unfocus = unfocusText;
         }
         Widget PasswordInput = {TEXT_INPUT};
         {
@@ -64,7 +128,7 @@ int TuiLogin()
             PasswordInput.widget.input.width = 20;
             PasswordInput.widget.input.height = 1;
 
-            //set text type
+            // set text type
             PasswordInput.widget.input.type = ANY;
 
             // set text mode
@@ -72,6 +136,9 @@ int TuiLogin()
 
             // set title
             PasswordInput.widget.input.title = L"Password";
+
+            PasswordInput.on_focus = focusText;
+            PasswordInput.on_unfocus = unfocusText;
         }
 
         Widget AttemptLogin = {BUTTON};
@@ -90,6 +157,9 @@ int TuiLogin()
 
             // set title
             AttemptLogin.widget.button.title = L"LOGIN";
+
+            AttemptLogin.on_focus = focusButton;
+            AttemptLogin.on_unfocus = unfocusButton;
         }
 
         listWidget widgets = {0};
@@ -97,9 +167,9 @@ int TuiLogin()
         llist_append(&widgets.items, &PasswordInput);
         llist_append(&widgets.items, &AttemptLogin);
 
-        //focus(widgets);
+        focus(widgets);
     }
-    
+
     getc(stdin);
     return 1;
 }

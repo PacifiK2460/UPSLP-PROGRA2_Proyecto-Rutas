@@ -19,7 +19,6 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 
-
 /**
  * @brief The TUI class
  * This class is the driver for the TUI in this proyect.
@@ -99,18 +98,6 @@ typedef struct inputWidget
     // Tile of the widget
     wchar_t *title;
 
-    // Function to call when the input is accepted
-    Result (*on_accept)(wchar_t *input);
-
-    // Function to call when the input is cancelled
-    Result (*on_cancel)(void *opcional_data);
-
-    // Function to call when the input is changed
-    Result (*on_change)(wchar_t *input);
-
-    // Focus / Unfocus handlers
-    Result (*on_focus)(void *opcional_data);
-    Result (*on_unfocus)(void *opcional_data);
 } inputWidget;
 
 /**
@@ -125,19 +112,6 @@ typedef struct listWidget
 
     // Index of the focused item
     int selected;
-
-    // Function to call when the focused item is selected
-    Result (*on_accept)(void *opcional_data);
-
-    // Function to call when the input is cancelled
-    Result (*on_cancel)(void *opcional_data);
-
-    // Function to call when the focused item is changed
-    Result (*on_change)(void *opcional_data);
-
-    // Focus / Unfocus handlers
-    Result (*on_focus)(void *opcional_data);
-    Result (*on_unfocus)(void *opcional_data);
 } listWidget;
 
 /**
@@ -154,12 +128,6 @@ typedef struct buttonWidget
     // Title of the widget
     wchar_t *title;
 
-    // Function to call when the button is pressed
-    Result (*on_press)(void *opcional_data);
-
-    // Focus / Unfocus handlers
-    Result (*on_focus)(void *opcional_data);
-    Result (*on_unfocus)(void *opcional_data);
 } buttonWidget;
 
 /**
@@ -194,6 +162,19 @@ typedef struct Widget
         listWidget list;
         buttonWidget button;
     } widget;
+
+    // Function to call when the input is accepted
+    Result (*on_accept)(void *input);
+
+    // Function to call when the input is cancelled
+    Result (*on_cancel)(void *opcional_data);
+
+    // Function to call when the input is changed
+    Result (*on_change)(void *input);
+
+    // Focus / Unfocus handlers
+    Result (*on_focus)(void *opcional_data);
+    Result (*on_unfocus)(void *opcional_data);
 } Widget;
 
 // Color Definitions

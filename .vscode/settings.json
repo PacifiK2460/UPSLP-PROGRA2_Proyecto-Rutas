@@ -11,6 +11,8 @@
         "locale.h": "c",
         "input.h": "c",
         "stdio.h": "c",
-        "logic.h": "c"
+        "logic.h": "c",
+        "string.h": "c",
+        "keyboard.h": "c"
     }
 }

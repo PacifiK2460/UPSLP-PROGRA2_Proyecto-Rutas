@@ -25,43 +25,43 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 11,
+				"line" : 9,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 12,
+				"line" : 13,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 17,
+				"line" : 13,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 17,
+				"line" : 13,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 17,
+				"line" : 13,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 17,
+				"line" : 13,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 17,
+				"line" : 16,
 				"parent" : 0
 			}
 		]
@@ -78,7 +78,7 @@
 			"defines" : 
 			[
 				{
-					"backtrace" : 7,
+					"backtrace" : 6,
 					"define" : "llist"
 				}
 			],
@@ -92,23 +92,23 @@
 	"dependencies" : 
 	[
 		{
-			"backtrace" : 3,
+			"backtrace" : 2,
 			"id" : "auth::@63639d748794dd0881eb"
 		},
 		{
-			"backtrace" : 4,
+			"backtrace" : 3,
 			"id" : "core::@7bc883c3d40b22fbda52"
 		},
 		{
-			"backtrace" : 5,
+			"backtrace" : 4,
 			"id" : "routes::@3568fe2a7ca302a9ca58"
 		},
 		{
-			"backtrace" : 6,
+			"backtrace" : 5,
 			"id" : "tui::@9c58650bfa8695d3054b"
 		},
 		{
-			"backtrace" : 7,
+			"backtrace" : 6,
 			"id" : "llist::@25e9fa1a3b6213a440f7"
 		}
 	],
@@ -126,37 +126,37 @@
 				"role" : "flags"
 			},
 			{
-				"fragment" : "-Wl,-rpath,\"/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programaci\u00f3n II/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/auth:/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programaci\u00f3n II/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/core:/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programaci\u00f3n II/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/routes:/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programaci\u00f3n II/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/tui\"",
+				"fragment" : "-Wl,-rpath,/home/lara/Documents/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/auth:/home/lara/Documents/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/core:/home/lara/Documents/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/routes:/home/lara/Documents/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/tui",
 				"role" : "libraries"
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "-lm",
-				"role" : "libraries"
-			},
-			{
-				"backtrace" : 3,
 				"fragment" : "libs/auth/libauth.so",
 				"role" : "libraries"
 			},
 			{
-				"backtrace" : 4,
+				"backtrace" : 3,
 				"fragment" : "libs/core/libcore.so",
 				"role" : "libraries"
 			},
 			{
-				"backtrace" : 5,
+				"backtrace" : 4,
 				"fragment" : "libs/routes/libroutes.so",
 				"role" : "libraries"
 			},
 			{
-				"backtrace" : 6,
+				"backtrace" : 5,
 				"fragment" : "libs/tui/libtui.so",
 				"role" : "libraries"
 			},
 			{
-				"backtrace" : 7,
+				"backtrace" : 6,
 				"fragment" : "libs/llist/libllist.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 7,
+				"fragment" : "-lm",
 				"role" : "libraries"
 			}
 		],

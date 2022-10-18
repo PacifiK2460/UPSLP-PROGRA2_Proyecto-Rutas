@@ -103,11 +103,11 @@ Result focus(listWidget list){
 
     for(int i = 0; i < llist_size(&list.items); i++){
         // the printing is done by the focus/unfocus functions
+        Widget *temp = llist_get(&list.items, i);
         if(i == list.selected)
-            list.on_focus(llist_get(&list.items, i));
+            temp->on_focus(temp);
         else
-            list.on_unfocus(llist_get(&list.items, i));
-
+            temp->on_unfocus(temp);
     }
 
     // here we manage the user input

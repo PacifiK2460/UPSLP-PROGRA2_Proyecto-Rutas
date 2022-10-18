@@ -1,7 +1,7 @@
 #include "input.h"
 
-struct Result input(int type, wchar_t *buffer, int buffer_size){
-    struct Result result = noEcho();
+Result input(int type, wchar_t *buffer, int buffer_size){
+    Result result = noEcho();
     {// init and error handlingq
         //disable echo
         if(result.Error_state != OK){

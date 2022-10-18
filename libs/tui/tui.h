@@ -3,7 +3,7 @@
 // Needed to store the list of focusable widgets
 #include "../llist/llist.h"
 #include "../core/core.h"
-// extern struct Result Result;
+#include "keyboard.h"
 
 // #include "input.h"
 
@@ -25,7 +25,7 @@
  * This class is the driver for the TUI in this proyect.
  */
 
-struct Result initTUI();
+Result initTUI();
 
 /**
  * @brief Positions the cursor at the given coordinates.
@@ -65,17 +65,15 @@ void print_status_bar();
 #define SHOW_CURSOR L"\e[?25h"
 
 // Cursor echo
-struct Result noEcho();
-struct Result echo();
+Result noEcho();
+Result echo();
 
 // RAW Modes
-struct Result rawMode();
-struct Result cookedMode();
+Result rawMode();
+Result cookedMode();
 
 // Get window size
 void get_window_size(int *rows, int *cols);
-
-extern enum input_type input_type;
 
 /**
  * @brief Input widget definition
@@ -102,17 +100,17 @@ typedef struct inputWidget
     wchar_t *title;
 
     // Function to call when the input is accepted
-    struct Result (*on_accept)(wchar_t *input);
+    Result (*on_accept)(wchar_t *input);
 
     // Function to call when the input is cancelled
-    struct Result (*on_cancel)(void *opcional_data);
+    Result (*on_cancel)(void *opcional_data);
 
     // Function to call when the input is changed
-    struct Result (*on_change)(wchar_t *input);
+    Result (*on_change)(wchar_t *input);
 
     // Focus / Unfocus handlers
-    struct Result (*on_focus)(void *opcional_data);
-    struct Result (*on_unfocus)(void *opcional_data);
+    Result (*on_focus)(void *opcional_data);
+    Result (*on_unfocus)(void *opcional_data);
 } inputWidget;
 
 /**
@@ -123,23 +121,23 @@ typedef struct listWidget
 {
 
     // List of items
-    LList *items;
+    LList items;
 
     // Index of the focused item
     int selected;
 
     // Function to call when the focused item is selected
-    struct Result (*on_accept)(void *opcional_data);
+    Result (*on_accept)(void *opcional_data);
 
     // Function to call when the input is cancelled
-    struct Result (*on_cancel)(void *opcional_data);
+    Result (*on_cancel)(void *opcional_data);
 
     // Function to call when the focused item is changed
-    struct Result (*on_change)(void *opcional_data);
+    Result (*on_change)(void *opcional_data);
 
     // Focus / Unfocus handlers
-    struct Result (*on_focus)(void *opcional_data);
-    struct Result (*on_unfocus)(void *opcional_data);
+    Result (*on_focus)(void *opcional_data);
+    Result (*on_unfocus)(void *opcional_data);
 } listWidget;
 
 /**
@@ -157,11 +155,11 @@ typedef struct buttonWidget
     wchar_t *title;
 
     // Function to call when the button is pressed
-    struct Result (*on_press)(void *opcional_data);
+    Result (*on_press)(void *opcional_data);
 
     // Focus / Unfocus handlers
-    struct Result (*on_focus)(void *opcional_data);
-    struct Result (*on_unfocus)(void *opcional_data);
+    Result (*on_focus)(void *opcional_data);
+    Result (*on_unfocus)(void *opcional_data);
 } buttonWidget;
 
 /**
@@ -173,7 +171,7 @@ typedef struct buttonWidget
  * @param widgets List of widgets to focus
  *
  */
-struct Result focus(listWidget list);
+Result focus(listWidget list);
 
 /**
  * @brief Generic Widget type definition, meant to be used in the list of widgets.

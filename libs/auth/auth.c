@@ -11,7 +11,7 @@ void freeUsers(){
         // free(user->pass);
 
         if(user->type == PASSANGER){
-            freeUserRoutes(user);
+            freeUserRoutes(*user);
         }
 
         free(user);
@@ -19,9 +19,25 @@ void freeUsers(){
     return;
 }
 
+void freeUserRoutes(User user)
+{
+    while (llist_size(&user.queued_routes) > 0)
+    {
+        Route *route = llist_remove(&user.queued_routes, 0);
+        free(route->name);
+        free(route->destination);
+        while (llist_size(&route->scheduled_times) > 0)
+        {
+            Time *time = llist_remove(&route->scheduled_times, 0);
+            free(time);
+        }
+        free(route);
+    }
+}
+
 // TODO: #1 Save users to file
-struct Result loadAllUsers() {
-    struct Result result = {OK, NULL};
+Result loadAllUsers(){
+    Result result = {OK, NULL};
 
     FILE* file = fopen(USERS_FILE, "r, ccs=UTF-8");
     if (file == 0) {
@@ -136,8 +152,8 @@ struct Result loadAllUsers() {
     return result;
 }
 
-struct Result login(const wchar_t* name, const wchar_t* pass){
-    struct Result result = {OK, NULL};
+Result login(const wchar_t* name, const wchar_t* pass){
+    Result result = {OK, NULL};
 
     for(int i = 0; i < llist_size(&users); i++){
         User* user = llist_get(&users, i);
@@ -162,8 +178,8 @@ struct Result login(const wchar_t* name, const wchar_t* pass){
     return result;
 }
 
-struct Result add_user(const User Requester,const wchar_t* NewUserName, const wchar_t* NewUserPass, const Type NewUserType){
-    struct Result result = {OK, NULL};
+Result add_user(const User Requester,const wchar_t* NewUserName, const wchar_t* NewUserPass, const Type NewUserType){
+    Result result = {OK, NULL};
 
     if(Requester.type != ADMIN){
         result.Error_state = USER_NOT_ALLOWED;
@@ -207,11 +223,12 @@ struct Result add_user(const User Requester,const wchar_t* NewUserName, const wc
     return result;
 }
 
-struct Result modify_user(const User Requester, const wchar_t* UserName, const wchar_t* NewUserPass, Type NewUserType){
-    struct Result result = {OK, NULL};
+Result modify_user(const User Requester, const wchar_t* UserName, const wchar_t* NewUserPass, Type NewUserType){
+    Result result = {OK, NULL};
 
     if(Requester.type != ADMIN){
         result.Error_state = USER_NOT_ALLOWED;
+    extern struct _Route Route;
         return result;
     }
 
@@ -230,7 +247,8 @@ struct Result modify_user(const User Requester, const wchar_t* UserName, const w
             user->type = NewUserType;
 
             if(user->type == ADMIN){
-                freeUserRoutes(query_user(Requester, UserName).Result);
+                User* us = query_user(Requester, UserName).Result;
+                freeUserRoutes(*us);
             }
 
             result.Error_state = OK;
@@ -242,8 +260,8 @@ struct Result modify_user(const User Requester, const wchar_t* UserName, const w
     return result;
 }
 
-struct Result remove_user(const User Requester, const wchar_t* UserName){
-    struct Result result = {OK, NULL};
+Result remove_user(const User Requester, const wchar_t* UserName){
+    Result result = {OK, NULL};
 
     if(Requester.type != ADMIN){
         result.Error_state = USER_NOT_ALLOWED;
@@ -265,8 +283,8 @@ struct Result remove_user(const User Requester, const wchar_t* UserName){
     return result;
 }
 
-struct Result query_user(const User Requester, const wchar_t* UserName){
-    struct Result result = {OK, NULL};
+Result query_user(const User Requester, const wchar_t* UserName){
+    Result result = {OK, NULL};
 
     if(Requester.type != ADMIN){
         result.Error_state = USER_NOT_ALLOWED;

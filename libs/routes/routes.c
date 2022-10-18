@@ -19,25 +19,9 @@ void freeRoutes()
     }
 }
 
-void freeUserRoutes(struct User *user)
+Result loadAllRoutes()
 {
-    while (llist_size(&user->queued_routes) > 0)
-    {
-        Route *route = llist_remove(&user->queued_routes, 0);
-        free(route->name);
-        free(route->destination);
-        while (llist_size(&route->scheduled_times) > 0)
-        {
-            Time *time = llist_remove(&route->scheduled_times, 0);
-            free(time);
-        }
-        free(route);
-    }
-}
-
-struct Result loadAllRoutes()
-{
-    struct Result result = {OK, NULL};
+    Result result = {OK, NULL};
     result.Error_state = OK;
 
 

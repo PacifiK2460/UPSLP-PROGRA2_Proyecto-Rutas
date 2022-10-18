@@ -1,15 +1,13 @@
 #pragma once
 
 #include "../core/core.h"
+#include "../routes/routes.h"
 #include "../llist/llist.h"
-// #include "../routes/routes.h"
 
 #include <stdlib.h>
 #include <wchar.h>
 #include <stdio.h>
 #include <errno.h>
-
-// extern struct Result Result;
 
 // [!] User Management structures
 
@@ -39,7 +37,7 @@ typedef enum Type
     ADMIN
 } Type;
 
-typedef struct User
+typedef struct
 {
     wchar_t *name;
     wchar_t *pass;
@@ -49,7 +47,7 @@ typedef struct User
     LList queued_routes;
 } User;
 
-struct Result loadAllUsers();
+Result loadAllUsers();
 
 // [!] User Management functions
 
@@ -68,7 +66,7 @@ struct Result loadAllUsers();
     If the password is incorrect, the function returns INCORRECT_PASSWORD.
     If the user is disabled, the function returns USER_DISABLED.
 */
-struct Result login(const wchar_t *name, const wchar_t *pass);
+Result login(const wchar_t *name, const wchar_t *pass);
 
 /*
     Attempts to create a new user with the given credentials.
@@ -76,7 +74,7 @@ struct Result login(const wchar_t *name, const wchar_t *pass);
 
     If the user already exists, the function returns USER_ALREADY_EXISTS.
 */
-struct Result add_user(const User Requester, const wchar_t *NewUserName, const wchar_t *NewUserPass, const Type NewUserType);
+Result add_user(const User Requester, const wchar_t *NewUserName, const wchar_t *NewUserPass, const Type NewUserType);
 
 /*
     Attempts to modify the user with the given credentials.
@@ -84,7 +82,7 @@ struct Result add_user(const User Requester, const wchar_t *NewUserName, const w
 
     If the user does not exists, the function returns USER_NOT_FOUND.
 */
-struct Result modify_user(const User Requester, const wchar_t *UserName, const wchar_t *NewUserPass, Type NewUserType);
+Result modify_user(const User Requester, const wchar_t *UserName, const wchar_t *NewUserPass, Type NewUserType);
 
 /*
     Attempts to disable the user with the given credentials.
@@ -92,7 +90,7 @@ struct Result modify_user(const User Requester, const wchar_t *UserName, const w
 
     If the user does not exists, the function returns USER_NOT_FOUND.
 */
-struct Result remove_user(const User Requester, const wchar_t *UserName);
+Result remove_user(const User Requester, const wchar_t *UserName);
 
 /*
     Attempts to query the user with the given username.
@@ -100,13 +98,17 @@ struct Result remove_user(const User Requester, const wchar_t *UserName);
 
     If the user does not exists, the function returns USER_NOT_FOUND.
 */
-struct Result query_user(const User Requester, const wchar_t *UserName);
+Result query_user(const User Requester, const wchar_t *UserName);
+
+/**
+ * @brief Frees all user routes
+ * 
+ * @param user 
+ */
+void freeUserRoutes(User user);
 
 /**
  * @brief Free all users from memory
  *
  */
 void freeUsers();
-
-extern void freeUserRoutes(struct User* user);
-

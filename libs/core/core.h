@@ -1,12 +1,12 @@
 #pragma once
 
-#include "../tui/tui.h"
+// #include "../tui/tui.h"
 // #include "../tui/input.h"
 
-#include <wchar.h>
-#include <string.h>
+// #include <wchar.h>
+// #include <string.h>
 
-extern enum input_type;
+// extern enum input_type;
 
 enum ErrorType{
     UserERR = 0x100,
@@ -43,16 +43,10 @@ enum SystemErrors
     UNKOWN_INPUT_ERROR,
 };
 
-struct Result{
+typedef struct _Result{
     // If an error occurs, this will be set in the error field
     int Error_state;
     // if not, the pointer may be safe to use
     void* Result;
 } Result;
 
-/**
- * @brief First screen of program, asks for user and password
- * 
- * @return int Exit code
- */
-int TuiLogin();

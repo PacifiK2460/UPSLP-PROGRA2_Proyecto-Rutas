@@ -1,7 +1,7 @@
 #include "tui.h"
 
-struct Result initTUI(){
-    struct Result result;
+Result initTUI(){
+    Result result;
     
     result.Error_state = OK;
 
@@ -26,8 +26,8 @@ void print_status_bar(){
 
 // Test the code to see if it works
 
-struct Result noEcho(){
-    struct Result result = {OK, NULL};
+Result noEcho(){
+    Result result = {OK, NULL};
     result.Error_state = OK;
 
     //if linux
@@ -41,8 +41,8 @@ struct Result noEcho(){
     return result;
 }
 
-struct Result echo(){
-    struct Result result = {OK, NULL};
+Result echo(){
+    Result result = {OK, NULL};
     result.Error_state = OK;
 
     //if linux
@@ -56,8 +56,8 @@ struct Result echo(){
     return result;
 }
 
-struct Result rawMode(){
-    struct Result result = {OK, NULL};
+Result rawMode(){
+    Result result = {OK, NULL};
     result.Error_state = OK;
 
     #ifdef __linux__
@@ -70,8 +70,8 @@ struct Result rawMode(){
     return result;
 }
 
-struct Result cookedMode(){
-    struct Result result = {OK, NULL};
+Result cookedMode(){
+    Result result = {OK, NULL};
     result.Error_state = OK;
 
     #ifdef __linux__
@@ -97,16 +97,16 @@ void get_window_size(int *rows, int *cols){
     #endif
 }
 
-struct Result focus(listWidget list){
+Result focus(listWidget list){
     // print the listed widgets
-    struct Result result = {OK, NULL};
+    Result result = {OK, NULL};
 
-    for(int i = 0; i < llist_size(list.items); i++){
+    for(int i = 0; i < llist_size(&list.items); i++){
         // the printing is done by the focus/unfocus functions
         if(i == list.selected)
-            list.on_focus(llist_get(list.items, i));
+            list.on_focus(llist_get(&list.items, i));
         else
-            list.on_unfocus(llist_get(list.items, i));
+            list.on_unfocus(llist_get(&list.items, i));
 
     }
 
@@ -126,11 +126,11 @@ struct Result focus(listWidget list){
                 if(list.selected > 0)
                     list.selected--;
                 else
-                    list.selected = llist_size(list.items) - 1;
+                    list.selected = llist_size(&list.items) - 1;
                 break;
             case KEY_DOWN:
             case KEY_TAB:
-                if(list.selected < llist_size(list.items) - 1)
+                if(list.selected < llist_size(&list.items) - 1)
                     list.selected++;
                 else
                     list.selected = 0;

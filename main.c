@@ -2,6 +2,7 @@
 #include "libs/auth/auth.h"
 #include "libs/routes/routes.h"
 #include "libs/tui/tui.h"
+#include "libs/core/logic.h"
 
 #include <stdio.h>
 #include <wchar.h>
@@ -19,7 +20,7 @@ int main() {
     atexit(cleanUp);
 
     {// TUI initialization
-        struct Result result = initTUI();
+        Result result = initTUI();
         if (result.Error_state != OK) {
             printf("Error: %d\n", result.Error_state);
             return 1;
@@ -27,7 +28,7 @@ int main() {
     }
 
     {// User Management initialization
-        struct Result result = loadAllUsers();
+        Result result = loadAllUsers();
         if (result.Error_state != OK) {
             CLOSE_SCREEN();
             printf("Error: %d\n", result.Error_state);
@@ -36,7 +37,7 @@ int main() {
     }
 
     {// Routes Management initialization
-        struct Result result = loadAllRoutes();
+        Result result = loadAllRoutes();
         if (result.Error_state != OK) {
             CLOSE_SCREEN();
             printf("Error: %d\n", result.Error_state);
@@ -45,5 +46,5 @@ int main() {
 
     }
     
-    TuiLogin();
+    return TuiLogin();
 }

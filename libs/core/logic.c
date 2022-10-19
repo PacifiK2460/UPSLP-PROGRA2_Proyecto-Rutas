@@ -61,7 +61,12 @@ Result prepareOutput(int focused, Widget *widget)
     wprintf(L"%ls", NORMAL);
 
     Result result;
-    wchar_t buffer[widget->widget.input.width+1];
+    wchar_t* buffer = calloc(widget->widget.input.width+1, sizeof(wchar_t));
+    if(buffer == NULL)
+    {
+        result.Error_state = MALLOC_FAULT;
+        goto end;
+    }
     if (focused == 3)
     {
 
@@ -72,11 +77,11 @@ Result prepareOutput(int focused, Widget *widget)
         rawMode();
         clearerr(stdin);
 
-        int c;
+        wchar_t c;
         int i = 0;
         while (1)
         {
-            c = getc(stdin);
+            c = getwc(stdin);
             switch (c)
             {
             default:

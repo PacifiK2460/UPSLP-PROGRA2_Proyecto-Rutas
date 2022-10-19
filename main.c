@@ -13,6 +13,8 @@ void cleanUp()
     freeUsers();
     freeRoutes();
     CLOSE_SCREEN();
+
+    wprintf(BOLD L"Goodbye! 🗃\n" NORMAL);
 }
 
 int main() {

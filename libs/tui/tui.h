@@ -58,10 +58,15 @@ void print_status_bar();
 #define DIM L"\e[2m"
 #define ITALIC L"\e[3m"
 #define INVERSE L"\e[7m"
+#define HIDDEN L"\e[8m"
+#define STRIKETHROUGH L"\e[9m"
+#define UNDERLINE L"\e[4m"
 
 // MISC
 #define HIDE_CURSOR L"\e[?25l"
 #define SHOW_CURSOR L"\e[?25h"
+
+#define CLEAR_SCREEN L"\e[2J"
 
 // Cursor echo
 Result noEcho();

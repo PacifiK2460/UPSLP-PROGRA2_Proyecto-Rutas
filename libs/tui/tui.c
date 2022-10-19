@@ -1,23 +1,27 @@
 #include "tui.h"
 
-Result initTUI(){
+Result initTUI()
+{
     Result result;
-    
+
     result.Error_state = OK;
 
     setlocale(LC_CTYPE, "");
 
     NEW_SCREEN();
+    wprintf(CLEAR_SCREEN);
 
     return result;
 }
 
-void gotoxy(int x, int y){
+void gotoxy(int x, int y)
+{
     wprintf(L"\e[%d;%df", y, x);
 }
 
-void print_status_bar(){
-    // move to the bottom 
+void print_status_bar()
+{
+    // move to the bottom
     int cols, rows;
     get_window_size(&rows, &cols);
     gotoxy(0, rows);
@@ -26,134 +30,204 @@ void print_status_bar(){
 
 // Test the code to see if it works
 
-Result noEcho(){
+Result noEcho()
+{
     Result result = {OK, NULL};
     result.Error_state = OK;
 
-    //if linux
-    #ifdef __linux__
-        struct termios tty;
-        tcgetattr(0, &tty);
-        tty.c_lflag &= ~ECHO;
-        tcsetattr(0, TCSANOW, &tty);
-    #endif
+    struct termios tty;
+    tcgetattr(0, &tty);
+    tty.c_lflag &= ~ECHO;
+    tcsetattr(0, TCSANOW, &tty);
 
     return result;
 }
 
-Result echo(){
+Result echo()
+{
     Result result = {OK, NULL};
     result.Error_state = OK;
 
-    //if linux
-    #ifdef __linux__
-        struct termios tty;
-        tcgetattr(0, &tty);
-        tty.c_lflag |= ECHO;
-        tcsetattr(0, TCSANOW, &tty);
-    #endif
+    struct termios tty;
+    tcgetattr(0, &tty);
+    tty.c_lflag |= ECHO;
+    tcsetattr(0, TCSANOW, &tty);
 
     return result;
 }
 
-Result rawMode(){
+Result rawMode()
+{
     Result result = {OK, NULL};
     result.Error_state = OK;
 
-    #ifdef __linux__
-        struct termios tty;
-        tcgetattr(0, &tty);
-        tty.c_lflag |= ECHO;
-        tcsetattr(0, TCSANOW, &tty);
-    #endif
+    struct termios tty;
+    tcgetattr(0, &tty);
+    tty.c_lflag &= ~ICANON;
+    tcsetattr(0, TCSANOW, &tty);
 
     return result;
 }
 
-Result cookedMode(){
+Result cookedMode()
+{
     Result result = {OK, NULL};
     result.Error_state = OK;
 
-    #ifdef __linux__
-        struct termios tty;
-        tcgetattr(0, &tty);
-        tty.c_lflag |= ECHO;
-        tcsetattr(0, TCSANOW, &tty);
-    #endif
+    struct termios tty;
+    tcgetattr(0, &tty);
+    tty.c_lflag &= ~ICANON;
+    tcsetattr(0, TCSANOW, &tty);
 
     return result;
 }
 
 // Stop testing
 
-void get_window_size(int *rows, int *cols){
+void get_window_size(int *rows, int *cols)
+{
 
-    // if linux
-    #ifdef __linux__
-        struct winsize ws;
-        ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
-        *rows = ws.ws_row;
-        *cols = ws.ws_col;
-    #endif
+// if linux
+#ifdef __linux__
+    struct winsize ws;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
+    *rows = ws.ws_row;
+    *cols = ws.ws_col;
+#endif
 }
 
-Result focus(listWidget list){
+Result focus(listWidget list)
+{
     // print the listed widgets
     Result result = {OK, NULL};
 
-    for(int i = 0; i < llist_size(&list.items); i++){
-        // the printing is done by the focus/unfocus functions
-        Widget *temp = llist_get(&list.items, i);
-        if(i == list.selected)
-            temp->on_focus(temp);
-        else
-            temp->on_unfocus(temp);
-    }
+    Widget *selected;
 
-    // here we manage the user input
-    /*
-        The process is:
-        Disable echo
-        Get the input && manage it
-        Enable echo only if the user selected a widget
-    */
-    noEcho();
-    {// input management
-        int c = fgetwc(stdin);
-        switch(c){
-            case KEY_UP:
-            case KEY_SHIFT_n_TAB:
-                if(list.selected > 0)
-                    list.selected--;
+    while (1)
+    {
+
+        { // Printing the widgets
+            for (int i = 0; i < llist_size(&list.items); i++)
+            {
+                // the printing is done by the focus/unfocus functions
+                Widget *temp = llist_get(&list.items, i);
+                if (i == list.selected)
+                {
+                    temp->on_focus(temp);
+                    selected = temp;
+                }
                 else
-                    list.selected = llist_size(&list.items) - 1;
-                break;
-            case KEY_DOWN:
-            case KEY_TAB:
-                if(list.selected < llist_size(&list.items) - 1)
-                    list.selected++;
-                else
-                    list.selected = 0;
-                break;
-            case KEY_ENTER:
-                echo();
-                // Run the callback
-                // todo
-                return result;
-                break;
-            case KEY_ESC:
-                echo();
-                // return to the main menu
-                // todo
-                return result;
-                break;
-            default:
-                break;
+                    temp->on_unfocus(temp);
+            }
+        }
+
+        { // Input handling
+            clearerr(stdin);
+            noEcho();
+            rawMode();
+            wprintf(HIDE_CURSOR);
+            { // input management
+                int c = getc(stdin);
+                switch (c)
+                {
+                case KEY_TAB:
+                    if (list.selected < llist_size(&list.items) - 1)
+                        list.selected++;
+                    else
+                        list.selected = 0;
+                    break;
+                case KEY_ENTER:
+                    echo();
+                    cookedMode();
+
+                    Result res = selected->on_accept(selected);
+
+                    switch (res.Error_state)
+                    {
+                    case OK:
+                        result.Error_state = OK;
+                        break;
+                    case INPUT_EXIT_REQUESTED:
+                        selected->on_cancel(selected);
+                        result.Error_state = INPUT_EXIT_REQUESTED;
+                        break;
+                    case INPUT_EOF:
+                        selected->on_cancel(selected);
+                        result.Error_state = INPUT_EOF;
+                        break;
+                    case INPUT_INVALID_INPUT:
+                        selected->on_cancel(selected);
+                        result.Error_state = INPUT_INVALID_INPUT;
+                        break;
+                    case UNKOWN_INPUT_ERROR:
+                        selected->on_cancel(selected);
+                        result.Error_state = UNKOWN_INPUT_ERROR;
+                        break;
+                    case INPUT_PREMATURE_EXIT:
+                        selected->on_change(selected);
+                        result.Error_state = INPUT_PREMATURE_EXIT;
+                        break;
+                    }
+
+                    break;
+                case EOF:
+                    result.Error_state = INPUT_EOF;
+                    goto exit;
+                case KEY_ESC: // especial keys
+                    switch (c = getc(stdin))
+                    {
+                    case '[':
+                        switch (c = getc(stdin))
+                        {
+                        case 'A':
+                            if (list.selected > 0)
+                                list.selected--;
+                            else
+                                list.selected = llist_size(&list.items) - 1;
+                            break;
+                        case 'B':
+                        case 'Z': //TAB; SHIFT+TAB
+                            if (list.selected < llist_size(&list.items) - 1)
+                                list.selected++;
+                            else
+                                list.selected = 0;
+                            break;
+                        }
+                        break;
+                    case KEY_ESC:
+                        result.Error_state = INPUT_EXIT_REQUESTED;
+                        goto exit;
+                    // case KEY_UP:
+                    //     if (list.selected > 0)
+                    //         list.selected--;
+                    //     else
+                    //         list.selected = llist_size(&list.items) - 1;
+                    //     break;
+                    default:
+                        break;
+                    // case KEY_DOWN:
+                    // case KEY_TAB:
+                    //     if (list.selected < llist_size(&list.items) - 1)
+                    //         list.selected++;
+                    //     else
+                    //         list.selected = 0;
+                    //     break;
+                    }
+                    break;
+                default:
+                    break;
+                }
+            }
         }
     }
+exit:
+    echo();
+    cookedMode();
+    wprintf(SHOW_CURSOR);
+    return result;
 }
 
-void ConvertColorToRGB(COLOR* color)
+void ConvertColorToRGB(COLOR *color)
 {
     switch (color->Color_Mode)
     {
@@ -162,7 +236,7 @@ void ConvertColorToRGB(COLOR* color)
         break;
     case HEX:
     {
-        int r,g,b;// = color->color.RGB.R % 256, g = color->color.RGB.G % 256, b = color->color.RGB.B % 256;
+        int r, g, b; // = color->color.RGB.R % 256, g = color->color.RGB.G % 256, b = color->color.RGB.B % 256;
 
         sscanf(color->color.HEX.HEX, "%02x%02x%02x", &r, &g, &b);
 
@@ -276,13 +350,15 @@ wchar_t *ColorString(COLOR color)
     return color_string;
 }
 
-wchar_t** monogradient(COLOR start, COLOR end, int steps){
-    wchar_t** gradient = malloc(sizeof(wchar_t*) * (steps +1));
-    if(gradient == NULL){
+wchar_t **monogradient(COLOR start, COLOR end, int steps)
+{
+    wchar_t **gradient = malloc(sizeof(wchar_t *) * (steps + 1));
+    if (gradient == NULL)
+    {
         return NULL;
     }
 
-    //Values are changed locally, fix
+    // Values are changed locally, fix
     ConvertColorToRGB(&start);
     ConvertColorToRGB(&end);
 
@@ -296,8 +372,9 @@ wchar_t** monogradient(COLOR start, COLOR end, int steps){
     double g_step = ((double)end.color.RGB.G - (double)start.color.RGB.G) / (double)steps;
     double b_step = ((double)end.color.RGB.B - (double)start.color.RGB.B) / (double)steps;
 
-    for(int i = 0; i < steps; i++){
-        COLOR color = {start.Color_Type,RGB, {(int)r, (int)g, (int)b}};
+    for (int i = 0; i < steps; i++)
+    {
+        COLOR color = {start.Color_Type, RGB, {(int)r, (int)g, (int)b}};
         gradient[i] = ColorString(color);
         r += r_step;
         g += g_step;

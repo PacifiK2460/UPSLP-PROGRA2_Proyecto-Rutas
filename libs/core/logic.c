@@ -1,26 +1,51 @@
 #include "logic.h"
 
-void focusText(Widget *widget)
+void prepareOutput(int focused, Widget *widget)
 {
     int width = widget->widget.input.width;
 
-    COLOR input_background = {BACKGROUND, HEX, 0};
-    strcpy(input_background.color.HEX.HEX, "181818");
+    COLOR back = {BACKGROUND, RGB, {16,16,16}}, start, end;
+    wchar_t *back_color, **gradient;
 
-    wchar_t* back = ColorString(input_background);
+    back_color = ColorString(back);
 
-    // print the gradient bar
-    COLOR start = {FOREGROUND, HEX, 0};
-    strcpy(start.color.HEX.HEX, "003a81");
-    COLOR end = {FOREGROUND, HEX, 0};
-    strcpy(end.color.HEX.HEX, "00acff");
-    wchar_t **gradient = monogradient(start, end, width);
+    if (focused)
+    {
+
+        start.Color_Type = FOREGROUND;
+        start.Color_Mode = RGB;
+        start.color.RGB.R = 0;
+        start.color.RGB.G = 58;
+        start.color.RGB.B = 129;
+
+        end.Color_Type = FOREGROUND;
+        end.Color_Mode = RGB;
+        end.color.RGB.R = 0;
+        end.color.RGB.G = 172;
+        end.color.RGB.B = 255;
+    }
+    else
+    {
+        start.Color_Type = FOREGROUND;
+        start.Color_Mode = RGB;
+        start.color.RGB.R = 50;
+        start.color.RGB.G = 50;
+        start.color.RGB.B = 50;
+
+        end.Color_Type = FOREGROUND;
+        end.Color_Mode = RGB;
+        end.color.RGB.R = 100;
+        end.color.RGB.G = 100;
+        end.color.RGB.B = 100;
+    }
+
+    gradient = monogradient(start, end, width);
 
     gotoxy(widget->widget.input.x, widget->widget.input.y);
-    wprintf(L"%ls", BOLD);
-    for (int i = 0; i < width; i++)
+    wprintf(L"%ls", DIM);
+    for (int i = 0; i < wcslen(widget->widget.input.title); i++)
     {
-        wprintf(L"%ls%lc",gradient[i], widget->widget.input.title[i]);
+        wprintf(L"%ls%lc", gradient[i], widget->widget.input.title[i]);
     }
     wprintf(L"%ls", NORMAL);
 
@@ -28,27 +53,34 @@ void focusText(Widget *widget)
     gotoxy(widget->widget.input.x, widget->widget.input.y + 1);
     for (int i = 0; i < width; i++)
     {
-        wprintf(L"%ls▁", back);
+        wprintf(UNDERLINE L"%ls%ls ", back_color, gradient[i]);
     }
     wprintf(L"%ls", NORMAL);
+
+    free(back_color);
+    for (int i = 0; i < width; i++)
+    {
+        free(gradient[i]);
+    }
+}
+
+void focusText(Widget *widget)
+{
+    prepareOutput(1, widget);
 }
 
 void unfocusText(Widget *widget)
 {
-    int width = widget->widget.input.width;
+    prepareOutput(0, widget);
+}
 
-    // print the gradient bar
-    COLOR start = {FOREGROUND, HEX, 0};
-    strcpy(start.color.HEX.HEX, "9d9d9d");
-    COLOR end = {FOREGROUND, HEX, 0};
-    strcpy(end.color.HEX.HEX, "dcdfe0");
-    wchar_t **gradient = monogradient(start, end, width);
+Result readInput(Widget *widget){
+    Result result;
+    result.Error_state = OK;
+    
+    wprintf(L"READED INPUT");
 
-    gotoxy(widget->widget.input.x, widget->widget.input.y);
-    for (int i = 0; i < wcslen(widget->widget.input.title); i++)
-    {
-        wprintf(L"%ls%ls%lc%ls", BOLD, gradient[i], widget->widget.input.title[i], NORMAL);
-    }
+    return result;
 }
 
 void focusButton(Widget *widget)
@@ -95,7 +127,7 @@ int TuiLogin()
             UsernameInput.widget.input.x = (width / 2) - 10;
 
             // set y coords to the center of the screen
-            UsernameInput.widget.input.y = (height / 2) - 2;
+            UsernameInput.widget.input.y = (height / 2) - 3;
 
             // set width and height
             UsernameInput.widget.input.width = 20;
@@ -108,10 +140,11 @@ int TuiLogin()
             UsernameInput.widget.input.mode = PLAIN;
 
             // set title
-            UsernameInput.widget.input.title = L"Username";
+            UsernameInput.widget.input.title = L"Username\0";
 
             UsernameInput.on_focus = focusText;
             UsernameInput.on_unfocus = unfocusText;
+            UsernameInput.on_accept = readInput;
         }
         Widget PasswordInput = {TEXT_INPUT};
         {
@@ -135,10 +168,11 @@ int TuiLogin()
             PasswordInput.widget.input.mode = PASSWORD;
 
             // set title
-            PasswordInput.widget.input.title = L"Password";
+            PasswordInput.widget.input.title = L"Password\0";
 
             PasswordInput.on_focus = focusText;
             PasswordInput.on_unfocus = unfocusText;
+            PasswordInput.on_accept = readInput;
         }
 
         Widget AttemptLogin = {BUTTON};
@@ -165,11 +199,10 @@ int TuiLogin()
         listWidget widgets = {0};
         llist_append(&widgets.items, &UsernameInput);
         llist_append(&widgets.items, &PasswordInput);
-        llist_append(&widgets.items, &AttemptLogin);
+        // llist_append(&widgets.items, &AttemptLogin);
 
         focus(widgets);
     }
 
-    getc(stdin);
     return 1;
 }

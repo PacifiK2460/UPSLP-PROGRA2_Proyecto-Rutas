@@ -1,10 +1,10 @@
 #include "logic.h"
 
-void prepareOutput(int focused, Widget *widget)
+Result prepareOutput(int focused, Widget *widget)
 {
     int width = widget->widget.input.width;
 
-    COLOR back = {BACKGROUND, RGB, {16,16,16}}, start, end;
+    COLOR back = {BACKGROUND, RGB, {16, 16, 16}}, start, end;
     wchar_t *back_color, **gradient;
 
     back_color = ColorString(back);
@@ -42,7 +42,10 @@ void prepareOutput(int focused, Widget *widget)
     gradient = monogradient(start, end, width);
 
     gotoxy(widget->widget.input.x, widget->widget.input.y);
-    wprintf(L"%ls", DIM);
+    if (focused < 2)
+        wprintf(L"%ls", DIM);
+    else
+        wprintf(L"%ls", BOLD);
     for (int i = 0; i < wcslen(widget->widget.input.title); i++)
     {
         wprintf(L"%ls%lc", gradient[i], widget->widget.input.title[i]);
@@ -57,6 +60,72 @@ void prepareOutput(int focused, Widget *widget)
     }
     wprintf(L"%ls", NORMAL);
 
+    Result result;
+    wchar_t buffer[widget->widget.input.width+1];
+    if (focused == 3)
+    {
+
+        gotoxy(widget->widget.input.x, widget->widget.input.y + 1);
+
+        wprintf(SHOW_CURSOR);
+        noEcho();
+        rawMode();
+        clearerr(stdin);
+
+        int c;
+        int i = 0;
+        while (1)
+        {
+            c = getc(stdin);
+            switch (c)
+            {
+            default:
+                if (i < widget->widget.input.width - 1)
+                {
+                    wprintf(UNDERLINE L"%ls%ls", back_color, gradient[i]);
+                    putwc(c, stdout);
+                    wprintf(L"%ls", NORMAL);
+                    buffer[i] = c;
+                    buffer[i++] = '\0';
+                }
+                break;
+            case KEY_DELETE:
+                if (i > 0)
+                {
+                    i--;
+                    buffer[i] = '\0';
+
+                    wprintf(MOVE_CURSOR_LEFT);
+                    wprintf(UNDERLINE L"%ls%ls#", back_color, gradient[i]);
+                    wprintf(MOVE_CURSOR_LEFT);
+                }
+                break;
+            case KEY_ESC:
+                result.Error_state = INPUT_EXIT_REQUESTED;
+                goto end;
+                break;
+            case KEY_SPACEBAR:
+                break;
+            case KEY_ENTER:
+                buffer[i] = '\0';
+                goto end;
+                break;
+            case EOF:
+                result.Error_state = INPUT_EOF;
+                goto end;
+                break;
+            }
+            { // debub
+                gotoxy(0, 0);
+                wprintf(L"%*ls",i-1, buffer);
+                gotoxy(widget->widget.input.x + i, widget->widget.input.y + 1);
+            }
+        }
+    }
+end:
+    result.Result = buffer;
+    cookedMode();
+    wprintf(HIDE_CURSOR);
     free(back_color);
     for (int i = 0; i < width; i++)
     {
@@ -74,13 +143,9 @@ void unfocusText(Widget *widget)
     prepareOutput(0, widget);
 }
 
-Result readInput(Widget *widget){
-    Result result;
-    result.Error_state = OK;
-    
-    wprintf(L"READED INPUT");
-
-    return result;
+Result readInput(Widget *widget)
+{
+    return prepareOutput(3, widget);
 }
 
 void focusButton(Widget *widget)

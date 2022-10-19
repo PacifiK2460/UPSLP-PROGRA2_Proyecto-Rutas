@@ -68,6 +68,11 @@ void print_status_bar();
 
 #define CLEAR_SCREEN L"\e[2J"
 
+#define MOVE_CURSOR_UP L"\e[1A"
+#define MOVE_CURSOR_DOWN L"\e[1B"
+#define MOVE_CURSOR_RIGHT L"\e[1C"
+#define MOVE_CURSOR_LEFT L"\e[1D"
+
 // Cursor echo
 Result noEcho();
 Result echo();

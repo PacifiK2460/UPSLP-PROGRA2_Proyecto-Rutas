@@ -6,6 +6,8 @@
 #define KEY_RIGHT 77
 #define KEY_ENTER 10
 
+#define KEY_SPACEBAR 32
+
 #define KEY_BACKSPACE 8
 #define KEY_DELETE 127
 

@@ -113,11 +113,17 @@ Result focus(listWidget list)
                 Widget *temp = llist_get(&list.items, i);
                 if (i == list.selected)
                 {
-                    temp->on_focus(temp);
+                    if(temp->on_focus != NULL){
+                        temp->on_focus(temp);
+                    }
                     selected = temp;
                 }
                 else
-                    temp->on_unfocus(temp);
+                {
+                    if(temp->on_unfocus != NULL){
+                        temp->on_unfocus(temp);
+                    }
+                }
             }
         }
 
@@ -140,6 +146,11 @@ Result focus(listWidget list)
                     echo();
                     cookedMode();
 
+    
+                    if(selected->on_accept == NULL){
+                        continue;
+                    }
+
                     Result res = selected->on_accept(selected);
 
                     switch (res.Error_state)
@@ -148,22 +159,37 @@ Result focus(listWidget list)
                         result.Error_state = OK;
                         break;
                     case INPUT_EXIT_REQUESTED:
+                        if(selected->on_cancel == NULL){
+                            continue;
+                        }
                         selected->on_cancel(selected);
                         result.Error_state = INPUT_EXIT_REQUESTED;
                         break;
                     case INPUT_EOF:
+                        if(selected->on_cancel == NULL){
+                            continue;
+                        }
                         selected->on_cancel(selected);
                         result.Error_state = INPUT_EOF;
                         break;
                     case INPUT_INVALID_INPUT:
+                        if(selected->on_cancel == NULL){
+                            continue;
+                        }
                         selected->on_cancel(selected);
                         result.Error_state = INPUT_INVALID_INPUT;
                         break;
                     case UNKOWN_INPUT_ERROR:
+                        if(selected->on_cancel == NULL){
+                            continue;
+                        }
                         selected->on_cancel(selected);
                         result.Error_state = UNKOWN_INPUT_ERROR;
                         break;
                     case INPUT_PREMATURE_EXIT:
+                        if(selected->on_cancel == NULL){
+                            continue;
+                        }
                         selected->on_change(selected);
                         result.Error_state = INPUT_PREMATURE_EXIT;
                         break;

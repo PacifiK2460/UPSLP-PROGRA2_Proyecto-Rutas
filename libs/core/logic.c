@@ -7,6 +7,55 @@ typedef enum widget_state
     ACTIVE,
 } WidgetState;
 
+Widget UsernameInput;
+Widget PasswordInput;
+
+Result mainScreen(User *user)
+{
+    CLOSE_SCREEN();
+    NEW_SCREEN();
+    printf(CLEAR_SCREEN);
+    {
+        COLOR start = { BACKGROUND, RGB, { 0, 170, 27 } };
+        COLOR end = {BACKGROUND,   RGB, { 71, 246, 144 } };
+        
+        print_status_bar(start, end);
+    }
+
+    if(user->type == ADMIN)
+    {
+        AdminPanel(user);
+    } else {
+        UserPanel(user);
+    }
+
+}
+
+Result startProgram()
+{
+    Result login_code = login(UsernameInput.widget.input.text, PasswordInput.widget.input.text);
+    wchar_t *msg = NULL;
+    switch (login_code.Error_state)
+    {
+    case USER_NOT_FOUND:
+        msg = L"USER " BOLD "NOT FOUND" NORMAL;
+        break;
+    case USER_DISABLED:
+        msg = L"USER" BOLD "DISABLED" NORMAL;
+        break;
+    case INCORRECT_PASSWORD:
+        msg = L"INCORRECT " BOLD "PASSWORD" NORMAL;
+        break;
+    case OK:
+        mainScreen(login_code.Result);
+        return login_code;
+    default:
+        msg = NULL;
+        break;
+    }
+    errorScren(msg);
+}
+
 Result prepareOutput(WidgetState focused, Widget *widget)
 {
     int width = widget->widget.input.width;
@@ -64,7 +113,7 @@ Result prepareOutput(WidgetState focused, Widget *widget)
     for (int i = 0; i < wcslen(widget->widget.input.text); i++)
     {
         wchar_t character;
-        if(widget->widget.input.mode == PASSWORD)
+        if (widget->widget.input.mode == PASSWORD)
             character = L'*';
         else
             character = widget->widget.input.text[i];
@@ -268,8 +317,7 @@ Result buttonClick(WidgetState focused, Widget *widget)
             switch (c)
             {
             case KEY_ENTER:
-                // custom  function to enter program
-                wprintf(L"LOGIN");
+                startProgram();
                 goto exit;
                 break;
             case KEY_ESC:
@@ -312,31 +360,19 @@ Result unfocusButton(void *widget)
     return buttonClick(UNFOCUSED, widget);
 }
 
-int TuiLogin()
+void PrintLogin(void* data)
 {
+    wprintf(CLEAR_SCREEN);
     { // Print temporary status bar
         // print gradient bar
-
-        // make to function
-        int height, width;
-        get_window_size(&height, &width);
-
-        // go to the bottom of the screen
-        gotoxy(0, height);
 
         // print the gradient bar
         COLOR start = {BACKGROUND, HEX, 0};
         strcpy(start.color.HEX.HEX, "003a81");
         COLOR end = {BACKGROUND, HEX, 0};
         strcpy(end.color.HEX.HEX, "00acff");
-        wchar_t **gradient = monogradient(start, end, width);
 
-        for (int i = 0; i < width; i++)
-        {
-            wprintf(L"%ls%lc%ls", gradient[i], L' ', NORMAL);
-        }
-
-        free(gradient);
+        print_status_bar(start, end);
     }
 
     { // Print help at the bottom of the screen
@@ -349,14 +385,20 @@ int TuiLogin()
         wprintf(BOLD L"[↕]    " NORMAL " to select a widget\n");
         wprintf(BOLD L"[ENTER]" NORMAL " to focus on a widget\n");
     }
+}
+
+int TuiLogin()
+{
 
     { // Make input widgets for username and password input
-        Widget UsernameInput = {TEXT_INPUT};
+        listWidget widgets = {0};
         { // username input configurations
             // set x coords to the center of the screen
             int height, width;
             get_window_size(&height, &width);
             UsernameInput.widget.input.x = (width / 2) - 10;
+
+            UsernameInput.type = TEXT_INPUT;
 
             // set y coords to the center of the screen
             UsernameInput.widget.input.y = (height / 2) - 4;
@@ -379,13 +421,14 @@ int TuiLogin()
             UsernameInput.on_unfocus = unfocusText;
             UsernameInput.on_accept = readInput;
         }
-        Widget PasswordInput = {TEXT_INPUT};
         {
             // password input configurations
             // set x coords to the center of the screen
             int height, width;
             get_window_size(&height, &width);
             PasswordInput.widget.input.x = (width / 2) - 10;
+
+            PasswordInput.type = TEXT_INPUT;
 
             // set y coords to the center of the screen
             PasswordInput.widget.input.y = (height / 2) - 1;
@@ -431,12 +474,11 @@ int TuiLogin()
             AttemptLogin.on_accept = handleButtonClick;
         }
 
-        listWidget widgets = {0};
         llist_append(&widgets.items, &UsernameInput);
         llist_append(&widgets.items, &PasswordInput);
         llist_append(&widgets.items, &AttemptLogin);
 
-        focus(widgets);
+        focus(widgets, PrintLogin, NULL);
     }
 
     return 1;

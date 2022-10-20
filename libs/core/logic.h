@@ -4,6 +4,8 @@
 #include "../tui/tui.h"
 #include "../tui/input.h"
 
+#include "../auth/auth.h"
+
 #include <string.h>
 
 

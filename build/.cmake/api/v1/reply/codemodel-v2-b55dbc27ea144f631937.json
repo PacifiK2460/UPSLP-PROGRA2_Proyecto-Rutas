@@ -132,7 +132,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "RutasDeTransporte::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-RutasDeTransporte-Debug-a139e0ea904384754e6d.json",
+					"jsonFile" : "target-RutasDeTransporte-Debug-935193f727380734cbdc.json",
 					"name" : "RutasDeTransporte",
 					"projectIndex" : 0
 				},
@@ -177,12 +177,12 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programaci\u00f3n II/UPSLP-PROGRA2_Proyecto-Rutas/build",
-		"source" : "/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programaci\u00f3n II/UPSLP-PROGRA2_Proyecto-Rutas"
+		"build" : "/home/lara/Documents/UPSLP-PROGRA2_Proyecto-Rutas/build",
+		"source" : "/home/lara/Documents/UPSLP-PROGRA2_Proyecto-Rutas"
 	},
 	"version" : 
 	{
 		"major" : 2,
-		"minor" : 4
+		"minor" : 3
 	}
 }

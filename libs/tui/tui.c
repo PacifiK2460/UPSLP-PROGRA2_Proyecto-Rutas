@@ -20,13 +20,25 @@ void gotoxy(int x, int y)
     wprintf(L"\e[%d;%df", y, x);
 }
 
-void print_status_bar()
+void print_status_bar(COLOR start, COLOR end)
 {
-    // move to the bottom
-    int cols, rows;
-    get_window_size(&rows, &cols);
-    gotoxy(0, rows);
-    wprintf(L"TEST");
+    start.Color_Type = BACKGROUND;
+    end.Color_Type = BACKGROUND;
+
+    // make to function
+    int height, width;
+    get_window_size(&height, &width);
+
+    // go to the bottom of the screen
+    gotoxy(0, height);
+    wchar_t **gradient = monogradient(start, end, width);
+
+    for (int i = 0; i < width; i++)
+    {
+        wprintf(L"%ls%lc%ls", gradient[i], L' ', NORMAL);
+    }
+
+    free(gradient);
 }
 
 // Test the code to see if it works
@@ -97,7 +109,7 @@ void get_window_size(int *rows, int *cols)
 #endif
 }
 
-Result focus(listWidget list)
+Result focus(listWidget list, void* (*RePrintScreen)(void* data), void* data)
 {
     // print the listed widgets
     Result result = {OK, NULL};
@@ -106,7 +118,8 @@ Result focus(listWidget list)
 
     while (1)
     {
-
+        // reprint the background TUI
+        RePrintScreen(data);
         { // Printing the widgets
             for (int i = 0; i < llist_size(&list.items); i++)
             {
@@ -418,4 +431,42 @@ wchar_t **monogradient(COLOR start, COLOR end, int steps)
     gradient[steps] = NULL;
 
     return gradient;
+}
+
+void errorScren(wchar_t *message)
+{
+    wprintf(CLEAR_SCREEN);
+    { // print message
+        if (message == NULL)
+        {
+            message = L"Unknown error";
+        }
+        int word_length = wcslen(message);
+
+        int height, width;
+        get_window_size(&height, &width);
+
+        int x = (width - word_length/2)/2;
+
+        gotoxy(x, height / 2);
+        wprintf(L"%ls", message);
+    }
+
+    { // print help
+        int height, width;
+        get_window_size(&height, &width);
+
+        int x = (width - 20) / 2;
+
+        gotoxy(x, height-1);
+        wprintf(DIM L"Press any key to continue" NORMAL);
+    }
+
+    {// Error status bar
+        COLOR start = {BACKGROUND, RGB, {236, 0, 0}};
+        COLOR end = {BACKGROUND, RGB, {56, 0, 0}};
+        print_status_bar(start, end);
+    }
+
+    getwchar();
 }

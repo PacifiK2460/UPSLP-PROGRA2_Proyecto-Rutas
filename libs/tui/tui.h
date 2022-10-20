@@ -150,7 +150,7 @@ typedef struct buttonWidget
  * @param widgets List of widgets to focus
  *
  */
-Result focus(listWidget list);
+Result focus(listWidget list, void* (*RePrintScreen)(void* data), void* data);
 
 /**
  * @brief Generic Widget type definition, meant to be used in the list of widgets.
@@ -250,3 +250,5 @@ wchar_t *ColorString(COLOR color);
  * @return wchar_t** The resulting gradient array
  */
 wchar_t **monogradient(COLOR start, COLOR end, int steps);
+
+void errorScren(wchar_t *message);

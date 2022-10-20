@@ -1,6 +1,13 @@
 #include "logic.h"
 
-Result prepareOutput(int focused, Widget *widget)
+typedef enum widget_state
+{
+    UNFOCUSED,
+    FOCUSED,
+    ACTIVE,
+} WidgetState;
+
+Result prepareOutput(WidgetState focused, Widget *widget)
 {
     int width = widget->widget.input.width;
 
@@ -9,7 +16,7 @@ Result prepareOutput(int focused, Widget *widget)
 
     back_color = ColorString(back);
 
-    if (focused)
+    if (focused >= FOCUSED)
     {
 
         start.Color_Type = FOREGROUND;
@@ -42,7 +49,7 @@ Result prepareOutput(int focused, Widget *widget)
     gradient = monogradient(start, end, width);
 
     gotoxy(widget->widget.input.x, widget->widget.input.y);
-    if (focused < 2)
+    if (focused < ACTIVE)
         wprintf(L"%ls", DIM);
     else
         wprintf(L"%ls", BOLD);
@@ -54,54 +61,61 @@ Result prepareOutput(int focused, Widget *widget)
 
     // print line for the input field
     gotoxy(widget->widget.input.x, widget->widget.input.y + 1);
-    for (int i = 0; i < width; i++)
+    for (int i = 0; i < wcslen(widget->widget.input.text); i++)
+    {
+        wchar_t character;
+        if(widget->widget.input.mode == PASSWORD)
+            character = L'*';
+        else
+            character = widget->widget.input.text[i];
+        wprintf(UNDERLINE L"%ls%ls%lc", back_color, gradient[i], character);
+    }
+    for (int i = wcslen(widget->widget.input.text); i < width; i++)
     {
         wprintf(UNDERLINE L"%ls%ls ", back_color, gradient[i]);
     }
     wprintf(L"%ls", NORMAL);
 
     Result result;
-    wchar_t* buffer = calloc(widget->widget.input.width+1, sizeof(wchar_t));
-    if(buffer == NULL)
-    {
-        result.Error_state = MALLOC_FAULT;
-        goto end;
-    }
-    if (focused == 3)
+    if (focused == ACTIVE)
     {
 
-        gotoxy(widget->widget.input.x, widget->widget.input.y + 1);
+        int i;
+        i = wcslen(widget->widget.input.text);
+        gotoxy(widget->widget.input.x + i, widget->widget.input.y + 1);
 
         wprintf(SHOW_CURSOR);
         noEcho();
         rawMode();
         clearerr(stdin);
 
-        wchar_t c;
-        int i = 0;
+        wint_t c;
+
         while (1)
         {
-            c = getwc(stdin);
+            c = getwchar();
             switch (c)
             {
             default:
                 if (i < widget->widget.input.width - 1)
                 {
                     wprintf(UNDERLINE L"%ls%ls", back_color, gradient[i]);
-                    putwc(c, stdout);
+                    if (widget->widget.input.mode == PASSWORD)
+                        wprintf(L"*");
+                    else
+                        wprintf(L"%lc", c);
                     wprintf(L"%ls", NORMAL);
-                    buffer[i] = c;
-                    buffer[i++] = '\0';
+                    widget->widget.input.text[i++] = c;
+                    widget->widget.input.text[i] = L'\0';
                 }
                 break;
             case KEY_DELETE:
                 if (i > 0)
                 {
-                    i--;
-                    buffer[i] = '\0';
+                    widget->widget.input.text[--i] = L'\0';
 
                     wprintf(MOVE_CURSOR_LEFT);
-                    wprintf(UNDERLINE L"%ls%ls#", back_color, gradient[i]);
+                    wprintf(UNDERLINE L"%ls%ls ", back_color, gradient[i]);
                     wprintf(MOVE_CURSOR_LEFT);
                 }
                 break;
@@ -110,25 +124,20 @@ Result prepareOutput(int focused, Widget *widget)
                 goto end;
                 break;
             case KEY_SPACEBAR:
+            case KEY_TAB:
                 break;
             case KEY_ENTER:
-                buffer[i] = '\0';
+                widget->widget.input.text[i] = L'\0';
                 goto end;
                 break;
-            case EOF:
+            case WEOF:
                 result.Error_state = INPUT_EOF;
                 goto end;
                 break;
             }
-            { // debub
-                gotoxy(0, 0);
-                wprintf(L"%*ls",i-1, buffer);
-                gotoxy(widget->widget.input.x + i, widget->widget.input.y + 1);
-            }
         }
     }
 end:
-    result.Result = buffer;
     cookedMode();
     wprintf(HIDE_CURSOR);
     free(back_color);
@@ -138,35 +147,177 @@ end:
     }
 }
 
-void focusText(Widget *widget)
+Result focusText(void *widget)
 {
-    prepareOutput(1, widget);
+    return prepareOutput(FOCUSED, widget);
 }
 
-void unfocusText(Widget *widget)
+Result unfocusText(void *widget)
 {
-    prepareOutput(0, widget);
+    return prepareOutput(UNFOCUSED, widget);
 }
 
-Result readInput(Widget *widget)
+Result readInput(void *widget)
 {
-    return prepareOutput(3, widget);
+    return prepareOutput(ACTIVE, widget);
 }
 
-void focusButton(Widget *widget)
+Result buttonClick(WidgetState focused, Widget *widget)
 {
-    wprintf(L"UNIMPLEMENTED");
+    // Print the button in the following style
+    // [Button Title] in the middle of the widget, starting at the given x and y coordinates
+    // and ending in the width of the widget. If it is not selected, it will be printed in
+    // the background color, otherwise it will be printed in the foreground color.
+
+    Result result = {0};
+
+    int width = widget->widget.button.width;
+    int title_length = wcslen(widget->widget.button.title);
+
+    COLOR back = {BACKGROUND, RGB, {16, 16, 16}}, start, end;
+    wchar_t *back_color, **gradient;
+
+    back_color = ColorString(back);
+    if (back_color == NULL)
+    {
+        result.Error_state = MALLOC_FAULT;
+        goto exit;
+    }
+
+    if (focused >= FOCUSED)
+    {
+
+        start.Color_Type = BACKGROUND;
+        start.Color_Mode = RGB;
+        start.color.RGB.R = 0;
+        start.color.RGB.G = 58;
+        start.color.RGB.B = 129;
+
+        end.Color_Type = BACKGROUND;
+        end.Color_Mode = RGB;
+        end.color.RGB.R = 0;
+        end.color.RGB.G = 172;
+        end.color.RGB.B = 255;
+    }
+    else
+    {
+        start.Color_Type = FOREGROUND;
+        start.Color_Mode = RGB;
+        start.color.RGB.R = 50;
+        start.color.RGB.G = 50;
+        start.color.RGB.B = 50;
+
+        end.Color_Type = FOREGROUND;
+        end.Color_Mode = RGB;
+        end.color.RGB.R = 100;
+        end.color.RGB.G = 100;
+        end.color.RGB.B = 100;
+    }
+
+    gradient = monogradient(start, end, width);
+    if (gradient == NULL)
+    {
+        result.Error_state = MALLOC_FAULT;
+        goto exit;
+    }
+
+    gotoxy(widget->widget.button.x, widget->widget.button.y);
+    if (focused < ACTIVE)
+        wprintf(L"%ls", DIM);
+    else
+        wprintf(L"%ls", BOLD);
+
+    // align the title in the middle of the widget
+    int offset = (width - title_length) / 2;
+    int i = 0;
+    wchar_t *color;
+
+    for (; i < offset; i++)
+    {
+        if (focused >= FOCUSED)
+            color = gradient[i];
+        else
+            color = back_color;
+        wprintf(L"%ls ", color);
+    }
+    for (; i < title_length + offset; i++)
+    {
+        if (focused >= FOCUSED)
+            color = gradient[i];
+        else
+            color = back_color;
+        wprintf(L"%ls%lc", color, widget->widget.button.title[i - offset]);
+    }
+    for (; i < width; i++)
+    {
+        if (focused >= FOCUSED)
+            color = gradient[i];
+        else
+            color = back_color;
+        wprintf(L"%ls ", color);
+    }
+
+    wprintf(L"%ls", NORMAL);
+
+    if (focused == ACTIVE)
+    {
+        wint_t c;
+        while (1)
+        {
+            c = getwchar();
+            switch (c)
+            {
+            case KEY_ENTER:
+                // custom  function to enter program
+                wprintf(L"LOGIN");
+                goto exit;
+                break;
+            case KEY_ESC:
+                result.Error_state = INPUT_EXIT_REQUESTED;
+                goto exit;
+                break;
+            case WEOF:
+                result.Error_state = INPUT_EOF;
+                goto exit;
+                break;
+            }
+        }
+    }
+
+exit:
+    if (back_color != NULL)
+        free(back_color);
+    for (int i = 0; i < width; i++)
+    {
+        if (gradient[i] != NULL)
+            free(gradient[i]);
+    }
+    if (gradient != NULL)
+        free(gradient);
+    return result;
 }
 
-void unfocusButton(Widget *widget)
+Result handleButtonClick(void *widget)
 {
-    wprintf(L"UNIMPLEMENTED");
+    return buttonClick(ACTIVE, widget);
+}
+
+Result focusButton(void *widget)
+{
+    return buttonClick(FOCUSED, widget);
+}
+
+Result unfocusButton(void *widget)
+{
+    return buttonClick(UNFOCUSED, widget);
 }
 
 int TuiLogin()
 {
     { // Print temporary status bar
         // print gradient bar
+
+        // make to function
         int height, width;
         get_window_size(&height, &width);
 
@@ -188,6 +339,17 @@ int TuiLogin()
         free(gradient);
     }
 
+    { // Print help at the bottom of the screen
+        int height, width;
+        get_window_size(&height, &width);
+
+        // print the help text
+        gotoxy(0, height - 4);
+        wprintf(BOLD L"[ESC]*2" NORMAL " to exit\n");
+        wprintf(BOLD L"[↕]    " NORMAL " to select a widget\n");
+        wprintf(BOLD L"[ENTER]" NORMAL " to focus on a widget\n");
+    }
+
     { // Make input widgets for username and password input
         Widget UsernameInput = {TEXT_INPUT};
         { // username input configurations
@@ -197,7 +359,7 @@ int TuiLogin()
             UsernameInput.widget.input.x = (width / 2) - 10;
 
             // set y coords to the center of the screen
-            UsernameInput.widget.input.y = (height / 2) - 3;
+            UsernameInput.widget.input.y = (height / 2) - 4;
 
             // set width and height
             UsernameInput.widget.input.width = 20;
@@ -211,6 +373,7 @@ int TuiLogin()
 
             // set title
             UsernameInput.widget.input.title = L"Username\0";
+            UsernameInput.widget.input.text = (wchar_t *)calloc(UsernameInput.widget.input.width + 1, sizeof(wchar_t));
 
             UsernameInput.on_focus = focusText;
             UsernameInput.on_unfocus = unfocusText;
@@ -225,7 +388,7 @@ int TuiLogin()
             PasswordInput.widget.input.x = (width / 2) - 10;
 
             // set y coords to the center of the screen
-            PasswordInput.widget.input.y = (height / 2);
+            PasswordInput.widget.input.y = (height / 2) - 1;
 
             // set width and height
             PasswordInput.widget.input.width = 20;
@@ -239,6 +402,7 @@ int TuiLogin()
 
             // set title
             PasswordInput.widget.input.title = L"Password\0";
+            PasswordInput.widget.input.text = (wchar_t *)calloc(PasswordInput.widget.input.width + 1, sizeof(wchar_t));
 
             PasswordInput.on_focus = focusText;
             PasswordInput.on_unfocus = unfocusText;
@@ -260,16 +424,17 @@ int TuiLogin()
             AttemptLogin.widget.button.height = 1;
 
             // set title
-            AttemptLogin.widget.button.title = L"LOGIN";
+            AttemptLogin.widget.button.title = L"LOGIN\0";
 
             AttemptLogin.on_focus = focusButton;
             AttemptLogin.on_unfocus = unfocusButton;
+            AttemptLogin.on_accept = handleButtonClick;
         }
 
         listWidget widgets = {0};
         llist_append(&widgets.items, &UsernameInput);
         llist_append(&widgets.items, &PasswordInput);
-        // llist_append(&widgets.items, &AttemptLogin);
+        llist_append(&widgets.items, &AttemptLogin);
 
         focus(widgets);
     }

@@ -108,6 +108,7 @@ typedef struct inputWidget
     // Tile of the widget
     wchar_t *title;
 
+    wchar_t *text;
 } inputWidget;
 
 /**

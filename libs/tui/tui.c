@@ -6,7 +6,8 @@ Result initTUI()
 
     result.Error_state = OK;
 
-    setlocale(LC_CTYPE, "");
+    setlocale(LC_ALL, "C.UTF-8");
+    setlocale(LC_CTYPE, "C.UTF-8");
 
     NEW_SCREEN();
     wprintf(CLEAR_SCREEN);
@@ -113,14 +114,16 @@ Result focus(listWidget list)
                 Widget *temp = llist_get(&list.items, i);
                 if (i == list.selected)
                 {
-                    if(temp->on_focus != NULL){
+                    if (temp->on_focus != NULL)
+                    {
                         temp->on_focus(temp);
                     }
                     selected = temp;
                 }
                 else
                 {
-                    if(temp->on_unfocus != NULL){
+                    if (temp->on_unfocus != NULL)
+                    {
                         temp->on_unfocus(temp);
                     }
                 }
@@ -133,7 +136,7 @@ Result focus(listWidget list)
             rawMode();
             wprintf(HIDE_CURSOR);
             { // input management
-                int c = getc(stdin);
+                wint_t c = getwc(stdin);
                 switch (c)
                 {
                 case KEY_TAB:
@@ -146,8 +149,8 @@ Result focus(listWidget list)
                     echo();
                     cookedMode();
 
-    
-                    if(selected->on_accept == NULL){
+                    if (selected->on_accept == NULL)
+                    {
                         continue;
                     }
 
@@ -159,35 +162,40 @@ Result focus(listWidget list)
                         result.Error_state = OK;
                         break;
                     case INPUT_EXIT_REQUESTED:
-                        if(selected->on_cancel == NULL){
+                        if (selected->on_cancel == NULL)
+                        {
                             continue;
                         }
                         selected->on_cancel(selected);
                         result.Error_state = INPUT_EXIT_REQUESTED;
                         break;
                     case INPUT_EOF:
-                        if(selected->on_cancel == NULL){
+                        if (selected->on_cancel == NULL)
+                        {
                             continue;
                         }
                         selected->on_cancel(selected);
                         result.Error_state = INPUT_EOF;
                         break;
                     case INPUT_INVALID_INPUT:
-                        if(selected->on_cancel == NULL){
+                        if (selected->on_cancel == NULL)
+                        {
                             continue;
                         }
                         selected->on_cancel(selected);
                         result.Error_state = INPUT_INVALID_INPUT;
                         break;
                     case UNKOWN_INPUT_ERROR:
-                        if(selected->on_cancel == NULL){
+                        if (selected->on_cancel == NULL)
+                        {
                             continue;
                         }
                         selected->on_cancel(selected);
                         result.Error_state = UNKOWN_INPUT_ERROR;
                         break;
                     case INPUT_PREMATURE_EXIT:
-                        if(selected->on_cancel == NULL){
+                        if (selected->on_cancel == NULL)
+                        {
                             continue;
                         }
                         selected->on_change(selected);
@@ -200,10 +208,10 @@ Result focus(listWidget list)
                     result.Error_state = INPUT_EOF;
                     goto exit;
                 case KEY_ESC: // especial keys
-                    switch (c = getc(stdin))
+                    switch (c = getwc(stdin))
                     {
                     case '[':
-                        switch (c = getc(stdin))
+                        switch (c = getwc(stdin))
                         {
                         case 'A':
                             if (list.selected > 0)
@@ -212,7 +220,7 @@ Result focus(listWidget list)
                                 list.selected = llist_size(&list.items) - 1;
                             break;
                         case 'B':
-                        case 'Z': //TAB; SHIFT+TAB
+                        case 'Z': // TAB; SHIFT+TAB
                             if (list.selected < llist_size(&list.items) - 1)
                                 list.selected++;
                             else
@@ -231,13 +239,13 @@ Result focus(listWidget list)
                     //     break;
                     default:
                         break;
-                    // case KEY_DOWN:
-                    // case KEY_TAB:
-                    //     if (list.selected < llist_size(&list.items) - 1)
-                    //         list.selected++;
-                    //     else
-                    //         list.selected = 0;
-                    //     break;
+                        // case KEY_DOWN:
+                        // case KEY_TAB:
+                        //     if (list.selected < llist_size(&list.items) - 1)
+                        //         list.selected++;
+                        //     else
+                        //         list.selected = 0;
+                        //     break;
                     }
                     break;
                 default:

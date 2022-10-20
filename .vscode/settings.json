@@ -13,6 +13,7 @@
         "stdio.h": "c",
         "logic.h": "c",
         "string.h": "c",
-        "keyboard.h": "c"
+        "keyboard.h": "c",
+        "cwchar": "c"
     }
 }

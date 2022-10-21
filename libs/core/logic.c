@@ -1,12 +1,5 @@
 #include "logic.h"
 
-typedef enum widget_state
-{
-    UNFOCUSED,
-    FOCUSED,
-    ACTIVE,
-} WidgetState;
-
 Widget UsernameInput;
 Widget PasswordInput;
 
@@ -16,19 +9,20 @@ Result mainScreen(User *user)
     NEW_SCREEN();
     printf(CLEAR_SCREEN);
     {
-        COLOR start = { BACKGROUND, RGB, { 0, 170, 27 } };
-        COLOR end = {BACKGROUND,   RGB, { 71, 246, 144 } };
-        
+        COLOR start = {BACKGROUND, RGB, {0, 170, 27}};
+        COLOR end = {BACKGROUND, RGB, {71, 246, 144}};
+
         print_status_bar(start, end);
     }
 
-    if(user->type == ADMIN)
+    if (user->type == ADMIN)
     {
         AdminPanel(user);
-    } else {
+    }
+    else
+    {
         UserPanel(user);
     }
-
 }
 
 Result startProgram()
@@ -56,7 +50,7 @@ Result startProgram()
     errorScren(msg);
 }
 
-Result prepareOutput(WidgetState focused, Widget *widget)
+Result prepareOutput(Widget *widget)
 {
     int width = widget->widget.input.width;
 
@@ -65,7 +59,7 @@ Result prepareOutput(WidgetState focused, Widget *widget)
 
     back_color = ColorString(back);
 
-    if (focused >= FOCUSED)
+    if (widget->state == FOCUSED || widget->state == ACCEPTED)
     {
 
         start.Color_Type = FOREGROUND;
@@ -98,7 +92,7 @@ Result prepareOutput(WidgetState focused, Widget *widget)
     gradient = monogradient(start, end, width);
 
     gotoxy(widget->widget.input.x, widget->widget.input.y);
-    if (focused < ACTIVE)
+    if (widget->state != ACCEPTED)
         wprintf(L"%ls", DIM);
     else
         wprintf(L"%ls", BOLD);
@@ -126,7 +120,7 @@ Result prepareOutput(WidgetState focused, Widget *widget)
     wprintf(L"%ls", NORMAL);
 
     Result result;
-    if (focused == ACTIVE)
+    if (widget->state == ACCEPTED)
     {
 
         int i;
@@ -196,22 +190,7 @@ end:
     }
 }
 
-Result focusText(void *widget)
-{
-    return prepareOutput(FOCUSED, widget);
-}
-
-Result unfocusText(void *widget)
-{
-    return prepareOutput(UNFOCUSED, widget);
-}
-
-Result readInput(void *widget)
-{
-    return prepareOutput(ACTIVE, widget);
-}
-
-Result buttonClick(WidgetState focused, Widget *widget)
+Result buttonClick(Widget *widget)
 {
     // Print the button in the following style
     // [Button Title] in the middle of the widget, starting at the given x and y coordinates
@@ -345,22 +324,7 @@ exit:
     return result;
 }
 
-Result handleButtonClick(void *widget)
-{
-    return buttonClick(ACTIVE, widget);
-}
-
-Result focusButton(void *widget)
-{
-    return buttonClick(FOCUSED, widget);
-}
-
-Result unfocusButton(void *widget)
-{
-    return buttonClick(UNFOCUSED, widget);
-}
-
-void PrintLogin(void* data)
+void PrintLogin(void *data)
 {
     wprintf(CLEAR_SCREEN);
     { // Print temporary status bar
@@ -417,10 +381,16 @@ int TuiLogin()
             UsernameInput.widget.input.title = L"Username\0";
             UsernameInput.widget.input.text = (wchar_t *)calloc(UsernameInput.widget.input.width + 1, sizeof(wchar_t));
 
-            UsernameInput.on_focus = focusText;
-            UsernameInput.on_unfocus = unfocusText;
-            UsernameInput.on_accept = readInput;
+            UsernameInput.on_focus = prepareOutput;
+            UsernameInput.on_unfocus = prepareOutput;
+            UsernameInput.on_accept = prepareOutput;
+            {
+                Box input_arguments[] = {{.data_type = WIDGET, .data = &UsernameInput}};
+                UsernameInput.on_focus_arguments.number_of_data = 1;
+                UsernameInput.on_focus_arguments.arguments = input_arguments;
+            }
         }
+
         {
             // password input configurations
             // set x coords to the center of the screen

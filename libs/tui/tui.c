@@ -127,6 +127,7 @@ Result focus(listWidget list, void* (*RePrintScreen)(void* data), void* data)
                 Widget *temp = llist_get(&list.items, i);
                 if (i == list.selected)
                 {
+                    temp->state = FOCUSED;
                     if (temp->on_focus != NULL)
                     {
                         temp->on_focus(temp);
@@ -135,6 +136,7 @@ Result focus(listWidget list, void* (*RePrintScreen)(void* data), void* data)
                 }
                 else
                 {
+                    temp->state = UNFOCUSED;
                     if (temp->on_unfocus != NULL)
                     {
                         temp->on_unfocus(temp);
@@ -162,6 +164,8 @@ Result focus(listWidget list, void* (*RePrintScreen)(void* data), void* data)
                     echo();
                     cookedMode();
 
+                    selected->state = ACCEPTED;
+
                     if (selected->on_accept == NULL)
                     {
                         continue;
@@ -179,6 +183,7 @@ Result focus(listWidget list, void* (*RePrintScreen)(void* data), void* data)
                         {
                             continue;
                         }
+                        selected->state = CANCELED;
                         selected->on_cancel(selected);
                         result.Error_state = INPUT_EXIT_REQUESTED;
                         break;
@@ -187,6 +192,7 @@ Result focus(listWidget list, void* (*RePrintScreen)(void* data), void* data)
                         {
                             continue;
                         }
+                        selected->state = CANCELED;
                         selected->on_cancel(selected);
                         result.Error_state = INPUT_EOF;
                         break;
@@ -195,6 +201,7 @@ Result focus(listWidget list, void* (*RePrintScreen)(void* data), void* data)
                         {
                             continue;
                         }
+                        selected->state = CANCELED;
                         selected->on_cancel(selected);
                         result.Error_state = INPUT_INVALID_INPUT;
                         break;
@@ -203,6 +210,7 @@ Result focus(listWidget list, void* (*RePrintScreen)(void* data), void* data)
                         {
                             continue;
                         }
+                        selected->state = CANCELED;
                         selected->on_cancel(selected);
                         result.Error_state = UNKOWN_INPUT_ERROR;
                         break;
@@ -211,6 +219,7 @@ Result focus(listWidget list, void* (*RePrintScreen)(void* data), void* data)
                         {
                             continue;
                         }
+                        selected->state = CHANGED;
                         selected->on_change(selected);
                         result.Error_state = INPUT_PREMATURE_EXIT;
                         break;

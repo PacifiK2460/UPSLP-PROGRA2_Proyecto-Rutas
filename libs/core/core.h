@@ -8,7 +8,10 @@
 
 // extern enum input_type;
 
-enum ErrorType{
+#include <stdio.h>
+
+enum ErrorType
+{
     UserERR = 0x100,
     RouteERR = 0x200,
     SystemERR = 0x300,
@@ -47,10 +50,56 @@ enum SystemErrors
     UNKOWN_INPUT_ERROR,
 };
 
-typedef struct _Result{
+typedef struct _Result
+{
     // If an error occurs, this will be set in the error field
     int Error_state;
     // if not, the pointer may be safe to use
-    void* Result;
+    void *Result;
 } Result;
 
+// struct to hold any type of data
+typedef struct _box
+{
+    // type of the data
+    enum _data_type
+    {
+        INT,
+        FLOAT,
+        STRING,
+        WSTRING,
+        CHAR,
+        WCHAR,
+        POINTER,
+        ARRAY,
+        LIST,
+        ENUM,
+        UNION,
+        _FILE,
+
+        BOX,
+        WIDGET,
+    } data_type;
+
+    // the data
+    union _data
+    {
+        int integer;
+        float floating;
+        char *string;
+        wchar_t *wstring;
+        void *pointer;
+        LList list;
+        enum _enum;
+        union _union;
+        FILE *file;
+        void *null;
+        struct _box box;
+        Widget* widget;
+    } data;
+} Box;
+
+typedef struct _arguments{
+    int number_of_data;
+    Box* arguments;
+} Arguments;

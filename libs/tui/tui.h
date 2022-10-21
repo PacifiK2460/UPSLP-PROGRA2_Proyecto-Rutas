@@ -6,7 +6,7 @@
 #include "keyboard.h"
 
 // #include "input.h"
-
+#include <stdarg.h>
 #include <wchar.h>
 #include <locale.h>
 #include <stdlib.h>
@@ -162,7 +162,7 @@ typedef struct Widget
     enum widget_type
     {
         TEXT_INPUT,
-        LIST,
+        WIDGET_LIST,
         BUTTON,
     } type;
 
@@ -174,18 +174,33 @@ typedef struct Widget
         buttonWidget button;
     } widget;
 
+    enum widget_state
+    {
+        ACCEPTED,
+        CANCELED,
+        CHANGED,
+        FOCUSED,
+        UNFOCUSED,
+    } state;
+
     // Function to call when the input is accepted
-    Result (*on_accept)(void *input);
+    Result (*on_accept)(struct Widget *widget);
+    Arguments on_accept_arguments;
 
     // Function to call when the input is cancelled
-    Result (*on_cancel)(void *opcional_data);
+    Result (*on_cancel)(struct Widget *widget);
+    Arguments on_cancel_arguments;
 
     // Function to call when the input is changed
-    Result (*on_change)(void *input);
+    Result (*on_change)(struct Widget *widget);
+    Arguments on_change_arguments;
 
     // Focus / Unfocus handlers
-    Result (*on_focus)(void *opcional_data);
-    Result (*on_unfocus)(void *opcional_data);
+    Result (*on_focus)(struct Widget *widget);
+    Arguments on_focus_arguments;
+
+    Result (*on_unfocus)(struct Widget *widget);
+    Arguments on_unfocus_arguments;
 } Widget;
 
 // Color Definitions

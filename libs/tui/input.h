@@ -8,13 +8,13 @@
 #include <stdlib.h>
 
 
-typedef enum _input_type{
-    INTEGER,
-    FLOAT,
-    NUMERIC,
-    ALPHA,
-    ALPHANUMERIC,
-    ANY,
-} input_type;
+// typedef enum _input_type{
+//     INTEGER,
+//     FLOAT,
+//     NUMERIC,
+//     ALPHA,
+//     ALPHANUMERIC,
+//     ANY,
+// } input_type;
 
-Result input(int type, wchar_t *buffer, int buffer_size);
+// Result input(data_type type, wchar_t *buffer, int buffer_size);

@@ -62,6 +62,26 @@ void print_status_bar();
 #define STRIKETHROUGH L"\e[9m"
 #define UNDERLINE L"\e[4m"
 
+// Foreground colors
+#define BLACK L"\e[30m"
+#define RED L"\e[31m"
+#define GREEN L"\e[32m"
+#define YELLOW L"\e[33m"
+#define BLUE L"\e[34m"
+#define MAGENTA L"\e[35m"
+#define CYAN L"\e[36m"
+#define WHITE L"\e[37m"
+
+// Background colors
+#define B_BLACK L"\e[40m"
+#define B_RED L"\e[41m"
+#define B_GREEN L"\e[42m"
+#define B_YELLOW L"\e[43m"
+#define B_BLUE L"\e[44m"
+#define B_MAGENTA L"\e[45m"
+#define B_CYAN L"\e[46m"
+#define B_WHITE L"\e[47m"
+
 // MISC
 #define HIDE_CURSOR L"\e[?25l"
 #define SHOW_CURSOR L"\e[?25h"

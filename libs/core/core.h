@@ -1,9 +1,11 @@
 #pragma once
 
-// #include "../tui/tui.h"
 // #include "../tui/input.h"
 
-// #include <wchar.h>
+// #include "../tui/tui.h"
+// #include "../llist/llist.h"
+
+#include <wchar.h>
 // #include <string.h>
 
 // extern enum input_type;
@@ -58,45 +60,29 @@ typedef struct _Result
     void *Result;
 } Result;
 
+typedef enum _data_type
+{
+    INT,
+    FLOAT,
+    STRING,
+    WSTRING,
+    CHAR,
+    WCHAR,
+    POINTER,
+    ARRAY,
+    LIST,
+    ENUM,
+    UNION,
+    _FILE,
+
+} data_type;
 // struct to hold any type of data
 typedef struct _box
 {
     // type of the data
-    enum _data_type
-    {
-        INT,
-        FLOAT,
-        STRING,
-        WSTRING,
-        CHAR,
-        WCHAR,
-        POINTER,
-        ARRAY,
-        LIST,
-        ENUM,
-        UNION,
-        _FILE,
-
-        BOX,
-        WIDGET,
-    } data_type;
-
+    data_type type;
     // the data
-    union _data
-    {
-        int integer;
-        float floating;
-        char *string;
-        wchar_t *wstring;
-        void *pointer;
-        LList list;
-        enum _enum;
-        union _union;
-        FILE *file;
-        void *null;
-        struct _box box;
-        Widget* widget;
-    } data;
+    void* data;
 } Box;
 
 typedef struct _arguments{

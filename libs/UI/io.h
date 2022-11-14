@@ -1,5 +1,4 @@
-#ifndef SMARTIO_H
-#define SMARTIO_H
+#pragma once
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,6 +6,8 @@
 #include <errno.h>
 #include <string.h>
 #include "sys.h"
+
+#include <wchar.h>
 
 typedef int (*delimitador)(void*);
 
@@ -21,6 +22,7 @@ int evaluarUbicacion(char* Src);
 int evaluarNumeroTelefonico(char* Src);
 // int evaluarNumero(char* Dest);
 int evaluarCorreo(char* Des);
+int evaluarText(char* Dest, int lenght);
 
 void cleanInput();
 
@@ -38,5 +40,4 @@ void double2str(double src, char* dest);
 int getFileLines(char* filename);
 
 //TEMP
-int input(char* bg_titulo, char* titulo, void* dest, int (*funcion)(void*));
-#endif
+int input(wchar_t* bg_titulo, wchar_t* titulo, void* dest, int (*funcion)(void*));

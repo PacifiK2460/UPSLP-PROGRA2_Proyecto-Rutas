@@ -17,12 +17,12 @@ int esLetra(char letra){
     return ( (letra >= 'a' && letra <= 'z') || (letra >= 'A' && letra <= 'Z') );
 }
 
-int evaluarText(char* Dest, int lenght){
+int evaluarText(wchar_t* Dest, int lenght){
     if(!fgets(Dest, lenght, stdin)){
         return -1;
     }
-    Dest[lenght] = '\0';
-    Dest[strcspn(Dest, "\r\n")] = 0;
+    Dest[lenght] = L'\0';
+    Dest[strwcspn(Dest, L"\r\b")] = 0;
 
     return 1;
 }
@@ -89,7 +89,7 @@ int evaluarCorreo(char* Dest){
 
 
 
-int input(char* bg_titulo, char* titulo, void* dest, int (*funcion)(void*)){
+int input(wchar_t* bg_titulo, wchar_t* titulo, void* dest, int (*funcion)(void*)){
     delimitador result = funcion;
     int res;
     do{

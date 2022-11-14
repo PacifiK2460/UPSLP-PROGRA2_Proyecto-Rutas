@@ -10,10 +10,10 @@ void innit(){
   srand(time(NULL));
 }
 
-void winprint(WINDOW* window,int X, int Y, char* text){
+void winprint(WINDOW* window,int X, int Y, wchar_t* text){
   X+= getx(window);
   Y+= gety(window);
-  printf("\e[%i;%iH%s"RESET,Y,X,text);
+  printf(L"\e[%i;%iH%ls"RESET,Y,X,text);
 }
 
 void getcolsrows(WINDOW* Window, int* COLS, int* ROWS){

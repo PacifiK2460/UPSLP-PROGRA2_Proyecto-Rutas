@@ -55,7 +55,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programaci\u00f3n II/UPSLP-PROGRA2_Proyecto-Rutas/build"
+			"value" : "/home/lara/Documents/UPSLP-PROGRA2_Proyecto-Rutas/build"
 		},
 		{
 			"name" : "CMAKE_CACHE_MAJOR_VERSION",
@@ -79,7 +79,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "24"
+			"value" : "22"
 		},
 		{
 			"name" : "CMAKE_CACHE_PATCH_VERSION",
@@ -91,7 +91,23 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "3"
+			"value" : "1"
+		},
+		{
+			"name" : "CMAKE_COLOR_MAKEFILE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Enable/Disable color output during build."
+				}
+			],
+			"type" : "BOOL",
+			"value" : "ON"
 		},
 		{
 			"name" : "CMAKE_COMMAND",
@@ -139,10 +155,10 @@
 				},
 				{
 					"name" : "HELPSTRING",
-					"value" : "CXX compiler"
+					"value" : "No help, variable specified on the command line."
 				}
 			],
-			"type" : "STRING",
+			"type" : "FILEPATH",
 			"value" : "/usr/bin/g++"
 		},
 		{
@@ -159,7 +175,7 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "/usr/bin/gcc-ar"
+			"value" : "/usr/bin/gcc-ar-11"
 		},
 		{
 			"name" : "CMAKE_CXX_COMPILER_RANLIB",
@@ -175,7 +191,7 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "/usr/bin/gcc-ranlib"
+			"value" : "/usr/bin/gcc-ranlib-11"
 		},
 		{
 			"name" : "CMAKE_CXX_FLAGS",
@@ -267,10 +283,10 @@
 				},
 				{
 					"name" : "HELPSTRING",
-					"value" : "C compiler"
+					"value" : "No help, variable specified on the command line."
 				}
 			],
-			"type" : "STRING",
+			"type" : "FILEPATH",
 			"value" : "/usr/bin/gcc"
 		},
 		{
@@ -287,7 +303,7 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "/usr/bin/gcc-ar"
+			"value" : "/usr/bin/gcc-ar-11"
 		},
 		{
 			"name" : "CMAKE_C_COMPILER_RANLIB",
@@ -303,7 +319,7 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "/usr/bin/gcc-ranlib"
+			"value" : "/usr/bin/gcc-ranlib-11"
 		},
 		{
 			"name" : "CMAKE_C_FLAGS",
@@ -402,18 +418,6 @@
 			"value" : "CMAKE_DLLTOOL-NOTFOUND"
 		},
 		{
-			"name" : "CMAKE_EDIT_COMMAND",
-			"properties" : 
-			[
-				{
-					"name" : "HELPSTRING",
-					"value" : "Path to cache edit program executable."
-				}
-			],
-			"type" : "INTERNAL",
-			"value" : "/usr/bin/ccmake"
-		},
-		{
 			"name" : "CMAKE_EXECUTABLE_FORMAT",
 			"properties" : 
 			[
@@ -510,6 +514,10 @@
 			"properties" : 
 			[
 				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
 					"name" : "HELPSTRING",
 					"value" : "No help, variable specified on the command line."
 				}
@@ -530,18 +538,6 @@
 			"value" : ""
 		},
 		{
-			"name" : "CMAKE_FIND_PACKAGE_REDIRECTS_DIR",
-			"properties" : 
-			[
-				{
-					"name" : "HELPSTRING",
-					"value" : "Value Computed by CMake."
-				}
-			],
-			"type" : "STATIC",
-			"value" : "/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programaci\u00f3n II/UPSLP-PROGRA2_Proyecto-Rutas/build/CMakeFiles/pkgRedirects"
-		},
-		{
 			"name" : "CMAKE_GENERATOR",
 			"properties" : 
 			[
@@ -551,7 +547,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "Ninja"
+			"value" : "Unix Makefiles"
 		},
 		{
 			"name" : "CMAKE_GENERATOR_INSTANCE",
@@ -599,7 +595,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programaci\u00f3n II/UPSLP-PROGRA2_Proyecto-Rutas"
+			"value" : "/home/lara/Documents/UPSLP-PROGRA2_Proyecto-Rutas"
 		},
 		{
 			"name" : "CMAKE_INSTALL_PREFIX",
@@ -623,7 +619,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "0"
+			"value" : "1"
 		},
 		{
 			"name" : "CMAKE_LINKER",
@@ -651,11 +647,11 @@
 				},
 				{
 					"name" : "HELPSTRING",
-					"value" : "Program used to build from build.ninja files."
+					"value" : "Path to a program."
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "/usr/bin/ninja"
+			"value" : "/usr/bin/gmake"
 		},
 		{
 			"name" : "CMAKE_MODULE_LINKER_FLAGS",
@@ -887,7 +883,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "/usr/share/cmake"
+			"value" : "/usr/share/cmake-3.22"
 		},
 		{
 			"name" : "CMAKE_SHARED_LINKER_FLAGS",
@@ -1135,7 +1131,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programaci\u00f3n II/UPSLP-PROGRA2_Proyecto-Rutas/build"
+			"value" : "/home/lara/Documents/UPSLP-PROGRA2_Proyecto-Rutas/build"
 		},
 		{
 			"name" : "RutasDeTransporte_IS_TOP_LEVEL",
@@ -1159,19 +1155,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programaci\u00f3n II/UPSLP-PROGRA2_Proyecto-Rutas"
-		},
-		{
-			"name" : "_CMAKE_LINKER_PUSHPOP_STATE_SUPPORTED",
-			"properties" : 
-			[
-				{
-					"name" : "HELPSTRING",
-					"value" : "linker supports push/pop state"
-				}
-			],
-			"type" : "INTERNAL",
-			"value" : "TRUE"
+			"value" : "/home/lara/Documents/UPSLP-PROGRA2_Proyecto-Rutas"
 		}
 	],
 	"kind" : "cache",

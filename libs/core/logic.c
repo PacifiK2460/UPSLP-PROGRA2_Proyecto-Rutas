@@ -34,34 +34,35 @@ void manageUsers(User user)
         wprintf(L"\nSelect an option: \n" RED L"%ls🔥$> " NORMAL, user.name);
         option = getwchar();
 
-        switch(option){
-            case '0':
-                addUser();
-                break;
-            case '1':
-                editUser();
-                break;
-            case '2':
-                deleteUser();
-                break;
-            case '3':
-                listAllUsers();
-                break;
-            case '4':
-                listAdminUsers();
-                break;
-            case '5':
-                listNormalUsers();
-                break;
-            case '6':
-                queryUser();
-                break;
-            case '7':
-                break;
-            default:
-                wprintf(L"Invalid option\n");
-                getwchar();
-                break;
+        switch (option)
+        {
+        case '0':
+            addUser();
+            break;
+        case '1':
+            editUser();
+            break;
+        case '2':
+            deleteUser();
+            break;
+        case '3':
+            listAllUsers();
+            break;
+        case '4':
+            listAdminUsers();
+            break;
+        case '5':
+            listNormalUsers();
+            break;
+        case '6':
+            queryUser();
+            break;
+        case '7':
+            break;
+        default:
+            wprintf(L"Invalid option\n");
+            getwchar();
+            break;
         }
     } while (1);
 }
@@ -72,94 +73,74 @@ void checkIn(User user);
 void checkOut(User user);
 void DebugData(User user);
 
+void* funcionesl = {
+    manageUsers,
+    manageRoutes,
+    queryLog,
+    registerNextRoute,
+    checkIn,
+    checkOut,
+    DebugData
+};
+
 void mainScreen(User *user)
 {
     wint_t opcion;
-    do
+    MENU mainscreen = {
+        .Parent = NULL,
+        .X = 0,
+        .Y = 0,
+        .ROWS = 8,
+        .opciones = {
+            "Manage users",
+            "Manage routes",
+            "Query log",
+            "Register next route",
+            "Check in",
+            "Check out",
+            "Debug data",
+            "Exit",
+        },
+        .descripcion = {
+            "Add, edit, delete, list and query users",
+            "Add, edit, delete, list and query routes",
+            "Query log",
+            "Register next route",
+            "Check in",
+            "Check out",
+            "Debug data",
+            "Exit",
+        },
+    };
+
+    while (1)
     {
-        wprintf(CLEAR_SCREEN);
-        { // print menu
-            wprintf(
-                "0)"
-                " " BOLD L"Manage Users" NORMAL "\n"
-                "1)"
-                " " BOLD L"Manage Routes" NORMAL "\n"
-                "2)"
-                " " BOLD L"Query Log" NORMAL "\n"
-                "3)"
-                " " BOLD L"Register Next Route" NORMAL "\n"
-                "4)"
-                " " BOLD L"Check In @ Route" NORMAL "\n"
-                "5)"
-                " " BOLD L"Check out @ Route" NORMAL "\n"
-                "6)"
-                " " BOLD L"Debug Data" NORMAL "\n"
-                "7)"
-                " " BOLD L"Return to Log-In" NORMAL "\n");
-        }
+        focusMenu(&mainscreen);
+        if(mainscreen.selected == 7)
+            break;
+        
+        if(mainscreen.selected < 0 || mainscreen.selected > 7)
+            continue;
 
-        wprintf(L"\nSelect an option: \n");
-
-        if (user->type == ADMIN)
-        {
-            wprintf(RED L"%ls🔥$> " NORMAL, user->name);
-        }
-        else
-        {
-            wprintf(BLUE L"%ls%ls💠 $> " NORMAL, user->name);
-        }
-
-        opcion = getwchar();
-
-        switch (opcion)
-        {
-        case '0':
-            manageUsers(*user);
-            break;
-        case '1':
-            manageRoutes(*user);
-            break;
-        case '2':
-            queryLog(*user);
-            break;
-        case '3':
-            registerNextRoute(*user);
-            break;
-        case '4':
-            checkIn(*user);
-            break;
-        case '5':
-            checkOut(*user);
-            break;
-        case '6':
-            DebugData(*user);
-            break;
-        case '7':
-            return;
-        default:
-            wprintf(L"Invalid option\n");
-            getwchar();
-            break;
-        }
-
-    } while (1);
+        funciones[mainscreen.selected](user);        
+    }
 }
 
 int TuiLogin()
 {
     while (1)
     {
-        wprintf(CLEAR_SCREEN);
+        wprintf(CLEAR);
         wchar_t username[USERNAME_MAX_LENGTH + 1] = {0};
         wchar_t password[PASSWORD_MAX_LENGTH + 1] = {0};
 
-        wprintf(BOLD "LOGIN 🔐\n" NORMAL);
+        wprintf(BOLD "LOGIN 🔐\n" RESET);
 
-        wprintf(BOLD "$> Username: " NORMAL);
+        wprintf(BOLD "$> Username: " RESET);
         fgetws(username, USERNAME_MAX_LENGTH + 1, stdin);
         username[wcscspn(username, L"\r\n")] = 0;
 
-        wprintf(BOLD "$> Password: " NORMAL);
+        wprintf(BOLD "$> Password: " RESET);
         fgetws(password, PASSWORD_MAX_LENGTH + 1, stdin);
         password[wcscspn(password, L"\r\n")] = 0;
 
@@ -174,19 +155,19 @@ int TuiLogin()
         }
         case USER_NOT_FOUND:
         {
-            wprintf(BOLD L"User not found! 😢\n" NORMAL "Press any key to continue...");
+            wprintf(BOLD L"User not found! 😢\n" RESET "Press any key to continue...");
             getwc(stdin);
             break;
         }
         case INCORRECT_PASSWORD:
         {
-            wprintf(BOLD L"Incorrect password! 😢\n" NORMAL "Press any key to continue...");
+            wprintf(BOLD L"Incorrect password! 😢\n" RESET "Press any key to continue...");
             getwc(stdin);
             break;
         }
         case USER_DISABLED:
         {
-            wprintf(BOLD L"User disabled! 😢\n" NORMAL "Press any key to continue...");
+            wprintf(BOLD L"User disabled! 😢\n" RESET "Press any key to continue...");
             getwc(stdin);
             break;
         }

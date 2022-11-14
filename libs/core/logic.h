@@ -1,12 +1,13 @@
 #pragma once
 
 #include "core.h"
-#include "../tui/tui.h"
-#include "../tui/input.h"
+// #include "../tui/tui.h"
+// #include "../tui/input.h"
 
 #include "../auth/auth.h"
-
 #include <string.h>
+
+#include "../UI/win.h"
 
 
 /**

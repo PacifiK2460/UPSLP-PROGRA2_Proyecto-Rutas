@@ -14,6 +14,7 @@
         "logic.h": "c",
         "string.h": "c",
         "keyboard.h": "c",
-        "cwchar": "c"
+        "cwchar": "c",
+        "win.h": "c"
     }
 }

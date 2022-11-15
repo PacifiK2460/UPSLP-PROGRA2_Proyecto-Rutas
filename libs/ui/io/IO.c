@@ -18,11 +18,19 @@ int esLetra(char letra){
 }
 
 int evaluarText(wchar_t* Dest, int lenght){
+<<<<<<< HEAD:libs/ui/io/IO.c
     if(!fgetws(Dest, lenght, stdin)){
         return -1;
     }
     Dest[lenght] = '\0';
     Dest[wcsspn(Dest, "\r\n")] = 0;
+=======
+    if(!fgets(Dest, lenght, stdin)){
+        return -1;
+    }
+    Dest[lenght] = L'\0';
+    Dest[strwcspn(Dest, L"\r\b")] = 0;
+>>>>>>> ff6fdf7ba94ff897ebd530da505ff1f7c5ef1ec6:libs/UI/io/IO.c
 
     return 1;
 }

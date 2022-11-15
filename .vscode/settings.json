@@ -16,6 +16,10 @@
         "keyboard.h": "c",
         "cwchar": "c",
         "win.h": "c",
+<<<<<<< HEAD
         "io.h": "c"
+=======
+        "sys.h": "c"
+>>>>>>> ff6fdf7ba94ff897ebd530da505ff1f7c5ef1ec6
     }
 }

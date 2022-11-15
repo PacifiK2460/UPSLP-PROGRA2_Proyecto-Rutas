@@ -8,7 +8,12 @@
 #include <string.h>
 #include <wchar.h>
 
+<<<<<<< HEAD
 #include "../ui/win.h"
+=======
+#include "../UI/win.h"
+#include "../UI/io.h"
+>>>>>>> ff6fdf7ba94ff897ebd530da505ff1f7c5ef1ec6
 
 
 /**

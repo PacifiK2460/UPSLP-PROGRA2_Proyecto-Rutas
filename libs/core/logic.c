@@ -57,8 +57,48 @@ void checkIn(User user);
 void checkOut(User user);
 void DebugData(User user);
 
+<<<<<<< HEAD
+=======
+typedef struct
+{
+    int length;
+    wchar_t *text;
+} Handshake;
+
+int makeHandShake(void *data)
+{
+    Handshake *handshake = (Handshake *)data;
+    handshake->text = calloc(handshake->length, sizeof(wchar_t));
+    return evaluarText(handshake->text, handshake->length);
+}
+
+void *funcionesl = {
+    manageUsers,
+    manageRoutes,
+    queryLog,
+    registerNextRoute,
+    checkIn,
+    checkOut,
+    DebugData};
+
+>>>>>>> ff6fdf7ba94ff897ebd530da505ff1f7c5ef1ec6
 void mainScreen(User *user)
 {
+    MENU mainscreen = {
+        .title = L"Main Menu",
+        .options = {
+            L"Manage Users",
+            L"Manage Routes",
+            L"Query Log",
+            L"Register Next Route",
+            L"Check In",
+            L"Check Out",
+            L"Debug Data",
+            L"Exit"},
+        .length = 8,
+        .funciones = funcionesl};
+    }
+
     wint_t opcion;
     wchar_t *options[] = {L"Manage Users", L"Manage Routes", L"Query Log", L"Register Next Route", L"Check In", L"Check Out", L"Debug Data"};
     wchar_t *descriptions[] = {L"Manage users", L"Manage routes", L"Query log", L"Register next route", L"Check in", L"Check out", L"Debug data"};
@@ -83,8 +123,12 @@ void mainScreen(User *user)
         if (mainscreen.selected < 0 || mainscreen.selected > 7)
             continue;
 
+<<<<<<< HEAD
         // execute the function by index
         mainFuncs[mainscreen.selected]((void*)user);
+=======
+        funciones[mainscreen.selected](user);
+>>>>>>> ff6fdf7ba94ff897ebd530da505ff1f7c5ef1ec6
     }
 }
 
@@ -93,42 +137,51 @@ int TuiLogin()
     while (1)
     {
         wprintf(CLEAR);
-        wchar_t username[USERNAME_MAX_LENGTH + 1] = {0};
-        wchar_t password[PASSWORD_MAX_LENGTH + 1] = {0};
+        Handshake username = {
+            .length = USERNAME_MAX_LENGTH + 1,
+            .text = NULL};
 
-        wprintf(BOLD "LOGIN 🔐\n" RESET);
+        Handshake password = {
+            .length = PASSWORD_MAX_LENGTH + 1,
+            .text = NULL};
 
-        wprintf(BOLD "$> Username: " RESET);
-        fgetws(username, USERNAME_MAX_LENGTH + 1, stdin);
-        username[wcscspn(username, L"\r\n")] = 0;
+        if (input(L"Ingresa tu usuario", L"Nombre de Usuario", (void *)&username, makeHandShake) == 0)
+            return 0;
 
-        wprintf(BOLD "$> Password: " RESET);
-        fgetws(password, PASSWORD_MAX_LENGTH + 1, stdin);
-        password[wcscspn(password, L"\r\n")] = 0;
+        if (input(L"Ingresa tu contraseña", L"Contraseña", (void *)&password, makeHandShake) == 0)
+            return 0;
 
-        Result loginAttempt = login(username, password);
+        Result loginAttempt = login(username.text, password.text);
 
         switch (loginAttempt.Error_state)
         {
         case OK:
         {
+            free(username.text);
+            free(password.text);
             mainScreen(loginAttempt.Result);
             return 1;
         }
         case USER_NOT_FOUND:
         {
+            free(username.text);
+            free(password.text);
             wprintf(BOLD L"User not found! 😢\n" RESET "Press any key to continue...");
             getwc(stdin);
             break;
         }
         case INCORRECT_PASSWORD:
         {
+            free(username.text);
+            free(password.text);
             wprintf(BOLD L"Incorrect password! 😢\n" RESET "Press any key to continue...");
             getwc(stdin);
             break;
         }
         case USER_DISABLED:
         {
+            free(username.text);
+            free(password.text);
             wprintf(BOLD L"User disabled! 😢\n" RESET "Press any key to continue...");
             getwc(stdin);
             break;

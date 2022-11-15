@@ -69,12 +69,6 @@
 	"compileGroups" : 
 	[
 		{
-			"compileCommandFragments" : 
-			[
-				{
-					"fragment" : "-g"
-				}
-			],
 			"defines" : 
 			[
 				{
@@ -104,10 +98,6 @@
 			"id" : "routes::@3568fe2a7ca302a9ca58"
 		},
 		{
-			"backtrace" : 5,
-			"id" : "tui::@9c58650bfa8695d3054b"
-		},
-		{
 			"backtrace" : 6,
 			"id" : "llist::@25e9fa1a3b6213a440f7"
 		}
@@ -118,15 +108,11 @@
 		"commandFragments" : 
 		[
 			{
-				"fragment" : "-g",
-				"role" : "flags"
-			},
-			{
 				"fragment" : "",
 				"role" : "flags"
 			},
 			{
-				"fragment" : "-Wl,-rpath,\"/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programaci\u00f3n II/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/auth:/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programaci\u00f3n II/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/core:/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programaci\u00f3n II/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/routes:/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programaci\u00f3n II/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/tui\"",
+				"fragment" : "-Wl,-rpath,\"/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programaci\u00f3n II/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/auth:/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programaci\u00f3n II/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/core:/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programaci\u00f3n II/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/routes\"",
 				"role" : "libraries"
 			},
 			{
@@ -146,7 +132,7 @@
 			},
 			{
 				"backtrace" : 5,
-				"fragment" : "libs/tui/libtui.so",
+				"fragment" : "-lui",
 				"role" : "libraries"
 			},
 			{

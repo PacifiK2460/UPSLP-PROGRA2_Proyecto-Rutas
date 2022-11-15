@@ -8,6 +8,8 @@
 #include <string.h>
 #include "sys.h"
 
+#include <wchar.h>
+
 typedef int (*delimitador)(void*);
 
 //IO
@@ -38,5 +40,5 @@ void double2str(double src, char* dest);
 int getFileLines(char* filename);
 
 //TEMP
-int input(char* bg_titulo, char* titulo, void* dest, int (*funcion)(void*));
+int input(wchar_t* bg_titulo, wchar_t* titulo, void* dest, int (*funcion)(void*));
 #endif

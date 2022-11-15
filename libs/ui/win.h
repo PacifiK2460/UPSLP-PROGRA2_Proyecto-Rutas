@@ -1,13 +1,14 @@
-#ifndef WIN_H
-#define WIN_H
+#pragma once
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <locale.h>
 #include <stdarg.h>
 #include <time.h>
-#include "IO.h"
+#include "io.h"
 
+#include "../core/core.h"
+#include <wchar.h>
 
 #ifdef _WIN32
   #include <windows.h>
@@ -23,36 +24,36 @@
   #include <sys/time.h>
 #endif
 
-#define NEW_SCREEN() printf("\e[?1049h")
-#define CLOSE_SCREEN() printf("\e[?1049l")
+#define NEW_SCREEN() wprintf(L"\e[?1049h")
+#define CLOSE_SCREEN() wprintf(L"\e[?1049l")
 
-#define VLINE  "│"
-#define HLINE  "─"
-#define TLLINE "╭"
-#define TRLINE "╮"
-#define BLLINE "╰"
-#define BRLINE "╯"
+#define VLINE  L"│"
+#define HLINE  L"─"
+#define TLLINE L"╭"
+#define TRLINE L"╮"
+#define BLLINE L"╰"
+#define BRLINE L"╯"
 
-#define MENUVLINE "▏"
+#define MENUVLINE L"▏"
 
-#define RESET     "\e[0m"
-#define NONE      ""
+#define RESET     L"\e[0m"
+#define NONE      L""
 
 // Tipos
-#define BOLD      "\e[1m"
-#define DIM       "\e[2m"
-#define ITALIC    "\e[3m"
-#define INVERSE   "\e[7m"
+#define BOLD      L"\e[1m"
+#define DIM       L"\e[2m"
+#define ITALIC    L"\e[3m"
+#define INVERSE   L"\e[7m"
 
 // Colores
 #define STR(X) #X
-#define BRGB(R,G,B) "\e[48;2;" STR(R) STR(;) STR(G) STR(;) STR(B) STR(m)
-#define FRGB(R,G,B) "\e[38;2;" STR(R) STR(;) STR(G) STR(;) STR(B) STR(m)
+#define BRGB(R,G,B) L"\e[48;2;" STR(R) STR(;) STR(G) STR(;) STR(B) STR(m)
+#define FRGB(R,G,B) L"\e[38;2;" STR(R) STR(;) STR(G) STR(;) STR(B) STR(m)
 
 // MISC
-#define HIDE_CURSOR "\e[?25l"
-#define SHOW_CURSOR "\e[?25h"
-#define CLEAR "\e[2J"
+#define HIDE_CURSOR L"\e[?25l"
+#define SHOW_CURSOR L"\e[?25h"
+#define CLEAR L"\e[2J"
 
 #define STDOUTPUT NULL
 
@@ -77,8 +78,8 @@ typedef struct _MENU{
     int X;
     int Y;
     int ROWS;
-    char** opciones;
-    char** descripcion;
+    wchar_t** opciones;
+    wchar_t** descripcion;
     int selected;
 } MENU;
 
@@ -94,9 +95,9 @@ typedef struct _TABLE{
     struct FILA* data;
 } TABLE;
 
-typedef int (*Funciones)(void);
+typedef int (*Funciones)(void*);
 
-void setMenuData(MENU* Destination,WINDOW* Parent, int x, int y, int rows,char* opciones[], char* descripciones[]);
+void setMenuData(MENU* Destination,WINDOW* Parent, int x, int y, int rows,wchar_t* opciones[], wchar_t* descripciones[]);
 
 void innit();
 
@@ -132,4 +133,10 @@ int getTotal(TABLE* src);
 int getTotalToerico(TABLE* src);
 void freeTable(TABLE *src);
 
-#endif
+
+/**
+ * @brief The TUI class
+ * This class is the driver for the TUI in this proyect.
+ */
+
+Result initTUI();

@@ -1,4 +1,4 @@
-#include "../IO.h"
+#include "../io.h"
 
 #define MAX_TEXT_LENGTH 51
 
@@ -17,12 +17,12 @@ int esLetra(char letra){
     return ( (letra >= 'a' && letra <= 'z') || (letra >= 'A' && letra <= 'Z') );
 }
 
-int evaluarText(char* Dest, int lenght){
-    if(!fgets(Dest, lenght, stdin)){
+int evaluarText(wchar_t* Dest, int lenght){
+    if(!fgetws(Dest, lenght, stdin)){
         return -1;
     }
     Dest[lenght] = '\0';
-    Dest[strcspn(Dest, "\r\n")] = 0;
+    Dest[wcsspn(Dest, "\r\n")] = 0;
 
     return 1;
 }
@@ -89,7 +89,7 @@ int evaluarCorreo(char* Dest){
 
 
 
-int input(char* bg_titulo, char* titulo, void* dest, int (*funcion)(void*)){
+int input(wchar_t* bg_titulo, wchar_t* titulo, void* dest, int (*funcion)(void*)){
     delimitador result = funcion;
     int res;
     do{
@@ -97,7 +97,7 @@ int input(char* bg_titulo, char* titulo, void* dest, int (*funcion)(void*)){
             clearerr(stdin);
             printf(CLEAR);
             echo();
-            winprint(STDOUTPUT,4,getrows(STDOUTPUT)-2,RESET FRGB(185, 251, 192)  "ctrl + d"  RESET DIM  " regresar ");
+            winprint(STDOUTPUT,4,getrows(STDOUTPUT)-2,RESET FRGB(185, 251, 192)  L"ctrl + d"  RESET DIM  L" regresar ");
             winprint(STDOUTPUT,4,2, bg_titulo);
             winprint(STDOUTPUT,5, (getrows(STDOUTPUT)/2)-1,titulo);
             winprint(STDOUTPUT,4, (getrows(STDOUTPUT)/2)-1,MENUVLINE);

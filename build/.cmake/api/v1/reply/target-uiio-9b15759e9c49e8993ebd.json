@@ -2,7 +2,7 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "libs/core/libcore.so"
+			"path" : "libs/ui/libuiio.so"
 		}
 	],
 	"backtrace" : 1,
@@ -14,7 +14,7 @@
 		],
 		"files" : 
 		[
-			"libs/core/CMakeLists.txt"
+			"libs/ui/CMakeLists.txt"
 		],
 		"nodes" : 
 		[
@@ -24,7 +24,7 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 3,
+				"line" : 15,
 				"parent" : 0
 			}
 		]
@@ -35,24 +35,25 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "-g -fPIC"
+					"fragment" : "-fPIC"
 				}
 			],
 			"defines" : 
 			[
 				{
-					"define" : "core_EXPORTS"
+					"define" : "uiio_EXPORTS"
 				}
 			],
 			"language" : "C",
 			"sourceIndexes" : 
 			[
 				0,
-				1
+				1,
+				2
 			]
 		}
 	],
-	"id" : "core::@7bc883c3d40b22fbda52",
+	"id" : "uiio::@e7dcc633018364bb2d5a",
 	"link" : 
 	{
 		"commandFragments" : 
@@ -64,12 +65,12 @@
 		],
 		"language" : "C"
 	},
-	"name" : "core",
-	"nameOnDisk" : "libcore.so",
+	"name" : "uiio",
+	"nameOnDisk" : "libuiio.so",
 	"paths" : 
 	{
-		"build" : "libs/core",
-		"source" : "libs/core"
+		"build" : "libs/ui",
+		"source" : "libs/ui"
 	},
 	"sourceGroups" : 
 	[
@@ -78,7 +79,8 @@
 			"sourceIndexes" : 
 			[
 				0,
-				1
+				1,
+				2
 			]
 		}
 	],
@@ -87,13 +89,19 @@
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "libs/core/core.c",
+			"path" : "libs/ui/io/IO.c",
 			"sourceGroupIndex" : 0
 		},
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "libs/core/logic.c",
+			"path" : "libs/ui/io/file.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "libs/ui/io/str.c",
 			"sourceGroupIndex" : 0
 		}
 	],

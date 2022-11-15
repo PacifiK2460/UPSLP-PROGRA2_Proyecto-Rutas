@@ -137,3 +137,18 @@ void printMessage(char* msg){
   }
   CLOSE_SCREEN();
 }
+
+Result initTUI()
+{
+    Result result;
+
+    result.Error_state = OK;
+
+    setlocale(LC_ALL, "C.UTF-8");
+    setlocale(LC_CTYPE, "C.UTF-8");
+
+    NEW_SCREEN();
+    CLOSE_SCREEN();
+
+    return result;
+}

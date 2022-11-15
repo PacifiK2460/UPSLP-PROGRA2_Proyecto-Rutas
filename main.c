@@ -1,7 +1,7 @@
 #include "libs/core/core.h"
 #include "libs/auth/auth.h"
 #include "libs/routes/routes.h"
-#include "libs/tui/tui.h"
+// #include "libs/tui/tui.h"
 #include "libs/core/logic.h"
 
 #include <stdio.h>
@@ -14,7 +14,7 @@ void cleanUp()
     freeRoutes();
     CLOSE_SCREEN();
 
-    wprintf(BOLD L"Goodbye! 🗃\n" NORMAL);
+    wprintf(BOLD L"Goodbye! 🗃\n" RESET);
 }
 
 int main() {

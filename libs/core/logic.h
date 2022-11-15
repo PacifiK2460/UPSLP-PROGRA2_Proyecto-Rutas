@@ -6,8 +6,9 @@
 
 #include "../auth/auth.h"
 #include <string.h>
+#include <wchar.h>
 
-#include "../UI/win.h"
+#include "../ui/win.h"
 
 
 /**

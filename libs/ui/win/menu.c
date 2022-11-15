@@ -37,7 +37,7 @@ void echo(){
     #endif
 }
 
-void setMenuData(MENU* Destination, WINDOW* Parent, int x, int y, int rows,char* opciones[], char* descripciones[]){
+void setMenuData(MENU* Destination,WINDOW* Parent, int x, int y, int rows,wchar_t* opciones[], wchar_t* descripciones[]){
     Destination->opciones = opciones;
     Destination->descripcion = descripciones;
 

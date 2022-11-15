@@ -1,5 +1,4 @@
-#ifndef SMARTIO_H
-#define SMARTIO_H
+#pragma once
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,4 +38,3 @@ int getFileLines(char* filename);
 
 //TEMP
 int input(char* bg_titulo, char* titulo, void* dest, int (*funcion)(void*));
-#endif

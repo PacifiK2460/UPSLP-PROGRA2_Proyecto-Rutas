@@ -1,19 +1,6 @@
 #include "tui.h"
 
-Result initTUI()
-{
-    Result result;
 
-    result.Error_state = OK;
-
-    setlocale(LC_ALL, "C.UTF-8");
-    setlocale(LC_CTYPE, "C.UTF-8");
-
-    NEW_SCREEN();
-    wprintf(CLEAR_SCREEN);
-
-    return result;
-}
 
 void gotoxy(int x, int y)
 {

@@ -1,0 +1,16 @@
+# set(NAME ui)
+# set(UILIBS io sys win)
+# foreach(UILIB)
+#     set(NAME ${NAME}${UILIB})
+#     set(UILIBS ${UILIBS} ${UILIB})
+# endforeach()
+
+# file(GLOB "${NAME}_SRC" *.c)
+# add_library(${NAME} SHARED "${${NAME}_SRC}")
+
+set(NAME ui)
+set(UILIBS io sys win)
+foreach(UILIB ${UILIBS})
+    file(GLOB "${NAME}${UILIB}_SRC" ${UILIB}/*.c)
+    add_library(${NAME}${UILIB} SHARED "${${NAME}${UILIB}_SRC}")
+endforeach()

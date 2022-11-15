@@ -19,12 +19,7 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 
-/**
- * @brief The TUI class
- * This class is the driver for the TUI in this proyect.
- */
 
-Result initTUI();
 
 /**
  * @brief Positions the cursor at the given coordinates.

@@ -1,17 +1,16 @@
-#ifndef SYSTEM_MANAGER_H
-#define SYSTEM_MANAGER_H
+#pragma once
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
 
-#include "IO.h"
+#include "io.h"
 #include "win.h"
 
 #define randrang(max, min) (rand() % (max - min + 1)) + min
 
-enum ERRORES { OK, ERROR, FATAL_ERROR };
+// enum ERRORES { OK, ERROR, FATAL_ERROR };
 
 //Logica
     int digitos(int n);
@@ -130,5 +129,3 @@ enum ERRORES { OK, ERROR, FATAL_ERROR };
 
 // #define newProducto() malloc(sizeof(Producto))
 // #define newProductos() malloc(sizeof(Productos))
-
-#endif

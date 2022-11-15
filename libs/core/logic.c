@@ -8,64 +8,48 @@ void manageUsers(User user)
         return;
     }
 
-    wint_t option = 0;
+    wchar_t *options[] = {L"Create User", L"Delete User", L"Modify User", L"List Users", L"Back"};
+    wchar_t *descriptions[] = {L"Create a new user", L"Delete an existing user", L"Modify an existing user", L"List all users", L"Go back to main menu"};
 
-    do
-    {
-        wprintf(CLEAR_SCREEN);
-        wprintf(
-            "0)"
-            " " BOLD "Add user" NORMAL "\n"
-            "1)"
-            " " BOLD "Edit user" NORMAL "\n"
-            "2)"
-            " " BOLD "Delete user" NORMAL "\n"
-            "3)"
-            " " BOLD "List all users" NORMAL "\n"
-            "4)"
-            " " BOLD "List admin users" NORMAL "\n"
-            "5)"
-            " " BOLD "List normal users" NORMAL "\n"
-            "6)"
-            " " BOLD "Query user by UserName" NORMAL "\n"
-            "7)"
-            " " BOLD "Return to main menu" NORMAL "\n");
-
-        wprintf(L"\nSelect an option: \n" RED L"%ls🔥$> " NORMAL, user.name);
-        option = getwchar();
-
-        switch (option)
-        {
-        case '0':
-            addUser();
-            break;
-        case '1':
-            editUser();
-            break;
-        case '2':
-            deleteUser();
-            break;
-        case '3':
-            listAllUsers();
-            break;
-        case '4':
-            listAdminUsers();
-            break;
-        case '5':
-            listNormalUsers();
-            break;
-        case '6':
-            queryUser();
-            break;
-        case '7':
-            break;
-        default:
-            wprintf(L"Invalid option\n");
-            getwchar();
-            break;
-        }
-    } while (1);
+    MENU menu;
+    setMenuData(&menu, NULL, 0, 0, 5, options, descriptions);
 }
+
+// do
+// {
+
+//     switch (option)
+//     {
+//     case '0':
+//         addUser();
+//         break;
+//     case '1':
+//         editUser();
+//         break;
+//     case '2':
+//         deleteUser();
+//         break;
+//     case '3':
+//         listAllUsers();
+//         break;
+//     case '4':
+//         listAdminUsers();
+//         break;
+//     case '5':
+//         listNormalUsers();
+//         break;
+//     case '6':
+//         queryUser();
+//         break;
+//     case '7':
+//         break;
+//     default:
+//         wprintf(L"Invalid option\n");
+//         getwchar();
+//         break;
+//     }
+// } while (1);
+// }
 void manageRoutes(User user);
 void queryLog(User user);
 void registerNextRoute(User user);
@@ -73,56 +57,34 @@ void checkIn(User user);
 void checkOut(User user);
 void DebugData(User user);
 
-void* funcionesl = {
-    manageUsers,
-    manageRoutes,
-    queryLog,
-    registerNextRoute,
-    checkIn,
-    checkOut,
-    DebugData
-};
-
 void mainScreen(User *user)
 {
     wint_t opcion;
-    MENU mainscreen = {
-        .Parent = NULL,
-        .X = 0,
-        .Y = 0,
-        .ROWS = 8,
-        .opciones = {
-            "Manage users",
-            "Manage routes",
-            "Query log",
-            "Register next route",
-            "Check in",
-            "Check out",
-            "Debug data",
-            "Exit",
-        },
-        .descripcion = {
-            "Add, edit, delete, list and query users",
-            "Add, edit, delete, list and query routes",
-            "Query log",
-            "Register next route",
-            "Check in",
-            "Check out",
-            "Debug data",
-            "Exit",
-        },
-    };
+    wchar_t *options[] = {L"Manage Users", L"Manage Routes", L"Query Log", L"Register Next Route", L"Check In", L"Check Out", L"Debug Data"};
+    wchar_t *descriptions[] = {L"Manage users", L"Manage routes", L"Query log", L"Register next route", L"Check in", L"Check out", L"Debug data"};
+    MENU mainscreen;
+    setMenuData(&mainscreen, NULL, 0, 0, 7, options, descriptions);
+
+    Funciones mainFuncs[] = {
+        (void*)&manageUsers,
+        (void*)&manageRoutes,
+        (void*)&queryLog,
+        (void*)&registerNextRoute,
+        (void*)&checkIn,
+        (void*)&checkOut,
+        (void*)&DebugData};
 
     while (1)
     {
         focusMenu(&mainscreen);
-        if(mainscreen.selected == 7)
+        if (mainscreen.selected == 7)
             break;
-        
-        if(mainscreen.selected < 0 || mainscreen.selected > 7)
+
+        if (mainscreen.selected < 0 || mainscreen.selected > 7)
             continue;
 
-        funciones[mainscreen.selected](user);        
+        // execute the function by index
+        mainFuncs[mainscreen.selected]((void*)user);
     }
 }
 

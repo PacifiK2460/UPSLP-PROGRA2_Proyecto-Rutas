@@ -4,7 +4,7 @@ project("RutasDeTransporte")
 set(SOURCES main.c)
 
 set(LIBS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs")
-set(LIBS auth core routes tui llist)
+set(LIBS auth core routes ui llist)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 

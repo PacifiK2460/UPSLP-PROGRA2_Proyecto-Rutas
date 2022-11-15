@@ -102,7 +102,7 @@ void setMenuData(MENU* Destination,WINDOW* Parent, int x, int y, int rows,wchar_
 void innit();
 
 WINDOW* newWin(int y, int x, int COLS, int ROWS, WINDOW* Parent);
-void winprint(WINDOW* window,int X, int Y, char* text);
+void winprint(WINDOW* window,int X, int Y, wchar_t* text);
 void printinthemiddle(WINDOW* Window, int Y,const char* texto);
 void printinthemiddlesize(WINDOW* Window, int Y, char* texto, int tam);
 void box(WINDOW* Window);

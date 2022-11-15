@@ -2,118 +2,85 @@
 
 #define MAX_TEXT_LENGTH 51
 
-void cleanInput(){
+void cleanInput()
+{
     int c;
-    while ((c = getchar()) != '\n' && c != EOF) { };
+    while ((c = getchar()) != '\n' && c != EOF)
+    {
+    };
 }
 
-//TODO #6 change inputh method to work in min-max ranges
-
-int esNumero(char numero){
-    return (numero >= '0' && numero <= '9');
-}
-
-int esLetra(char letra){
-    return ( (letra >= 'a' && letra <= 'z') || (letra >= 'A' && letra <= 'Z') );
-}
-
-int evaluarText(wchar_t* Dest, int lenght){
-<<<<<<< HEAD:libs/ui/io/IO.c
-    if(!fgetws(Dest, lenght, stdin)){
-        return -1;
-    }
-    Dest[lenght] = '\0';
-    Dest[wcsspn(Dest, "\r\n")] = 0;
-=======
-    if(!fgets(Dest, lenght, stdin)){
+int evaluarText(wchar_t *Dest, int lenght)
+{
+    if (!fgetws(Dest, lenght, stdin))
+    {
         return -1;
     }
     Dest[lenght] = L'\0';
-    Dest[strwcspn(Dest, L"\r\b")] = 0;
->>>>>>> ff6fdf7ba94ff897ebd530da505ff1f7c5ef1ec6:libs/UI/io/IO.c
+    Dest[wcsspn(Dest, L"\r\n")] = 0;
 
     return 1;
 }
 
-int evaluarNombreDelCliente(char* Src){
-    if( evaluarText(Src, MAX_TEXT_LENGTH) == -1) return -1;
-    for(int i = 0; Src[i] != '\0' && Src[i] != '\n'; i++) if(esLetra(Src[i]) == 0) return 0;
-    return 1;
-}
-
-int evaluarInt(int* Dest){
-    char buff[1024];
-    if(!fgets(buff,1024,stdin)){
+int evaluarInt(int *Dest)
+{
+    wchar_t buff[1024];
+    if (!fgetws(buff, 1024, stdin))
+    {
         return -1;
     }
 
-    char *endptr;
+    wchar_t *endptr;
     errno = 0;
-    *Dest = strtol(buff, &endptr, 10);
+    *Dest = wcstol(buff, &endptr, 10);
 
-    if(errno == ERANGE || endptr == buff || (*endptr && *endptr != '\n')){
+    if ((errno == ERANGE || endptr == buff) || (*endptr && *endptr != '\n'))
+    {
         *Dest = 0;
     }
 
     return 1;
 }
 
-int evaluarDouble(double* Dest){
-    char buff[1024];
-    if(!fgets(buff,1024,stdin)){
+int evaluarDouble(double *Dest)
+{
+    wchar_t buff[1024];
+    if (!fgetws(buff, 1024, stdin))
+    {
         return -1;
     }
 
-    char *endptr;
+    wchar_t *endptr;
     errno = 0;
-    *Dest = strtof(buff, &endptr);
+    *Dest = wcstol(buff, &endptr, 10);
 
-    if(errno == ERANGE || endptr == buff || (*endptr && *endptr != '\n')){
+    if ((errno == ERANGE || endptr == buff) || (*endptr && *endptr != '\n'))
+    {
         *Dest = 0;
     }
 
     return 1;
 }
 
-int evaluarNumeroTelefonico(char* Src){
-    if( evaluarText(Src, 12) == -1) return -1;
-    for(int i = 0; Src[i] != '\0' && Src[i] != '\n'; i++) if(esNumero(Src[i]) == 0) return 0;
-    if(strlen(Src) < 10 ) return 0;
-    return 1;
-}
-
-
-int evaluarUbicacion(char* Src){
-    if( evaluarText(Src, 2) == -1) return -1;
-    for(int i = 0; Src[i] != '\0'; i++) if(esLetra(Src[i]) == 0) return 0;
-    return 1;
-
-}
-
-
-int evaluarCorreo(char* Dest){
-    return evaluarText(Dest, MAX_TEXT_LENGTH);
-}
-
-
-
-int input(wchar_t* bg_titulo, wchar_t* titulo, void* dest, int (*funcion)(void*)){
+int input(wchar_t *bg_titulo, wchar_t *titulo, void *dest, int (*funcion)(void *))
+{
     delimitador result = funcion;
     int res;
-    do{
+    do
+    {
         {
             clearerr(stdin);
-            printf(CLEAR);
+            wprintf(CLEAR);
             echo();
-            winprint(STDOUTPUT,4,getrows(STDOUTPUT)-2,RESET FRGB(185, 251, 192)  L"ctrl + d"  RESET DIM  L" regresar ");
-            winprint(STDOUTPUT,4,2, bg_titulo);
-            winprint(STDOUTPUT,5, (getrows(STDOUTPUT)/2)-1,titulo);
-            winprint(STDOUTPUT,4, (getrows(STDOUTPUT)/2)-1,MENUVLINE);
-            winprint(STDOUTPUT,5, (getrows(STDOUTPUT)/2)," ");
-            winprint(STDOUTPUT,4, (getrows(STDOUTPUT)/2),MENUVLINE);
+            winprint(STDOUTPUT, 4, getrows(STDOUTPUT) - 2, RESET FRGB(185, 251, 192) L"ctrl + d" RESET DIM L" regresar ");
+            winprint(STDOUTPUT, 4, 2, bg_titulo);
+            winprint(STDOUTPUT, 5, (getrows(STDOUTPUT) / 2) - 1, titulo);
+            winprint(STDOUTPUT, 4, (getrows(STDOUTPUT) / 2) - 1, MENUVLINE);
+            winprint(STDOUTPUT, 5, (getrows(STDOUTPUT) / 2), L" ");
+            winprint(STDOUTPUT, 4, (getrows(STDOUTPUT) / 2), MENUVLINE);
         }
 
-    }while((res = result(dest)) == 0);
+    } while ((res = result(dest)) == 0);
     noEcho();
     clearerr(stdin);
     return res;

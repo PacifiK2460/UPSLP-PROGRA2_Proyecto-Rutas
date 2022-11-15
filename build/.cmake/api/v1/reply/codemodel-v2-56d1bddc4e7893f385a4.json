@@ -136,11 +136,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "RutasDeTransporte::@6890427a1f51a3e7e1df",
-<<<<<<<< HEAD:build/.cmake/api/v1/reply/codemodel-v2-d9cac42aec810044f502.json
-					"jsonFile" : "target-RutasDeTransporte-c5a815d644f840bc0116.json",
-========
-					"jsonFile" : "target-RutasDeTransporte-Debug-935193f727380734cbdc.json",
->>>>>>>> ff6fdf7ba94ff897ebd530da505ff1f7c5ef1ec6:build/.cmake/api/v1/reply/codemodel-v2-b55dbc27ea144f631937.json
+					"jsonFile" : "target-RutasDeTransporte-60cd33fb021471387c63.json",
 					"name" : "RutasDeTransporte",
 					"projectIndex" : 0
 				},

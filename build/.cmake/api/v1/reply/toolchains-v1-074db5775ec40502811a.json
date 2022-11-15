@@ -33,13 +33,8 @@
 						"gcc_s"
 					]
 				},
-<<<<<<<< HEAD:build/.cmake/api/v1/reply/toolchains-v1-befc405f6879dbf05623.json
-				"path" : "/usr/bin/cc",
-				"version" : "12.2.0"
-========
 				"path" : "/usr/bin/gcc",
-				"version" : "11.2.0"
->>>>>>>> ff6fdf7ba94ff897ebd530da505ff1f7c5ef1ec6:build/.cmake/api/v1/reply/toolchains-v1-f8eaf7f9e5670d5d73ca.json
+				"version" : "11.3.0"
 			},
 			"language" : "C",
 			"sourceFileExtensions" : 
@@ -84,13 +79,8 @@
 						"gcc"
 					]
 				},
-<<<<<<<< HEAD:build/.cmake/api/v1/reply/toolchains-v1-befc405f6879dbf05623.json
-				"path" : "/usr/bin/c++",
-				"version" : "12.2.0"
-========
 				"path" : "/usr/bin/g++",
-				"version" : "11.2.0"
->>>>>>>> ff6fdf7ba94ff897ebd530da505ff1f7c5ef1ec6:build/.cmake/api/v1/reply/toolchains-v1-f8eaf7f9e5670d5d73ca.json
+				"version" : "11.3.0"
 			},
 			"language" : "CXX",
 			"sourceFileExtensions" : 

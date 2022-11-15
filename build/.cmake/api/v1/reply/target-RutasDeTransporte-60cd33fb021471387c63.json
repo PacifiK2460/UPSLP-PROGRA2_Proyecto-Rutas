@@ -112,11 +112,7 @@
 				"role" : "flags"
 			},
 			{
-<<<<<<<< HEAD:build/.cmake/api/v1/reply/target-RutasDeTransporte-c5a815d644f840bc0116.json
-				"fragment" : "-Wl,-rpath,\"/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programaci\u00f3n II/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/auth:/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programaci\u00f3n II/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/core:/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programaci\u00f3n II/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/routes\"",
-========
-				"fragment" : "-Wl,-rpath,/home/lara/Documents/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/auth:/home/lara/Documents/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/core:/home/lara/Documents/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/routes:/home/lara/Documents/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/tui",
->>>>>>>> ff6fdf7ba94ff897ebd530da505ff1f7c5ef1ec6:build/.cmake/api/v1/reply/target-RutasDeTransporte-Debug-935193f727380734cbdc.json
+				"fragment" : "-Wl,-rpath,/home/lara/Documents/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/auth:/home/lara/Documents/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/core:/home/lara/Documents/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/routes",
 				"role" : "libraries"
 			},
 			{

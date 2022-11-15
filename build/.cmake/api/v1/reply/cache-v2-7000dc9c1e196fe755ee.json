@@ -110,22 +110,6 @@
 			"value" : "ON"
 		},
 		{
-			"name" : "CMAKE_COLOR_MAKEFILE",
-			"properties" : 
-			[
-				{
-					"name" : "ADVANCED",
-					"value" : "1"
-				},
-				{
-					"name" : "HELPSTRING",
-					"value" : "Enable/Disable color output during build."
-				}
-			],
-			"type" : "BOOL",
-			"value" : "ON"
-		},
-		{
 			"name" : "CMAKE_COMMAND",
 			"properties" : 
 			[
@@ -171,15 +155,11 @@
 				},
 				{
 					"name" : "HELPSTRING",
-					"value" : "No help, variable specified on the command line."
+					"value" : "CXX compiler"
 				}
 			],
-			"type" : "FILEPATH",
-<<<<<<<< HEAD:build/.cmake/api/v1/reply/cache-v2-cef44b3203e814d70a5c.json
-			"value" : "/usr/bin/c++"
-========
+			"type" : "STRING",
 			"value" : "/usr/bin/g++"
->>>>>>>> ff6fdf7ba94ff897ebd530da505ff1f7c5ef1ec6:build/.cmake/api/v1/reply/cache-v2-65f352787870f8a52ce0.json
 		},
 		{
 			"name" : "CMAKE_CXX_COMPILER_AR",
@@ -303,15 +283,11 @@
 				},
 				{
 					"name" : "HELPSTRING",
-					"value" : "No help, variable specified on the command line."
+					"value" : "C compiler"
 				}
 			],
-			"type" : "FILEPATH",
-<<<<<<<< HEAD:build/.cmake/api/v1/reply/cache-v2-cef44b3203e814d70a5c.json
-			"value" : "/usr/bin/cc"
-========
+			"type" : "STRING",
 			"value" : "/usr/bin/gcc"
->>>>>>>> ff6fdf7ba94ff897ebd530da505ff1f7c5ef1ec6:build/.cmake/api/v1/reply/cache-v2-65f352787870f8a52ce0.json
 		},
 		{
 			"name" : "CMAKE_C_COMPILER_AR",
@@ -675,11 +651,7 @@
 				}
 			],
 			"type" : "FILEPATH",
-<<<<<<<< HEAD:build/.cmake/api/v1/reply/cache-v2-cef44b3203e814d70a5c.json
-			"value" : "/usr/bin/make"
-========
 			"value" : "/usr/bin/gmake"
->>>>>>>> ff6fdf7ba94ff897ebd530da505ff1f7c5ef1ec6:build/.cmake/api/v1/reply/cache-v2-65f352787870f8a52ce0.json
 		},
 		{
 			"name" : "CMAKE_MODULE_LINKER_FLAGS",

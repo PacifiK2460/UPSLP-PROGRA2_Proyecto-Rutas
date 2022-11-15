@@ -57,8 +57,6 @@ void checkIn(User user);
 void checkOut(User user);
 void DebugData(User user);
 
-<<<<<<< HEAD
-=======
 typedef struct
 {
     int length;
@@ -72,32 +70,8 @@ int makeHandShake(void *data)
     return evaluarText(handshake->text, handshake->length);
 }
 
-void *funcionesl = {
-    manageUsers,
-    manageRoutes,
-    queryLog,
-    registerNextRoute,
-    checkIn,
-    checkOut,
-    DebugData};
-
->>>>>>> ff6fdf7ba94ff897ebd530da505ff1f7c5ef1ec6
 void mainScreen(User *user)
 {
-    MENU mainscreen = {
-        .title = L"Main Menu",
-        .options = {
-            L"Manage Users",
-            L"Manage Routes",
-            L"Query Log",
-            L"Register Next Route",
-            L"Check In",
-            L"Check Out",
-            L"Debug Data",
-            L"Exit"},
-        .length = 8,
-        .funciones = funcionesl};
-    }
 
     wint_t opcion;
     wchar_t *options[] = {L"Manage Users", L"Manage Routes", L"Query Log", L"Register Next Route", L"Check In", L"Check Out", L"Debug Data"};
@@ -112,7 +86,8 @@ void mainScreen(User *user)
         (void*)&registerNextRoute,
         (void*)&checkIn,
         (void*)&checkOut,
-        (void*)&DebugData};
+        (void*)&DebugData
+    };
 
     while (1)
     {
@@ -123,12 +98,7 @@ void mainScreen(User *user)
         if (mainscreen.selected < 0 || mainscreen.selected > 7)
             continue;
 
-<<<<<<< HEAD
-        // execute the function by index
-        mainFuncs[mainscreen.selected]((void*)user);
-=======
-        funciones[mainscreen.selected](user);
->>>>>>> ff6fdf7ba94ff897ebd530da505ff1f7c5ef1ec6
+        mainFuncs[mainscreen.selected](user);
     }
 }
 

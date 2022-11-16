@@ -2,7 +2,7 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "libs/ui/libuiio.so"
+			"path" : "libs/ui/libui.so"
 		}
 	],
 	"backtrace" : 1,
@@ -24,7 +24,7 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 15,
+				"line" : 16,
 				"parent" : 0
 			}
 		]
@@ -41,7 +41,7 @@
 			"defines" : 
 			[
 				{
-					"define" : "uiio_EXPORTS"
+					"define" : "ui_EXPORTS"
 				}
 			],
 			"language" : "C",
@@ -49,11 +49,14 @@
 			[
 				0,
 				1,
-				2
+				2,
+				3,
+				4,
+				5
 			]
 		}
 	],
-	"id" : "uiio::@e7dcc633018364bb2d5a",
+	"id" : "ui::@e7dcc633018364bb2d5a",
 	"link" : 
 	{
 		"commandFragments" : 
@@ -65,8 +68,8 @@
 		],
 		"language" : "C"
 	},
-	"name" : "uiio",
-	"nameOnDisk" : "libuiio.so",
+	"name" : "ui",
+	"nameOnDisk" : "libui.so",
 	"paths" : 
 	{
 		"build" : "libs/ui",
@@ -80,7 +83,10 @@
 			[
 				0,
 				1,
-				2
+				2,
+				3,
+				4,
+				5
 			]
 		}
 	],
@@ -102,6 +108,24 @@
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "libs/ui/io/str.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "libs/ui/win/menu.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "libs/ui/win/table.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "libs/ui/win/win.c",
 			"sourceGroupIndex" : 0
 		}
 	],

@@ -1,16 +1,16 @@
 # set(NAME ui)
-# set(UILIBS io sys win)
-# foreach(UILIB)
-#     set(NAME ${NAME}${UILIB})
-#     set(UILIBS ${UILIBS} ${UILIB})
-# endforeach()
+# file(GLOB "${NAME}_SOURCES"
+#     io/*.c
+#     win/*.c
+#     )
 
-# file(GLOB "${NAME}_SRC" *.c)
-# add_library(${NAME} SHARED "${${NAME}_SRC}")
+# # print all sources
+# message(STATUS "Sources: ${${NAME}_SOURCES}")
+
+# add_library(${NAME} SHARED "${NAME}_SOURCES")
 
 set(NAME ui)
-set(UILIBS io sys win)
-foreach(UILIB ${UILIBS})
-    file(GLOB "${NAME}${UILIB}_SRC" ${UILIB}/*.c)
-    add_library(${NAME}${UILIB} SHARED "${${NAME}${UILIB}_SRC}")
-endforeach()
+file(GLOB "${NAME}_SRC" io/*.c win/*.c)
+ message(STATUS "Sources: ${${NAME}_SRC}")
+
+add_library(${NAME} SHARED "${${NAME}_SRC}")

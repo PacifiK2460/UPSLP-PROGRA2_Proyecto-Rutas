@@ -1,4 +1,4 @@
-#include "../IO.h"
+#include "../io.h"
 
 int getFileLines(char* filename){
     int rows = 0;

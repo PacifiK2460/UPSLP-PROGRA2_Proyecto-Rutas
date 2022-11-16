@@ -1,4 +1,4 @@
-#include "../IO.h"
+#include "../io.h"
 
 void int2str(int src, char* dest){
     snprintf(dest,29,"%i",src);

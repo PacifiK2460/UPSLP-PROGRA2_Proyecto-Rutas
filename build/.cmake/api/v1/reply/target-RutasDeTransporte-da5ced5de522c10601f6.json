@@ -98,6 +98,10 @@
 			"id" : "routes::@3568fe2a7ca302a9ca58"
 		},
 		{
+			"backtrace" : 5,
+			"id" : "ui::@e7dcc633018364bb2d5a"
+		},
+		{
 			"backtrace" : 6,
 			"id" : "llist::@25e9fa1a3b6213a440f7"
 		}
@@ -112,7 +116,7 @@
 				"role" : "flags"
 			},
 			{
-				"fragment" : "-Wl,-rpath,/home/lara/Documents/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/auth:/home/lara/Documents/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/core:/home/lara/Documents/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/routes",
+				"fragment" : "-Wl,-rpath,\"/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programaci\u00f3n II/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/auth:/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programaci\u00f3n II/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/core:/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programaci\u00f3n II/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/routes:/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programaci\u00f3n II/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/ui\"",
 				"role" : "libraries"
 			},
 			{
@@ -132,7 +136,7 @@
 			},
 			{
 				"backtrace" : 5,
-				"fragment" : "-lui",
+				"fragment" : "libs/ui/libui.so",
 				"role" : "libraries"
 			},
 			{

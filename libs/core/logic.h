@@ -18,3 +18,9 @@
  * @return int Exit code
  */
 int TuiLogin();
+
+typedef struct
+{
+    int length;
+    wchar_t *text;
+} Handshake;

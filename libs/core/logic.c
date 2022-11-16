@@ -7,10 +7,21 @@ int makeHandShake(void *data)
     return evaluarText(handshake->text, handshake->length);
 }
 
+void createUserUI()
+{
+    printHelp(
+        RESET FRGB(185, 251, 192) L"↕" RESET DIM L" Sig/Ant " RESET FRGB(185, 251, 192) L"↵" RESET DIM L" Escoger ",
+        4, getrows(STDOUTPUT) - 2);
+
+    wchar_t saludo[1024] = L"Selecciona el nivel de autoridad del usuario 🛡 " BOLD;
+
+    winprint(STDOUTPUT, 4, 2, saludo);
+    winprint(STDOUTPUT, 4, 3, DIM L"Escoge alguna actividad a realizar..." RESET "\0");
+}
+
 void createUser(void *data)
 {
-    User *newUser = calloc(1, sizeof(User));
-
+    User requester = *(User *)data;
     Handshake username = {
         .length = USERNAME_MAX_LENGTH + 1,
         .text = NULL};
@@ -23,32 +34,42 @@ void createUser(void *data)
         .length = 5,
         .text = NULL};
 
-    Handshake estado = {
-        .length = 5,
-        .text = NULL};
-
     while (1)
     {
-        if (input(L"Ingresa el nombre del nuevo usuario a crear", L"Nombre del nuevo usuario", (void *)&username, makeHandShake) != 0)
-            continue;
+        if (input(L"Ingresa el nombre del nuevo usuario a crear", L"Nombre del nuevo usuario", (void *)&username, makeHandShake) == 1)
+            break;
 
         printMessage(L"Por favor sigue las indicaciones para crear el nombre usuario");
     }
 
     while (1)
     {
-        if (input(L"Ingresa la contraseña del nuevo usuario a crear", L"Contraseña del nuevo usuario", (void *)&password, makeHandShake) != 0)
-            continue;
+        if (input(L"Ingresa la contraseña del nuevo usuario a crear", L"Contraseña del nuevo usuario", (void *)&password, makeHandShake) == 1)
+            break;
 
         printMessage(L"Por favor sigue las indicaciones para crear la contraseña usuario");
     }
 
-    while (1)
     {
-        if (input(L"Ingresa los priilegios", L"Privilegios del nuevo usuario", (void *)&password, makeHandShake) != 0)
-            continue;
+        MENU tipoDeUsuario;
+        wchar_t *opciones[] = {L"Pasajero", L"Administrador"};
+        wchar_t *descrpciones[] = {L"Usuario con los minimos privilegios", L"Usuario con los privilegios maximos de administrados",};
+        setMenuData(&tipoDeUsuario, NULL, 5,4,1,2, opciones, descrpciones, &createUserUI, NULL);
+        focusMenu(&tipoDeUsuario);
 
-        printMessage(L"Por favor sigue las indicaciones para crear la contraseña usuario");
+        tipo.length = tipoDeUsuario.selected;
+    }
+
+    {
+        int result = add_user(requester, username.text, password.text, tipo.length).Error_state;
+        if( result == OK)
+            printMessage(L"Usuario creado correctamente");
+        else if (result == USER_ALREADY_EXISTS)
+            printMessage(L"El usuario ya existe");
+        else if (result == USER_NOT_ALLOWED)
+            printMessage(L"No tienes los permisos necesarios para realizar esta accion");
+        else
+            printMessage(L"Ocurrio un error desconocido");
     }
 }
 
@@ -70,7 +91,7 @@ void manageUsersUI(User *user)
         RESET FRGB(185, 251, 192) L"↕" RESET DIM L" Sig/Ant " RESET FRGB(185, 251, 192) L"↵" RESET DIM L" Escoger ",
         4, getrows(STDOUTPUT) - 2);
 
-    wchar_t saludo[1024] = L"🛡 Estamos bajo tus ordenes " BOLD;
+    wchar_t saludo[1024] = L"🛡  Estamos bajo tus ordenes " BOLD;
     wcscat(saludo, user->name);
     wcscat(saludo, RESET L", hoy y siempre.\0");
 
@@ -90,7 +111,7 @@ void manageUsers(User *user)
     wchar_t *descriptions[] = {L"Crea un usuario totalmente nuevo", L"Elimina algun usuario", L"Modifica la información de un usuario y/o deshabilitala", L"Consulta una lista detallada de todos los usuarios registrados", L"Regresa ak menu principal"};
 
     MENU menu;
-    setMenuData(&menu, NULL, 5, 4, 1, 5, options, descriptions, &manageUsersUI, (void *)user);
+    setMenuData(&menu, NULL, 5, 4, 1, 5, options, descriptions, &manageUsersUI, user);
 
     Funciones userman[] = {
         (void *)&createUser,
@@ -104,8 +125,8 @@ void manageUsers(User *user)
         focusMenu(&menu);
         if (menu.selected == 4)
             break;
-        if (menu.selected > 0 && menu.selected < 5)
-            userman[menu.selected - 1](&user);
+        if (menu.selected >= 0 && menu.selected < 3)
+            userman[menu.selected](user);
     }
 }
 

@@ -7,8 +7,14 @@
 #include <time.h>
 #include "io.h"
 
+#include <wchar.h>
+
 #include "../core/core.h"
 #include <wchar.h>
+
+#include <assert.h>
+#define assertm(exp, msg) assert(((void)msg, exp))
+
 
 #ifdef _WIN32
   #include <windows.h>
@@ -37,7 +43,7 @@
 #define MENUVLINE L"▏"
 
 #define RESET     L"\e[0m"
-#define NONE      L""
+// #define NONE      L""
 
 // Tipos
 #define BOLD      L"\e[1m"
@@ -72,14 +78,19 @@ typedef struct _WINDOW
   struct WINDOW* Parent;
 }WINDOW;
 
+typedef int (*Funciones)(void*);
 
 typedef struct _MENU{
     WINDOW* Parent;
     int X;
     int Y;
     int ROWS;
+    int PAGE;
+    int PAGES;
     wchar_t** opciones;
     wchar_t** descripcion;
+    Funciones __before;
+    void* __before_args;
     int selected;
 } MENU;
 
@@ -95,16 +106,14 @@ typedef struct _TABLE{
     struct FILA* data;
 } TABLE;
 
-typedef int (*Funciones)(void*);
-
-void setMenuData(MENU* Destination,WINDOW* Parent, int x, int y, int rows,wchar_t* opciones[], wchar_t* descripciones[]);
+void setMenuData(MENU* Destination,WINDOW* Parent, int x, int y,int pages, int rows,wchar_t* opciones[], wchar_t* descripciones[],Funciones __before, void *__before_args);
 
 void innit();
 
 WINDOW* newWin(int y, int x, int COLS, int ROWS, WINDOW* Parent);
 void winprint(WINDOW* window,int X, int Y, wchar_t* text);
-void printinthemiddle(WINDOW* Window, int Y,const char* texto);
-void printinthemiddlesize(WINDOW* Window, int Y, char* texto, int tam);
+void printinthemiddle(WINDOW* Window, int Y,wchar_t* texto);
+void printinthemiddlesize(WINDOW* Window, int Y, wchar_t* texto, int tam);
 void box(WINDOW* Window);
 void getcolsrows(WINDOW* Window, int* COLS, int* ROWS);
 void getxy(WINDOW* Window, int* X, int* Y);
@@ -113,7 +122,8 @@ int getrows(WINDOW* Window);
 int getx(WINDOW* Window);
 int gety(WINDOW* Window);
 
-void printMessage(char* text);
+void printMessage(wchar_t* text);
+void printHelp(wchar_t* text, int X, int Y);
 
 // Menu.h
 //MENU* newMenu(WINDOW* Parent, int x, int y, int COLS, int ROWS,char** opciones,char** descripciones, int cant);

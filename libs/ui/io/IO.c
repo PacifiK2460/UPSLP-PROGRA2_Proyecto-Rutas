@@ -17,7 +17,12 @@ int evaluarText(wchar_t *Dest, int lenght)
         return -1;
     }
     Dest[lenght] = L'\0';
-    Dest[wcsspn(Dest, L"\r\n")] = 0;
+
+    wchar_t* result = wmemchr(Dest, L'\n', lenght);
+    if(result != NULL){
+        Dest[result - Dest] = L'\0';
+    }
+
 
     return 1;
 }
@@ -64,6 +69,7 @@ int evaluarDouble(double *Dest)
 
 int input(wchar_t *bg_titulo, wchar_t *titulo, void *dest, int (*funcion)(void *))
 {
+    wprintf(SHOW_CURSOR);
     delimitador result = funcion;
     int res;
     do

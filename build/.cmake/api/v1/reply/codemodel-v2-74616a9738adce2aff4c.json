@@ -14,7 +14,7 @@
 						4,
 						5
 					],
-					"jsonFile" : "directory-.-f5ebdc15457944623624.json",
+					"jsonFile" : "directory-.-Debug-f5ebdc15457944623624.json",
 					"minimumCMakeVersion" : 
 					{
 						"string" : "3.8"
@@ -28,7 +28,7 @@
 				},
 				{
 					"build" : "libs/auth",
-					"jsonFile" : "directory-libs.auth-31573f820afc9ead9843.json",
+					"jsonFile" : "directory-libs.auth-Debug-31573f820afc9ead9843.json",
 					"minimumCMakeVersion" : 
 					{
 						"string" : "3.8"
@@ -43,7 +43,7 @@
 				},
 				{
 					"build" : "libs/core",
-					"jsonFile" : "directory-libs.core-b82dff5ceaf572003b70.json",
+					"jsonFile" : "directory-libs.core-Debug-b82dff5ceaf572003b70.json",
 					"minimumCMakeVersion" : 
 					{
 						"string" : "3.8"
@@ -58,7 +58,7 @@
 				},
 				{
 					"build" : "libs/routes",
-					"jsonFile" : "directory-libs.routes-44adfd66ba848608a06e.json",
+					"jsonFile" : "directory-libs.routes-Debug-44adfd66ba848608a06e.json",
 					"minimumCMakeVersion" : 
 					{
 						"string" : "3.8"
@@ -73,7 +73,7 @@
 				},
 				{
 					"build" : "libs/ui",
-					"jsonFile" : "directory-libs.ui-d5d5baf1980e5b7b23c3.json",
+					"jsonFile" : "directory-libs.ui-Debug-d5d5baf1980e5b7b23c3.json",
 					"minimumCMakeVersion" : 
 					{
 						"string" : "3.8"
@@ -88,7 +88,7 @@
 				},
 				{
 					"build" : "libs/llist",
-					"jsonFile" : "directory-libs.llist-dbf0f127c397b8d50009.json",
+					"jsonFile" : "directory-libs.llist-Debug-dbf0f127c397b8d50009.json",
 					"minimumCMakeVersion" : 
 					{
 						"string" : "3.8"
@@ -102,7 +102,7 @@
 					]
 				}
 			],
-			"name" : "",
+			"name" : "Debug",
 			"projects" : 
 			[
 				{
@@ -132,42 +132,42 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "RutasDeTransporte::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-RutasDeTransporte-da5ced5de522c10601f6.json",
+					"jsonFile" : "target-RutasDeTransporte-Debug-37214da427e9f346318c.json",
 					"name" : "RutasDeTransporte",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 1,
 					"id" : "auth::@63639d748794dd0881eb",
-					"jsonFile" : "target-auth-4b93168f5b10118a3855.json",
+					"jsonFile" : "target-auth-Debug-941d8bf6c5c5e676c253.json",
 					"name" : "auth",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 2,
 					"id" : "core::@7bc883c3d40b22fbda52",
-					"jsonFile" : "target-core-105b2c9eb5a2d2b56f98.json",
+					"jsonFile" : "target-core-Debug-4fd7bad771fbeecff649.json",
 					"name" : "core",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 5,
 					"id" : "llist::@25e9fa1a3b6213a440f7",
-					"jsonFile" : "target-llist-41180ebb06f1f9ee0d84.json",
+					"jsonFile" : "target-llist-Debug-4c83366398c533376a52.json",
 					"name" : "llist",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 3,
 					"id" : "routes::@3568fe2a7ca302a9ca58",
-					"jsonFile" : "target-routes-a2d169b26ebaf6bdba17.json",
+					"jsonFile" : "target-routes-Debug-3f7fbf7b8ce7772218f2.json",
 					"name" : "routes",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 4,
 					"id" : "ui::@e7dcc633018364bb2d5a",
-					"jsonFile" : "target-ui-e2ecc1013eafed96d685.json",
+					"jsonFile" : "target-ui-Debug-723319fbb1a9018e7861.json",
 					"name" : "ui",
 					"projectIndex" : 0
 				}

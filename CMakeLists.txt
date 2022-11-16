@@ -14,4 +14,4 @@ foreach(LIB ${LIBS})
 endforeach()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE m)
-set(GCC_COVERAGE_COMPILE_FLAGS "-Wall")
+set(GCC_COVERAGE_COMPILE_FLAGS "-Wall" "-fdata-sections -ffunction-sections" "-Wl,--gc-sections")

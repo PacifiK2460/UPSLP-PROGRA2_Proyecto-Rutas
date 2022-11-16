@@ -35,7 +35,7 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "-fPIC"
+					"fragment" : "-g -fPIC"
 				}
 			],
 			"defines" : 

@@ -5,7 +5,8 @@
 #include <math.h>
 #include <errno.h>
 #include <string.h>
-#include "sys.h"
+// #include "sys.h"
+#include "win.h"
 
 #include <wchar.h>
 

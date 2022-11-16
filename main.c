@@ -12,7 +12,10 @@ void cleanUp()
 {
     freeUsers();
     freeRoutes();
+    
     CLOSE_SCREEN();
+    echo();
+    wprintf(SHOW_CURSOR);
 
     wprintf(BOLD L"Goodbye! 🗃\n" RESET);
 }

@@ -12,7 +12,7 @@ void manageUsers(User user)
     wchar_t *descriptions[] = {L"Create a new user", L"Delete an existing user", L"Modify an existing user", L"List all users", L"Go back to main menu"};
 
     MENU menu;
-    setMenuData(&menu, NULL, 0, 0, 5, options, descriptions);
+    setMenuData(&menu, NULL, 6, 4, 5, 0, options, descriptions, NULL, NULL);
 }
 
 // do
@@ -50,12 +50,12 @@ void manageUsers(User user)
 //     }
 // } while (1);
 // }
-void manageRoutes(User user);
-void queryLog(User user);
-void registerNextRoute(User user);
-void checkIn(User user);
-void checkOut(User user);
-void DebugData(User user);
+void manageRoutes(User user) {}
+void queryLog(User user) {}
+void registerNextRoute(User user) {}
+void checkIn(User user) {}
+void checkOut(User user) {}
+void DebugData(User user) {}
 
 typedef struct
 {
@@ -70,24 +70,38 @@ int makeHandShake(void *data)
     return evaluarText(handshake->text, handshake->length);
 }
 
+void mainScreenUI(void *data)
+{
+    printHelp(
+        RESET FRGB(185, 251, 192) L"↕" RESET DIM L" Sig/Ant " RESET FRGB(185, 251, 192) L"↵" RESET DIM L" Escoger ",
+        4, getrows(STDOUTPUT) - 2);
+
+    User *user = (User *)data;
+    wchar_t saludo[1024] = L"👋 Bienvenido " BOLD;
+    wcscat(saludo, user->name);
+    wcscat(saludo, RESET L", es un placer tenerte de vuelta.\0");
+
+    winprint(STDOUTPUT, 4, 2, saludo);
+    winprint(STDOUTPUT, 4, 3, DIM L"Escoge alguna actividad a realizar..." RESET "\0");
+}
+
 void mainScreen(User *user)
 {
 
     wint_t opcion;
-    wchar_t *options[] = {L"Manage Users", L"Manage Routes", L"Query Log", L"Register Next Route", L"Check In", L"Check Out", L"Debug Data"};
-    wchar_t *descriptions[] = {L"Manage users", L"Manage routes", L"Query log", L"Register next route", L"Check in", L"Check out", L"Debug data"};
+    wchar_t *options[] = {L"Administrar Usuarios", L"Administrar Rutas", L"Enlistar Usuarios", L"Reservar Asiento", L"Check In", L"Check Out", L"Debug Data", L"Cerrar Sesión", L"Cerrar Aplicación"};
+    wchar_t *descriptions[] = {L"Agrega, elimina, u modifica los usuarios registrados", L"Agrega, elimina, u modifica las rutas registradas", L"Busca entre todos los usuarios registrados", L"Reserva el asiento de tu siguiente parada", L"Tomar registro de toma de ruta", L"Terminar ruta", L"Información detallada de la información registrada", L"Cierra sesión para que otro usuario pueda usar el sitema", L"Cierra el sistema y las bases de datos"};
     MENU mainscreen;
-    setMenuData(&mainscreen, NULL, 0, 0, 7, options, descriptions);
+    setMenuData(&mainscreen, NULL, 5, 4, 1, 9, options, descriptions, &mainScreenUI, user);
 
     Funciones mainFuncs[] = {
-        (void*)&manageUsers,
-        (void*)&manageRoutes,
-        (void*)&queryLog,
-        (void*)&registerNextRoute,
-        (void*)&checkIn,
-        (void*)&checkOut,
-        (void*)&DebugData
-    };
+        (void *)&manageUsers,
+        (void *)&manageRoutes,
+        (void *)&queryLog,
+        (void *)&registerNextRoute,
+        (void *)&checkIn,
+        (void *)&checkOut,
+        (void *)&DebugData};
 
     while (1)
     {
@@ -95,7 +109,10 @@ void mainScreen(User *user)
         if (mainscreen.selected == 7)
             break;
 
-        if (mainscreen.selected < 0 || mainscreen.selected > 7)
+        if (mainscreen.selected == 8)
+            exit(EXIT_SUCCESS);
+
+        if (mainscreen.selected < 0 || mainscreen.selected > 8)
             continue;
 
         mainFuncs[mainscreen.selected](user);
@@ -130,30 +147,27 @@ int TuiLogin()
             free(username.text);
             free(password.text);
             mainScreen(loginAttempt.Result);
-            return 1;
+            break;
         }
         case USER_NOT_FOUND:
         {
             free(username.text);
             free(password.text);
-            wprintf(BOLD L"User not found! 😢\n" RESET "Press any key to continue...");
-            getwc(stdin);
+            printMessage(L"Usuario no encontrado");
             break;
         }
         case INCORRECT_PASSWORD:
         {
             free(username.text);
             free(password.text);
-            wprintf(BOLD L"Incorrect password! 😢\n" RESET "Press any key to continue...");
-            getwc(stdin);
+            printMessage(L"Contraseña incorrecta");
             break;
         }
         case USER_DISABLED:
         {
             free(username.text);
             free(password.text);
-            wprintf(BOLD L"User disabled! 😢\n" RESET "Press any key to continue...");
-            getwc(stdin);
+            printMessage(L"Usuario deshabilitado");
             break;
         }
         }

@@ -104,16 +104,16 @@ int gety(WINDOW* Window){
   return Window->Y;
 }
 
-void printinthemiddle(WINDOW* Window, int Y, const char* texto){
+void printinthemiddle(WINDOW* Window, int Y, wchar_t* texto){
   int X = getcols(Window);
-  int tam = strlen(texto);
+  int tam = wcslen(texto);
   X = X - tam;
   X = X / 2;
   Y+=1;
-  winprint(Window,X,Y,(char*) texto);
+  winprint(Window,X,Y, texto);
 }
 
-void printinthemiddlesize(WINDOW* Window, int Y, char* texto, int tam){
+void printinthemiddlesize(WINDOW* Window, int Y, wchar_t* texto, int tam){
   int X = getcols(Window);
   X = X - tam;
   X = X / 2;
@@ -121,14 +121,14 @@ void printinthemiddlesize(WINDOW* Window, int Y, char* texto, int tam){
   winprint(Window,X,Y,texto);
 }
 
-void printMessage(char* msg){
+void printMessage(wchar_t* msg){
   NEW_SCREEN();
   {
     clearerr(stdin);
-    char text[1024] = DIM;
-    strcat(text, " ");
-    strcat(text, msg);
-    strcat(text, " " RESET);
+    wchar_t text[1024] = DIM;
+    wcscat(text, L" ");
+    wcscat(text, msg);
+    wcscat(text, L" " RESET);
 
     printinthemiddle(STDOUTPUT,getrows(STDOUTPUT)/2,text);
     winprint(STDOUTPUT,4,getrows(STDOUTPUT)-2,RESET FRGB(185, 251, 192)  "cualquier tecla"  RESET DIM  " aceptar ");
@@ -136,6 +136,10 @@ void printMessage(char* msg){
     getchar();
   }
   CLOSE_SCREEN();
+}
+
+void printHelp(wchar_t* text, int X, int Y){
+  winprint(STDOUTPUT,X,Y,text);
 }
 
 Result initTUI()
@@ -148,7 +152,6 @@ Result initTUI()
     setlocale(LC_CTYPE, "C.UTF-8");
 
     NEW_SCREEN();
-    CLOSE_SCREEN();
 
     return result;
 }

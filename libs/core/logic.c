@@ -297,6 +297,7 @@ void listUsers(User *requester)
     }
 
     { // Print user info
+        assertm(1, L"Unimplemented");
     }
 }
 
@@ -347,7 +348,7 @@ void manageUsers(User *user)
 
 void createRoute(User *user)
 {
-    if(user->type != ADMIN)
+    if (user->type != ADMIN)
     {
         printMessage(L"Acceso denegado, solo los administradores pueden acceder a esta sección");
         return;
@@ -373,12 +374,12 @@ void createRoute(User *user)
     }
 
     Result appendRoute = add_route(routerName.text, routerDescription.text, 1);
-    if(appendRoute.Error_state != OK)
+    if (appendRoute.Error_state != OK)
     {
         printMessage(L"Ocurrio un error desconocido");
     }
 
-    Route *newRoute = (Route*)appendRoute.Result;
+    Route *newRoute = (Route *)appendRoute.Result;
 
     while (1)
     {
@@ -399,7 +400,7 @@ void createRoute(User *user)
 
         Weekday diaSeleccionado = dia.selected;
 
-        Handshake horario = {ROUTE_HORARIO_MAX_LENGTH+ 1, 0};
+        Handshake horario = {ROUTE_HORARIO_MAX_LENGTH + 1, 0};
         int hour, minute;
         while (1)
         {
@@ -417,53 +418,230 @@ void createRoute(User *user)
         printMessage(L"Horario agregado correctamente");
     }
 
-    printMessage(L"Ruta agregada correctamente");   
+    printMessage(L"Ruta agregada correctamente");
 }
 
-void deleteRoute(User *user) {
-    if(user->type != ADMIN)
+void deleteRoute(User *user)
+{
+    if (user->type != ADMIN)
     {
         printMessage(L"Acceso denegado, solo los administradores pueden acceder a esta sección");
         return;
     }
     Result nroutes = number_of_routes();
-    if(nroutes.Error_state != OK)
+    if (nroutes.Error_state != OK)
     {
         printMessage(L"Ocurrio un error desconocido");
         return;
     }
 
     MENU menu;
-    wchar_t opciones[*(int*)nroutes.Result][ROUTE_NAME_MAX_LENGTH + 1];
-    wchar_t descripciones[*(int*)nroutes.Result][ROUTE_DESCRIPTION_MAX_LENGTH + 1];
+    wchar_t opciones[*(int *)nroutes.Result][ROUTE_NAME_MAX_LENGTH + 1];
+    wchar_t descripciones[*(int *)nroutes.Result][ROUTE_DESCRIPTION_MAX_LENGTH + 1];
     Route *route;
-    for(int i = 0; i < *(int*)nroutes.Result; i++)
+    for (int i = 0; i < *(int *)nroutes.Result; i++)
     {
         Result RouteResult = query_route_by_id(i);
-        if(RouteResult.Error_state != OK)
+        if (RouteResult.Error_state != OK)
         {
             printMessage(L"Ocurrio un error desconocido");
             return;
         }
 
-        route = (Route*)RouteResult.Result;
+        route = (Route *)RouteResult.Result;
         wcscpy(opciones[i], route->name);
         wcscpy(descripciones[i], route->destination);
     }
 
-    setMenuData(&menu, NULL, 5, 4, 1, *(int*)nroutes.Result, (wchar_t**)opciones, (wchar_t**)descripciones, (int (*)(void *)) & help, L"Selecciona la ruta a eliminar 🚧 " BOLD);
+    setMenuData(&menu, NULL, 5, 4, 1, *(int *)nroutes.Result, (wchar_t **)opciones, (wchar_t **)descripciones, (int (*)(void *)) & help, L"Selecciona la ruta a eliminar 🚧 " BOLD);
     focusMenu(&menu);
 
-    route = (Route*)query_route_by_id(menu.selected).Result;
+    route = (Route *)query_route_by_id(menu.selected).Result;
 
     route->state = DISABLED;
 
     printMessage(L"Ruta eliminada correctamente");
 }
 
-void modifyRoute(User *user) {}
+void modifyRoute(User *user)
+{
+    while (1)
+    {
+        Route *route;
+        // select route to modify
+        if (user->type != ADMIN)
+        {
+            printMessage(L"Acceso denegado, solo los administradores pueden acceder a esta sección");
+            return;
+        }
+        Result nroutes = number_of_routes();
+        if (nroutes.Error_state != OK)
+        {
+            printMessage(L"Ocurrio un error desconocido");
+            return;
+        }
 
-void listRoutes(User *user) {}
+        MENU menu;
+        wchar_t opciones[*(int *)nroutes.Result + 1][ROUTE_NAME_MAX_LENGTH + 1];
+        wchar_t descripciones[*(int *)nroutes.Result + 1][ROUTE_DESCRIPTION_MAX_LENGTH + 1];
+        for (int i = 0; i < *(int *)nroutes.Result; i++)
+        {
+            Result RouteResult = query_route_by_id(i);
+            if (RouteResult.Error_state != OK)
+            {
+                printMessage(L"Ocurrio un error desconocido");
+                return;
+            }
+
+            route = (Route *)RouteResult.Result;
+            wcscpy(opciones[i], route->name);
+            wcscpy(descripciones[i], route->destination);
+        }
+
+        wcscpy(opciones[*(int *)nroutes.Result + 1], L"Regresar al menú principal");
+        wcscpy(descripciones[*(int *)nroutes.Result + 1], L"Regresar al menú principal");
+
+        setMenuData(&menu, NULL, 5, 4, 1, *(int *)nroutes.Result, (wchar_t **)opciones, (wchar_t **)descripciones, (int (*)(void *)) & help, L"Selecciona la ruta a eliminar 🚧 " BOLD);
+        focusMenu(&menu);
+
+        if (menu.selected == *(int *)nroutes.Result + 1)
+            break;
+
+        route = (Route *)query_route_by_id(menu.selected).Result;
+        while (1)
+        { // select Time to modify
+            MENU menu;
+            wchar_t opciones[route->scheduled_times.size + 1][ROUTE_NAME_MAX_LENGTH + 1];
+            wchar_t descripciones[route->scheduled_times.size + 1][ROUTE_DESCRIPTION_MAX_LENGTH + 1];
+
+            wchar_t *days[] = {L"Lunes", L"Martes", L"Miercoles", L"Jueves", L"Viernes", L"Sabado", L"Domingo"};
+
+            for (int i = 0; i < route->scheduled_times.size; i++)
+            {
+                Time *time = (Time *)llist_get(&route->scheduled_times, i);
+                swprintf(opciones[i], ROUTE_NAME_MAX_LENGTH + 1, L"%s", days[time->day]);
+                swprintf(descripciones[i], ROUTE_DESCRIPTION_MAX_LENGTH + 1, L"%02d:%02d", time->time.hour, time->time.minute);
+            }
+
+            wcscpy(opciones[route->scheduled_times.size + 1], L"Regresar");
+            wcscpy(descripciones[route->scheduled_times.size + 1], L"Regresar al menu anterior");
+
+            setMenuData(&menu, NULL, 5, 4, 1, route->scheduled_times.size, (wchar_t **)opciones, (wchar_t **)descripciones, (int (*)(void *)) & help, L"Selecciona el horario a modificar 🕐 " BOLD);
+            focusMenu(&menu);
+
+            if (menu.selected == route->scheduled_times.size + 1)
+                break;
+
+            Time *time = (Time *)llist_get(&route->scheduled_times, menu.selected);
+
+            while (1)
+            { // select what to modify
+                MENU menu;
+                wchar_t *opciones[] = {L"Modificar día", L"Modificar hora", L"Terminar"};
+                wchar_t *descripciones[] = {L"Modificar día", L"Modificar hora", L"Terminar"};
+
+                setMenuData(&menu, NULL, 5, 4, 1, 2, opciones, descripciones, (int (*)(void *)) & help, L"¿Qué deseas modificar? 🕐 " BOLD);
+                focusMenu(&menu);
+
+                if (menu.selected == 0)
+                { // modify weekday
+                    MENU menu;
+                    wchar_t *opciones[] = {L"Lunes", L"Martes", L"Miercoles", L"Jueves", L"Viernes", L"Sabado", L"Domingo"};
+                    wchar_t *descripciones[] = {L"Día lunes", L"Día martes", L"Día miercoles", L"Día jueves", L"Día viernes", L"Día sabado", L"Día domingo"};
+
+                    setMenuData(&menu, NULL, 5, 4, 1, 7, opciones, descripciones, (int (*)(void *)) & help, L"Selecciona el día de la semana 📆" BOLD);
+                    focusMenu(&menu);
+
+                    time->day = menu.selected;
+                }
+                else if (menu.selected == 1)
+                { // modigy hour
+                    while (1)
+                    {
+                        Handshake _time = {ROUTE_HORARIO_MAX_LENGTH, 0};
+                        if (input(L"Ingresa el nuevo tiempo a insertar", L"Nuevo tiempo", makeHandShake, &_time) == 0)
+                        {
+                            printMessage(L"Ingresa un tiempo válido");
+                            return;
+                        }
+
+                        int hour, minute;
+                        if (swscanf(_time.text, L"%d:%d", &hour, &minute) != 2)
+                        {
+                            printMessage(L"Ingresa un tiempo válido");
+                            return;
+                        }
+
+                        if (hour < 0 || hour > 23 || minute < 0 || minute > 59)
+                        {
+                            printMessage(L"Ingresa un tiempo válido");
+                            return;
+                        }
+
+                        time->time.hour = hour;
+                        time->time.minute = minute;
+                    }
+                }
+                else
+                {
+                    printMessage(L"Horario modificado correctamente");
+                    break;
+                    ;
+                }
+                printMessage(L"Horario modificado correctamente");
+            }
+        }
+    }
+}
+
+void listRoutes(User *user)
+{
+    while (1)
+    {
+        Route *route;
+        // select route to modify
+        if (user->type != ADMIN)
+        {
+            printMessage(L"Acceso denegado, solo los administradores pueden acceder a esta sección");
+            return;
+        }
+        Result nroutes = number_of_routes();
+        if (nroutes.Error_state != OK)
+        {
+            printMessage(L"Ocurrio un error desconocido");
+            return;
+        }
+
+        MENU menu;
+        wchar_t opciones[*(int *)nroutes.Result + 1][ROUTE_NAME_MAX_LENGTH + 1];
+        wchar_t descripciones[*(int *)nroutes.Result + 1][ROUTE_DESCRIPTION_MAX_LENGTH + 1];
+        for (int i = 0; i < *(int *)nroutes.Result; i++)
+        {
+            Result RouteResult = query_route_by_id(i);
+            if (RouteResult.Error_state != OK)
+            {
+                printMessage(L"Ocurrio un error desconocido");
+                return;
+            }
+
+            route = (Route *)RouteResult.Result;
+            wcscpy(opciones[i], route->name);
+            wcscpy(descripciones[i], route->destination);
+        }
+
+        wcscpy(opciones[*(int *)nroutes.Result + 1], L"Regresar al menú principal");
+        wcscpy(descripciones[*(int *)nroutes.Result + 1], L"Regresar al menú principal");
+
+        setMenuData(&menu, NULL, 5, 4, 1, *(int *)nroutes.Result, (wchar_t **)opciones, (wchar_t **)descripciones, (int (*)(void *)) & help, L"Selecciona la ruta a eliminar 🚧 " BOLD);
+        focusMenu(&menu);
+
+        if (menu.selected == *(int *)nroutes.Result + 1)
+            break;
+
+        route = (Route *)query_route_by_id(menu.selected).Result;
+        assertm(1, L"Unimplemented");
+    }
+}
 
 void manageRoutes(User *user)
 {

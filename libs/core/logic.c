@@ -82,18 +82,34 @@ void deleteUser(User *requester)
         return;
     }
 
-    Result nUsers = number_of_users();
-    int *numberOfUsers = 0;
-    if (nUsers.Error_state == OK)
+    int nusers = 0;
     {
-        numberOfUsers = (int *)nUsers.Result;
+
+        Result nUsers = number_of_users();
+        if (nUsers.Error_state == OK)
+        {
+            if (nUsers.Result != 0)
+            {
+                if (*(int *)nUsers.Result == 0)
+                    printMessage(L"No hay usuarios para eliminar");
+
+                nusers = *(int *)nUsers.Result;
+                return;
+            }
+        }
+        else
+        {
+            printMessage(L"Ocurrio un error desconocido");
+            return;
+        }
     }
-    wchar_t usuarios[*numberOfUsers][USERNAME_MAX_LENGTH + 1];
-    wchar_t descrpciones[*numberOfUsers][USERNAME_MAX_LENGTH + 1];
+
+    wchar_t usuarios[nusers][USERNAME_MAX_LENGTH + 1];
+    wchar_t descrpciones[nusers][USERNAME_MAX_LENGTH + 1];
 
     User *user;
 
-    for (int i = 0; i < *numberOfUsers; i++)
+    for (int i = 0; i < nusers; i++)
     {
         Result query = query_user_by_id(*requester, i);
         if (query.Error_state != OK)
@@ -119,7 +135,7 @@ void deleteUser(User *requester)
     }
 
     MENU users;
-    setMenuData(&users, NULL, 5, 4, 1, *numberOfUsers, (wchar_t **)usuarios, (wchar_t **)descrpciones, (int (*)(void *)) & help, L"Selecciona el usuario a eliminar 🧽 " BOLD);
+    setMenuData(&users, NULL, 5, 4, 1, nusers, (wchar_t **)usuarios, (wchar_t **)descrpciones, (int (*)(void *)) & help, L"Selecciona el usuario a eliminar 🧽 " BOLD);
     focusMenu(&users);
     {
         Result query = query_user_by_id(*requester, users.selected);
@@ -132,7 +148,6 @@ void deleteUser(User *requester)
         user = (User *)query.Result;
     }
     remove_user(*requester, user->name);
-    free(numberOfUsers);
     printMessage(L"Usuario eliminado correctamente");
 }
 
@@ -144,18 +159,37 @@ void modifyUser(User *requester)
         return;
     }
 
-    Result nUsers = number_of_users();
-    int *numberOfUsers = 0;
-    if (nUsers.Error_state == OK)
+    int nusers = 0;
     {
-        numberOfUsers = (int *)nUsers.Result;
+
+        Result nUsers = number_of_users();
+        int *numberOfUsers = 0;
+        if (nUsers.Error_state == OK)
+        {
+            numberOfUsers = (int *)nUsers.Result;
+        }
+
+        if (numberOfUsers != 0)
+        {
+            if (*numberOfUsers == 0)
+                printMessage(L"No hay usuarios para eliminar");
+
+            nusers = *numberOfUsers;
+            return;
+        }
+        else
+        {
+            printMessage(L"Ocurrio un error desconocido");
+            return;
+        }
     }
-    wchar_t usuarios[*numberOfUsers][USERNAME_MAX_LENGTH + 1];
-    wchar_t descrpciones[*numberOfUsers][USERNAME_MAX_LENGTH + 1];
+
+    wchar_t usuarios[nusers][USERNAME_MAX_LENGTH + 1];
+    wchar_t descrpciones[nusers][USERNAME_MAX_LENGTH + 1];
 
     User *user;
 
-    for (int i = 0; i < *numberOfUsers; i++)
+    for (int i = 0; i < nusers; i++)
     {
         Result query = query_user_by_id(*requester, i);
         if (query.Error_state != OK)
@@ -181,7 +215,7 @@ void modifyUser(User *requester)
     }
 
     MENU users;
-    setMenuData(&users, NULL, 5, 4, 1, *numberOfUsers, (wchar_t **)usuarios, (wchar_t **)descrpciones, (int (*)(void *)) & help, L"Selecciona el usuario a modificar 🖋 " BOLD);
+    setMenuData(&users, NULL, 5, 4, 1, nusers, (wchar_t **)usuarios, (wchar_t **)descrpciones, (int (*)(void *)) & help, L"Selecciona el usuario a modificar 🖋 " BOLD);
     focusMenu(&users);
 
     wchar_t *opciones[] = {L"Modificar nombre", L"Modificar contraseña", L"Modificar tipo de usuario"};
@@ -559,7 +593,7 @@ void modifyRoute(User *user)
                     while (1)
                     {
                         Handshake _time = {ROUTE_HORARIO_MAX_LENGTH, 0};
-                        if (input(L"Ingresa el nuevo tiempo a insertar", L"Nuevo tiempo", makeHandShake, &_time) == 0)
+                        if (input(L"Ingresa el nuevo tiempo a insertar", L"Nuevo tiempo", (void *)&_time, makeHandShake) == 0)
                         {
                             printMessage(L"Ingresa un tiempo válido");
                             return;
@@ -694,35 +728,62 @@ void mainScreenUI(void *data)
 
 void mainScreen(User *user)
 {
-
-    wint_t opcion;
-    wchar_t *options[] = {L"Administrar Usuarios", L"Administrar Rutas", L"Enlistar Estadisticas", L"Reservar Asiento", L"Check In", L"Check Out", L"Debug Data", L"Cerrar Sesión", L"Cerrar Aplicación"};
-    wchar_t *descriptions[] = {L"Agrega, elimina, u modifica los usuarios registrados", L"Agrega, elimina, u modifica las rutas registradas", L"Un completo resumen de las estadisticas del sistema", L"Reserva el asiento de tu siguiente parada", L"Tomar registro de toma de ruta", L"Terminar ruta", L"Información detallada de la información registrada", L"Cierra sesión para que otro usuario pueda usar el sitema", L"Cierra el sistema y las bases de datos"};
-    MENU mainscreen;
-    setMenuData(&mainscreen, NULL, 5, 4, 1, 9, options, descriptions, (int (*)(void *)) & mainScreenUI, user);
-
-    Funciones mainFuncs[] = {
-        (void *)&manageUsers,
-        (void *)&manageRoutes,
-        (void *)&queryLog,
-        (void *)&registerNextRoute,
-        (void *)&checkIn,
-        (void *)&checkOut,
-        (void *)&DebugData};
-
-    while (1)
+    if (user->type == ADMIN)
     {
-        focusMenu(&mainscreen);
-        if (mainscreen.selected == 7)
-            break;
+        wint_t opcion;
+        wchar_t *options[] = {L"Administrar Usuarios", L"Administrar Rutas", L"Enlistar Estadisticas", L"Debug Data", L"Cerrar Sesión", L"Cerrar Aplicación"};
+        wchar_t *descriptions[] = {L"Agrega, elimina, u modifica los usuarios registrados", L"Agrega, elimina, u modifica las rutas registradas", L"Un completo resumen de las estadisticas del sistema", L"Información detallada de la información registrada", L"Cierra sesión para que otro usuario pueda usar el sitema", L"Cierra el sistema y las bases de datos"};
+        MENU mainscreen;
+        setMenuData(&mainscreen, NULL, 5, 4, 1, 9, options, descriptions, (int (*)(void *)) & mainScreenUI, user);
 
-        if (mainscreen.selected == 8)
-            exit(EXIT_SUCCESS);
+        Funciones mainFuncs[] = {
+            (void *)&manageUsers,
+            (void *)&manageRoutes,
+            (void *)&queryLog,
+            (void *)&DebugData};
 
-        if (mainscreen.selected < 0 || mainscreen.selected > 8)
-            continue;
+        while (1)
+        {
+            focusMenu(&mainscreen);
+            if (mainscreen.selected == 4)
+                break;
 
-        mainFuncs[mainscreen.selected](user);
+            if (mainscreen.selected == 5)
+                exit(EXIT_SUCCESS);
+
+            if (mainscreen.selected < 0 || mainscreen.selected > 2)
+                continue;
+
+            mainFuncs[mainscreen.selected](user);
+        }
+    }
+    else
+    {
+        wint_t opcion;
+        wchar_t *options[] = {L"Registrar proxima ruta", L"Registrar entrada", L"Registrar salida", L"Cerrar Sesión", L"Cerrar Aplicación"};
+        wchar_t *descriptions[] = {L"Registra la ruta que vas a realizar", L"Registra la entrada a un lugar", L"Registra la salida de un lugar", L"Cierra sesión para que otro usuario pueda usar el sitema", L"Cierra el sistema y las bases de datos"};
+        MENU mainscreen;
+        setMenuData(&mainscreen, NULL, 5, 4, 1, 9, options, descriptions, (int (*)(void *)) & mainScreenUI, user);
+
+        Funciones mainFuncs[] = {
+            (void *)&registerNextRoute,
+            (void *)&checkIn,
+            (void *)&checkOut};
+
+        while (1)
+        {
+            focusMenu(&mainscreen);
+            if (mainscreen.selected == 3)
+                break;
+
+            if (mainscreen.selected == 4)
+                exit(EXIT_SUCCESS);
+
+            if (mainscreen.selected < 0 || mainscreen.selected > 2)
+                continue;
+
+            mainFuncs[mainscreen.selected](user);
+        }
     }
 }
 

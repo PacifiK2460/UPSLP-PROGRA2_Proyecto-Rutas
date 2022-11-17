@@ -126,7 +126,7 @@
 				"role" : "flags"
 			},
 			{
-				"fragment" : "-Wl,-rpath,/home/lara/Documents/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/auth:/home/lara/Documents/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/core:/home/lara/Documents/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/routes:/home/lara/Documents/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/ui",
+				"fragment" : "-Wl,-rpath,\"/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programaci\u00f3n II/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/auth:/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programaci\u00f3n II/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/core:/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programaci\u00f3n II/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/routes:/home/pk/Documents/UPSLP/PROGRAMACION/Proyectos/Programaci\u00f3n II/UPSLP-PROGRA2_Proyecto-Rutas/build/libs/ui\"",
 				"role" : "libraries"
 			},
 			{

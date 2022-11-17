@@ -32,7 +32,7 @@ typedef enum State
 {
     ENABLED,
     DISABLED
-} state;
+} State;
 
 typedef enum Type
 {
@@ -45,7 +45,7 @@ typedef struct
     wchar_t *name;
     wchar_t *pass;
     Type type;
-    state state;
+    State state;
     // if the user is an admin, this field will be 0
     LList queued_routes;
 } User;
@@ -102,6 +102,23 @@ Result remove_user(const User Requester, const wchar_t *UserName);
     If the user does not exists, the function returns USER_NOT_FOUND.
 */
 Result query_user(const User Requester, const wchar_t *UserName);
+
+/**
+ * @brief Attempts to queue a route for the given user.
+ * 
+ * @param Requester The user whom is requesting the action. If the requested does not have enough permissions, the function will return USER_NOT_ALLOWED.
+ * @param id The id of the user to request
+ * @return Result The result of the operation. Either the user or USER_NOT_FOUND.
+ */
+Result query_user_by_id(const User Requester, const int id);
+
+/*
+    Attempts to query all users.
+    If the users are found, the function returns the users.
+
+    If there are no users, the function returns USER_NOT_FOUND.
+*/
+Result number_of_users();
 
 /**
  * @brief Frees all user routes

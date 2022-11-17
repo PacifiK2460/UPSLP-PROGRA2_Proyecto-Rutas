@@ -303,3 +303,33 @@ Result query_user(const User Requester, const wchar_t* UserName){
     result.Error_state = USER_NOT_FOUND;
     return result;
 }
+
+Result number_of_users(){
+    Result result = {OK, NULL};
+    result.Result = malloc(sizeof(int));
+    if(result.Result == 0){
+        result.Error_state = MALLOC_FAULT;
+        return result;
+    }
+
+    int* num = calloc(1, sizeof(int));
+    *num = llist_size(&users);
+    result.Result = num;
+    return result;
+}
+
+Result query_user_by_id(const User Requester, const int id){
+    Result res = {OK, NULL};
+    if(Requester.type != ADMIN){
+        res.Error_state = USER_NOT_ALLOWED;
+        return res;
+    }
+
+    if(id < 0 || id >= llist_size(&users)){
+        res.Error_state = USER_NOT_FOUND;
+        return res;
+    }
+
+    res.Result = llist_get(&users, id);
+    return res;
+}

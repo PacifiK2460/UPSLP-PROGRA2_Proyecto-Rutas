@@ -3,6 +3,8 @@
 #include "../core/core.h"
 #include "../llist/llist.h"
 
+#include "../auth/auth.h"
+
 #include <errno.h>
 #include <stdio.h>
 #include <wchar.h>
@@ -28,6 +30,7 @@ typedef struct Route
 {
     wchar_t* name;
     wchar_t* destination;
+    int state;
     LList scheduled_times;
 } Route;
 

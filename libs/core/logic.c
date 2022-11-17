@@ -7,15 +7,13 @@ int makeHandShake(void *data)
     return evaluarText(handshake->text, handshake->length);
 }
 
-void createUserUI()
+void help(wchar_t *text)
 {
     printHelp(
         RESET FRGB(185, 251, 192) L"↕" RESET DIM L" Sig/Ant " RESET FRGB(185, 251, 192) L"↵" RESET DIM L" Escoger ",
         4, getrows(STDOUTPUT) - 2);
 
-    wchar_t saludo[1024] = L"Selecciona el nivel de autoridad del usuario 🛡 " BOLD;
-
-    winprint(STDOUTPUT, 4, 2, saludo);
+    winprint(STDOUTPUT, 4, 2, text);
     winprint(STDOUTPUT, 4, 3, DIM L"Escoge alguna actividad a realizar..." RESET "\0");
 }
 
@@ -53,8 +51,11 @@ void createUser(void *data)
     {
         MENU tipoDeUsuario;
         wchar_t *opciones[] = {L"Pasajero", L"Administrador"};
-        wchar_t *descrpciones[] = {L"Usuario con los minimos privilegios", L"Usuario con los privilegios maximos de administrados",};
-        setMenuData(&tipoDeUsuario, NULL, 5,4,1,2, opciones, descrpciones, &createUserUI, NULL);
+        wchar_t *descrpciones[] = {
+            L"Usuario con los minimos privilegios",
+            L"Usuario con los privilegios maximos de administrados",
+        };
+        setMenuData(&tipoDeUsuario, NULL, 5, 4, 1, 2, opciones, descrpciones, (int (*)(void *))&help, L"Selecciona el nivel de autoridad del usuario 🛡 " BOLD);
         focusMenu(&tipoDeUsuario);
 
         tipo.length = tipoDeUsuario.selected;
@@ -62,7 +63,7 @@ void createUser(void *data)
 
     {
         int result = add_user(requester, username.text, password.text, tipo.length).Error_state;
-        if( result == OK)
+        if (result == OK)
             printMessage(L"Usuario creado correctamente");
         else if (result == USER_ALREADY_EXISTS)
             printMessage(L"El usuario ya existe");
@@ -73,16 +74,231 @@ void createUser(void *data)
     }
 }
 
-void deleteUser(void *data)
+void deleteUser(User *requester)
 {
+    if (requester->type != PASSANGER)
+    {
+        printMessage(L"No tienes los permisos necesarios para realizar esta accion");
+        return;
+    }
+
+    Result nUsers = number_of_users();
+    int *numberOfUsers = 0;
+    if (nUsers.Error_state == OK)
+    {
+        numberOfUsers = (int *)nUsers.Result;
+    }
+    wchar_t usuarios[*numberOfUsers][USERNAME_MAX_LENGTH + 1];
+    wchar_t descrpciones[*numberOfUsers][USERNAME_MAX_LENGTH + 1];
+
+    User *user;
+
+    for (int i = 0; i < *numberOfUsers; i++)
+    {
+        Result query = query_user_by_id(*requester, i);
+        if (query.Error_state != OK)
+        {
+            printMessage(L"Ocurrio un error desconocido");
+            return;
+        }
+
+        user = (User *)query.Result;
+        wcscpy(usuarios[i], user->name);
+        if (user->type == PASSANGER)
+        {
+            wcscpy(descrpciones[i], L"Pasajero");
+        }
+        else if (user->type == ADMIN)
+        {
+            wcscpy(descrpciones[i], L"Administrador");
+        }
+        else
+        {
+            wcscpy(descrpciones[i], L"Privilegios desconocidos");
+        }
+    }
+
+    MENU users;
+    setMenuData(&users, NULL, 5, 4, 1, *numberOfUsers, (wchar_t **)usuarios, (wchar_t **)descrpciones, (int (*)(void *))&help, L"Selecciona el usuario a eliminar 🧽 " BOLD);
+    focusMenu(&users);
+    {
+        Result query = query_user_by_id(*requester, users.selected);
+        if (query.Error_state != OK)
+        {
+            printMessage(L"Ocurrio un error desconocido");
+            return;
+        }
+
+        user = (User *)query.Result;
+    }
+    remove_user(*requester, user->name);
+    free(numberOfUsers);
+    printMessage(L"Usuario eliminado correctamente");
 }
 
-void modifyUser(void *data)
+void modifyUser(User *requester)
 {
+    if (requester->type != PASSANGER)
+    {
+        printMessage(L"No tienes los permisos necesarios para realizar esta accion");
+        return;
+    }
+
+    Result nUsers = number_of_users();
+    int *numberOfUsers = 0;
+    if (nUsers.Error_state == OK)
+    {
+        numberOfUsers = (int *)nUsers.Result;
+    }
+    wchar_t usuarios[*numberOfUsers][USERNAME_MAX_LENGTH + 1];
+    wchar_t descrpciones[*numberOfUsers][USERNAME_MAX_LENGTH + 1];
+
+    User *user;
+
+    for (int i = 0; i < *numberOfUsers; i++)
+    {
+        Result query = query_user_by_id(*requester, i);
+        if (query.Error_state != OK)
+        {
+            printMessage(L"Ocurrio un error desconocido");
+            return;
+        }
+
+        user = (User *)query.Result;
+        wcscpy(usuarios[i], user->name);
+        if (user->type == PASSANGER)
+        {
+            wcscpy(descrpciones[i], L"Pasajero");
+        }
+        else if (user->type == ADMIN)
+        {
+            wcscpy(descrpciones[i], L"Administrador");
+        }
+        else
+        {
+            wcscpy(descrpciones[i], L"Privilegios desconocidos");
+        }
+    }
+
+    MENU users;
+    setMenuData(&users, NULL, 5, 4, 1, *numberOfUsers, (wchar_t**)usuarios, (wchar_t**)descrpciones, (int (*)(void *))&help, L"Selecciona el usuario a modificar 🖋 " BOLD);
+    focusMenu(&users);
+
+    wchar_t *opciones[] = {L"Modificar nombre", L"Modificar contraseña", L"Modificar tipo de usuario"};
+    wchar_t *descrpcion[] = {L"Modificar el nombre del usuario seleccionado", L"Modificar la contraseña del usuario seleccionado", L"Modificar tipo del usuario seleccionado"};
+    MENU toModify;
+    setMenuData(&toModify, NULL, 5, 4, 1, 3, opciones, descrpcion, (int (*)(void *))&help, L"Selecciona el campo a modificar 🖋 " BOLD);
+    focusMenu(&toModify);
+
+    { // User to modify
+        Result query = query_user_by_id(*requester, toModify.selected);
+        if (query.Error_state != OK)
+        {
+            printMessage(L"Ocurrio un error desconocido");
+            return;
+        }
+
+        user = (User *)query.Result;
+    }
+
+    Handshake username = {
+        .length = USERNAME_MAX_LENGTH + 1,
+        .text = NULL};
+
+    Handshake password = {
+        .length = PASSWORD_MAX_LENGTH + 1,
+        .text = NULL};
+    Type newType = user->type;
+
+    if (toModify.selected == 0) // Change Name
+    {
+        while (1)
+        {
+            if (input(L"Introduzca el nuevo nombre de usuario", L"Nuevo nombre de usuario", (void*)&username, makeHandShake) == 1)
+                break;
+
+            printMessage(L"El nombre de usuario no puede estar vacio");
+        }
+    }
+    else if (toModify.selected == 1) // Change pass
+    {
+        while (1)
+        {
+            if (input(L"Introduzca la nueva contraseña", L"Nueva contraseña", (void*)&password, makeHandShake) == 1)
+                break;
+
+            printMessage(L"La contraseña no puede estar vacia");
+        }
+    }
+    else if (toModify.selected == 2) // Change type
+    {
+        MENU tipoDeUsuario;
+        wchar_t *opciones[] = {L"Pasajero", L"Administrador"};
+        wchar_t *descrpciones[] = {
+            L"Usuario con los minimos privilegios",
+            L"Usuario con los privilegios maximos de administrados",
+        };
+        setMenuData(&tipoDeUsuario, NULL, 5, 4, 1, 2, opciones, descrpciones, (int (*)(void *))&help, L"Selecciona el nivel de autoridad del usuario 🛡 " BOLD);
+        focusMenu(&tipoDeUsuario);
+
+        newType = tipoDeUsuario.selected;
+    }
+    else
+    {
+        printMessage(L"Ocurrio un error desconocido");
+    }
+
+    modify_user(*requester, username.text, password.text, newType);
 }
 
-void listUsers(void *data)
+void listUsers(User *requester)
 {
+    User *user;
+    { // select user
+        Result nUsers = number_of_users();
+        int *numberOfUsers = 0;
+        if (nUsers.Error_state == OK)
+        {
+            numberOfUsers = (int *)nUsers.Result;
+        }
+        wchar_t usuarios[*numberOfUsers][USERNAME_MAX_LENGTH + 1];
+        wchar_t descrpciones[*numberOfUsers][USERNAME_MAX_LENGTH + 1];
+
+        for (int i = 0; i < *numberOfUsers; i++)
+        {
+            Result query = query_user_by_id(*requester, i);
+            if (query.Error_state != OK)
+            {
+                printMessage(L"Ocurrio un error desconocido");
+                return;
+            }
+
+            user = (User *)query.Result;
+            wcscpy(usuarios[i], user->name);
+            if (user->type == PASSANGER)
+            {
+                wcscpy(descrpciones[i], L"Pasajero");
+            }
+            else if (user->type == ADMIN)
+            {
+                wcscpy(descrpciones[i], L"Administrador");
+            }
+            else
+            {
+                wcscpy(descrpciones[i], L"Privilegios desconocidos");
+            }
+        }
+
+        MENU users;
+        setMenuData(&users, NULL, 5, 4, 1, *numberOfUsers, (wchar_t**)usuarios, (wchar_t**)descrpciones, (int (*)(void *))&help, L"Selecciona el usuario a consultar 🔍 " BOLD);
+        focusMenu(&users);
+
+        user = (User *)query_user_by_id(*requester, users.selected).Result;
+    }
+
+    { // Print user info
+
+    }
 }
 
 void manageUsersUI(User *user)
@@ -111,7 +327,7 @@ void manageUsers(User *user)
     wchar_t *descriptions[] = {L"Crea un usuario totalmente nuevo", L"Elimina algun usuario", L"Modifica la información de un usuario y/o deshabilitala", L"Consulta una lista detallada de todos los usuarios registrados", L"Regresa ak menu principal"};
 
     MENU menu;
-    setMenuData(&menu, NULL, 5, 4, 1, 5, options, descriptions, &manageUsersUI, user);
+    setMenuData(&menu, NULL, 5, 4, 1, 5, options, descriptions, (int (*)(void *))&manageUsersUI, user);
 
     Funciones userman[] = {
         (void *)&createUser,
@@ -130,12 +346,47 @@ void manageUsers(User *user)
     }
 }
 
-void manageRoutes(User user) {}
-void queryLog(User user) {}
-void registerNextRoute(User user) {}
-void checkIn(User user) {}
-void checkOut(User user) {}
-void DebugData(User user) {}
+void createRoute(User* user){}
+
+void deleteRoute(User* user){}
+
+void modifyRoute(User* user){}
+
+void listRoutes(User* user){}
+
+void manageRoutes(User *user) {
+    wchar_t *options[] = {L"Crear ruta", L"Eliminar ruta", L"Modificar ruta", L"Consultar", L"Regresar"};
+    wchar_t *descriptions[] = {L"Crea una ruta totalmente nueva", L"Elimina alguna ruta", L"Modifica la información de una ruta y/o deshabilitala", L"Consulta una lista detallada de todas las rutas registradas", L"Regresa al menu principal"};
+    MENU menu;
+    setMenuData(&menu, NULL, 5, 4, 1, 5, options, descriptions, (int (*)(void *))&help, L"Selecciona una actividad a realizar 🌎 " BOLD);
+
+    Funciones routeman[] = {
+        (void *)&createRoute,
+        (void *)&deleteRoute,
+        (void *)&modifyRoute,
+        (void *)&listRoutes,
+    };
+
+    while (1)
+    {
+        focusMenu(&menu);
+        if (menu.selected == 4)
+            break;
+        if (menu.selected >= 0 && menu.selected < 3)
+            routeman[menu.selected](user);
+    }
+    
+}
+
+void queryLog(User *user) {}
+
+void registerNextRoute(User *user) {}
+
+void checkIn(User *user) {}
+
+void checkOut(User *user) {}
+
+void DebugData(User *user) {}
 
 void mainScreenUI(void *data)
 {
@@ -159,7 +410,7 @@ void mainScreen(User *user)
     wchar_t *options[] = {L"Administrar Usuarios", L"Administrar Rutas", L"Enlistar Estadisticas", L"Reservar Asiento", L"Check In", L"Check Out", L"Debug Data", L"Cerrar Sesión", L"Cerrar Aplicación"};
     wchar_t *descriptions[] = {L"Agrega, elimina, u modifica los usuarios registrados", L"Agrega, elimina, u modifica las rutas registradas", L"Un completo resumen de las estadisticas del sistema", L"Reserva el asiento de tu siguiente parada", L"Tomar registro de toma de ruta", L"Terminar ruta", L"Información detallada de la información registrada", L"Cierra sesión para que otro usuario pueda usar el sitema", L"Cierra el sistema y las bases de datos"};
     MENU mainscreen;
-    setMenuData(&mainscreen, NULL, 5, 4, 1, 9, options, descriptions, &mainScreenUI, user);
+    setMenuData(&mainscreen, NULL, 5, 4, 1, 9, options, descriptions, (int (*)(void *))&mainScreenUI, user);
 
     Funciones mainFuncs[] = {
         (void *)&manageUsers,

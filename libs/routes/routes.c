@@ -148,7 +148,7 @@ Result loadAllRoutes()
                 return result;
             }
 
-            if (fwscanf(file, L"%02d:%02d", &time->day, &time->hour) != 2)
+            if (fwscanf(file, L"%d %d:%d", &time->day,&time->time.hour, &time->time.minute) != 2)
             {
                 result.Error_state = FILE_READ_ERROR;
                 freeRoutes();
@@ -169,5 +169,69 @@ Result loadAllRoutes()
         llist_append(&routes, route);
     }
     fclose(file);
+    return result;
+}
+
+Result add_route(wchar_t* name, wchar_t* destination, int state){
+    Result result = {OK, NULL};
+    result.Error_state = OK;
+
+    Route *route = malloc(sizeof(Route));
+    if (route == 0)
+    {
+        result.Error_state = MALLOC_FAULT;
+        return result;
+    }
+
+    route->name = malloc(sizeof(wchar_t) * ROUTE_NAME_MAX_LENGTH+1);
+    if (route->name == 0)
+    {
+        result.Error_state = MALLOC_FAULT;
+        return result;
+    }
+
+    wcscpy(route->name, name);
+
+    route->destination = malloc(sizeof(wchar_t) * ROUTE_DESCRIPTION_MAX_LENGTH+1);
+    if (route->destination == 0)
+    {
+        result.Error_state = MALLOC_FAULT;
+        return result;
+    }
+
+    wcscpy(route->destination, destination);
+
+    route->state = state;
+
+    result.Result = route;
+
+    llist_append(&routes, route);
+
+    return result;
+}
+
+Result number_of_routes(){
+    Result result = {OK, NULL};
+    result.Error_state = OK;
+
+    int *number_of_routes = malloc(sizeof(int));
+    if (number_of_routes == 0)
+    {
+        result.Error_state = MALLOC_FAULT;
+        return result;
+    }
+
+    *number_of_routes = llist_size(&routes);
+
+    result.Result = number_of_routes;
+    return result;
+}
+
+Result query_route_by_id(int id){
+    Result result = {OK, NULL};
+    result.Error_state = OK;
+
+    result.Result = llist_get(&routes, id);
+
     return result;
 }

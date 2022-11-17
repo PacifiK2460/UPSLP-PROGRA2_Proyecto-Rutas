@@ -9,6 +9,10 @@
 #include <stdio.h>
 #include <wchar.h>
 
+#define ROUTE_NAME_MAX_LENGTH 20
+#define ROUTE_DESCRIPTION_MAX_LENGTH 100
+#define ROUTE_HORARIO_MAX_LENGTH 2 + 1 + 2
+
 typedef enum Weekday
 {
     MONDAY,
@@ -20,10 +24,16 @@ typedef enum Weekday
     SUNDAY
 } Weekday;
 
+typedef struct
+{
+    int hour;
+    int minute;
+} ClockedTime;
+
 typedef struct Time
 {
     Weekday day;
-    int hour;
+    ClockedTime time;
 } Time;
 
 typedef struct Route
@@ -52,3 +62,28 @@ Result loadAllRoutes();
  * 
  */
 void freeRoutes();
+
+/**
+ * @brief Returns the route with the given information after appending it to the routes list
+ * 
+ * @param name The name of the route
+ * @param destination The destination of the route
+ * @param state Disabled or enabled
+ * @return Result The result of the operation
+ */
+Result add_route(wchar_t* name, wchar_t* destination, int state);
+
+/**
+ * @brief Returns the number of routes in the system
+ * 
+ * @return Result The result of the operation
+ */
+Result number_of_routes();
+
+/**
+ * @brief Returns the route with the given index
+ * 
+ * @param id The index of the route to return
+ * @return Result he result of the operation
+ */
+Result query_route_by_id(int id);

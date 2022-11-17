@@ -4,6 +4,7 @@
 // #include "../tui/tui.h"
 // #include "../tui/input.h"
 
+#include "../routes/routes.h"
 #include "../auth/auth.h"
 #include <string.h>
 #include <wchar.h>

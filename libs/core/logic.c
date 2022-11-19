@@ -735,7 +735,8 @@ void queryLogByUser(User *requester)
             user = (User *)UserResult.Result;
             wcscpy(opciones[i], user->name);
             swprintf(descripciones[i], USERNAME_MAX_LENGTH, DIM ITALIC L"ID: %lc%lc%lc%lc" RESET,
-            (user->type == PASSANGER) ? L'P' : (user->type == ADMIN) ? L'A': L'U',
+                     (user->type == PASSANGER) ? L'P' : (user->type == ADMIN) ? L'A'
+                                                                              : L'U',
                      ((wint_t)user->name >> 24) & 0xFF, ((wint_t)user->name >> 16) & 0xFF, ((wint_t)user->name >> 8) & 0xFF);
         }
 
@@ -749,6 +750,422 @@ void queryLogByUser(User *requester)
             break;
 
         user = (User *)query_user_by_id(*requester, menu.selected).Result;
+
+        { // Print routes
+            MENU rutas;
+            int nrutas = llist_size(&user->queued_routes);
+            wchar_t opciones[nrutas + 1][ROUTE_NAME_MAX_LENGTH + 1];
+            wchar_t descripciones[nrutas + 1][ROUTE_DESCRIPTION_MAX_LENGTH + 1];
+
+            for (int i = 0; i < nrutas; i++)
+            {
+                Route *route = (Route *)llist_get(&user->queued_routes, i);
+                wcscpy(opciones[i], route->name);
+                wcscpy(descripciones[i], route->destination);
+            }
+
+            wcscpy(opciones[nrutas], L"Regresar al menú principal");
+            wcscpy(descripciones[nrutas], L"Regresar al menú principal");
+
+            setMenuData(&rutas, NULL, 5, 4, 1, nrutas, (wchar_t **)opciones, (wchar_t **)descripciones, (int (*)(void *)) & help, L"Selecciona la ruta a consultar 🚧 " BOLD);
+
+            focusMenu(&rutas);
+
+            if (rutas.selected == nrutas)
+                break;
+        }
+    }
+}
+
+void queryLogByMostRequestedRoutes(User *requester)
+{
+    if (requester->type != ADMIN)
+    {
+        printMessage(L"Acceso denegado, solo los administradores pueden acceder a esta sección");
+        return;
+    }
+
+    while (1)
+    {
+        int nrutes = (int)(number_of_routes().Result);
+        int nusers = (int)(number_of_users().Result);
+
+        struct tmp
+        {
+            Route *route;
+            int count;
+        } routes[nrutes];
+
+        for (int i = 0; i < nrutes; i++)
+        {
+            routes[i].route = (Route *)query_route_by_id(i).Result;
+            routes[i].count = 0;
+        }
+
+        for (int i = 0; i < nusers; i++)
+        {
+            User *user = (User *)query_user_by_id(*requester, i).Result;
+
+            int user_routes = llist_size(&user->queued_routes);
+
+            for (int j = 0; j < user_routes; j++)
+            {
+                Route *route = (Route *)llist_get(&user->queued_routes, j);
+
+                int found = 0;
+                for (int k = 0; k < nrutes; k++)
+                {
+                    if (routes[k].route == route)
+                    {
+                        routes[k].count++;
+                        found = 1;
+                        break;
+                    }
+                }
+            }
+        }
+
+        { // Sort routes by most requested
+            for (int i = 0; i < nrutes; i++)
+            {
+                for (int j = 0; j < nrutes; j++)
+                {
+                    if (routes[i].count > routes[j].count)
+                    {
+                        // swap them
+                        struct tmp temp = routes[i];
+                        routes[i] = routes[j];
+                        routes[j] = temp;
+                    }
+                }
+            }
+        }
+
+        MENU menu;
+        wchar_t opciones[nrutes + 1][ROUTE_NAME_MAX_LENGTH + 1];
+        wchar_t descripciones[nrutes + 1][ROUTE_DESCRIPTION_MAX_LENGTH + 1];
+
+        for (int i = 0; i < nrutes; i++)
+        {
+            wcscpy(opciones[i], routes[i].route->name);
+            wcscpy(descripciones[i], routes[i].route->destination);
+        }
+
+        wcscpy(opciones[nrutes], L"Regresar al menú principal");
+        wcscpy(descripciones[nrutes], L"Regresar al menú principal");
+
+        setMenuData(&menu, NULL, 5, 4, 1, nrutes, (wchar_t **)opciones, (wchar_t **)descripciones, (int (*)(void *)) & help, L"Selecciona la ruta a consultar 🚧 " BOLD);
+
+        focusMenu(&menu);
+
+        if (menu.selected == nrutes)
+            break;
+
+        assertm(1, "Not implemented yet");
+    }
+}
+
+void queryLogByLeastRequestedRoutes(User *requester)
+{
+    if (requester->type != ADMIN)
+    {
+        printMessage(L"Acceso denegado, solo los administradores pueden acceder a esta sección");
+        return;
+    }
+
+    while (1)
+    {
+        int nrutes = (int)(number_of_routes().Result);
+        int nusers = (int)(number_of_users().Result);
+
+        struct tmp
+        {
+            Route *route;
+            int count;
+        } routes[nrutes];
+
+        for (int i = 0; i < nrutes; i++)
+        {
+            routes[i].route = (Route *)query_route_by_id(i).Result;
+            routes[i].count = 0;
+        }
+
+        for (int i = 0; i < nusers; i++)
+        {
+            User *user = (User *)query_user_by_id(*requester, i).Result;
+
+            int user_routes = llist_size(&user->queued_routes);
+
+            for (int j = 0; j < user_routes; j++)
+            {
+                Route *route = (Route *)llist_get(&user->queued_routes, j);
+
+                int found = 0;
+                for (int k = 0; k < nrutes; k++)
+                {
+                    if (routes[k].route == route)
+                    {
+                        routes[k].count++;
+                        found = 1;
+                        break;
+                    }
+                }
+            }
+        }
+
+        { // Sort routes by least requested
+            for (int i = 0; i < nrutes; i++)
+            {
+                for (int j = 0; j < nrutes; j++)
+                {
+                    if (routes[i].count < routes[j].count)
+                    {
+                        // swap them
+                        struct tmp temp = routes[i];
+                        routes[i] = routes[j];
+                        routes[j] = temp;
+                    }
+                }
+            }
+        }
+
+        MENU menu;
+        wchar_t opciones[nrutes + 1][ROUTE_NAME_MAX_LENGTH + 1];
+        wchar_t descripciones[nrutes + 1][ROUTE_DESCRIPTION_MAX_LENGTH + 1];
+
+        for (int i = 0; i < nrutes; i++)
+        {
+            wcscpy(opciones[i], routes[i].route->name);
+            wcscpy(descripciones[i], routes[i].route->destination);
+        }
+
+        wcscpy(opciones[nrutes], L"Regresar al menú principal");
+        wcscpy(descripciones[nrutes], L"Regresar al menú principal");
+
+        setMenuData(&menu, NULL, 5, 4, 1, nrutes, (wchar_t **)opciones, (wchar_t **)descripciones, (int (*)(void *)) & help, L"Selecciona la ruta a consultar 🚧 " BOLD);
+
+        focusMenu(&menu);
+
+        if (menu.selected == nrutes)
+            break;
+
+        assertm(1, "Not implemented yet");
+    }
+}
+
+void queryLogByUsersWithOneRequest(User *requester)
+{
+    if (requester->type != ADMIN)
+    {
+        printMessage(L"Acceso denegado, solo los administradores pueden acceder a esta sección");
+        return;
+    }
+
+    while (1)
+    {
+        int nusers = (int)(number_of_users().Result);
+        struct stats
+        {
+            User *user;
+            LList routes;
+        };
+
+        LList users;
+
+        for (int i = 0; i < nusers; i++)
+        {
+            struct stats *newstat = callco(1, sizeof(struct stats));
+            newstat->user = (User *)query_user_by_id(*requester, i).Result;
+            memset(&newstat->routes, 0, sizeof(LList));
+
+            int user_routes = llist_size(&newstat->user->queued_routes);
+
+            int atLeastOne = 0;
+            for (int j = 0; j < user_routes; j++)
+            {
+                Route *route = (Route *)llist_get(&newstat->user->queued_routes, j);
+
+                if (route->state == TAKEN)
+                {
+                    llist_add(&newstat->routes, route);
+                    atLeastOne = 1;
+                }
+            }
+
+            if (atLeastOne)
+                llist_add(&users, newstat);
+        }
+
+        nusers = llist_size(&users);
+
+        MENU menu;
+        wchar_t opciones[nusers + 1][ROUTE_NAME_MAX_LENGTH + 1];
+        wchar_t descripciones[nusers + 1][ROUTE_DESCRIPTION_MAX_LENGTH + 1];
+
+        for (int i = 0; i < nusers; i++)
+        {
+            struct stats *user = ((struct stats *)llist_get(&users, i))->user;
+            Route *route = llist_get(&user->routes, 0);
+
+            wcscpy(opciones[i], user->user->name);
+            wcscpy(descripciones[i], (route != NULL) ? route->name : L"");
+        }
+
+        wcscpy(opciones[nusers], L"Regresar al menú principal");
+        wcscpy(descripciones[nusers], L"Regresar al menú principal");
+
+        setMenuData(&menu, NULL, 5, 4, 1, nusers, (wchar_t **)opciones, (wchar_t **)descripciones, (int (*)(void *)) & help, L"Selecciona la ruta a consultar 🚧 " BOLD);
+
+        focusMenu(&menu);
+
+        if (menu.selected == nusers)
+            break;
+
+        assertm(1, "Not implemented yet");
+    }
+}
+
+void queryLogByUsersWithNoRequests(User *requester)
+{
+    if (requester->type != ADMIN)
+    {
+        printMessage(L"Acceso denegado, solo los administradores pueden acceder a esta sección");
+        return;
+    }
+
+    while (1)
+    {
+        int nusers = (int)(number_of_users().Result);
+        struct stats
+        {
+            User *user;
+            LList routes;
+        };
+
+        LList users;
+
+        for (int i = 0; i < nusers; i++)
+        {
+            struct stats *newstat = callco(1, sizeof(struct stats));
+            newstat->user = (User *)query_user_by_id(*requester, i).Result;
+            memset(&newstat->routes, 0, sizeof(LList));
+
+            int user_routes = llist_size(&newstat->user->queued_routes);
+
+            int atLeastOne = 0;
+            for (int j = 0; j < user_routes; j++)
+            {
+                Route *route = (Route *)llist_get(&newstat->user->queued_routes, j);
+
+                if (route->state == REQUESTED)
+                {
+                    llist_add(&newstat->routes, route);
+                    atLeastOne = 1;
+                }
+            }
+
+            if (atLeastOne)
+                llist_add(&users, newstat);
+        }
+
+        nusers = llist_size(&users);
+
+        MENU menu;
+        wchar_t opciones[nusers + 1][ROUTE_NAME_MAX_LENGTH + 1];
+        wchar_t descripciones[nusers + 1][ROUTE_DESCRIPTION_MAX_LENGTH + 1];
+
+        for (int i = 0; i < nusers; i++)
+        {
+            struct stats *user = ((struct stats *)llist_get(&users, i))->user;
+            Route *route = llist_get(&user->routes, 0);
+
+            wcscpy(opciones[i], user->user->name);
+            wcscpy(descripciones[i], (route != NULL) ? route->name : L"");
+        }
+
+        wcscpy(opciones[nusers], L"Regresar al menú principal");
+        wcscpy(descripciones[nusers], L"Regresar al menú principal");
+
+        setMenuData(&menu, NULL, 5, 4, 1, nusers, (wchar_t **)opciones, (wchar_t **)descripciones, (int (*)(void *)) & help, L"Selecciona la ruta a consultar 🚧 " BOLD);
+
+        focusMenu(&menu);
+
+        if (menu.selected == nusers)
+            break;
+
+        assertm(1, "Not implemented yet");
+    }
+}
+
+void queryLogByUsersWithCompletedRoutes(User *requester)
+{
+    if (requester->type != ADMIN)
+    {
+        printMessage(L"Acceso denegado, solo los administradores pueden acceder a esta sección");
+        return;
+    }
+
+    while (1)
+    {
+        int nusers = (int)(number_of_users().Result);
+        struct stats
+        {
+            User *user;
+            LList routes;
+        };
+
+        LList users;
+
+        for (int i = 0; i < nusers; i++)
+        {
+            struct stats *newstat = callco(1, sizeof(struct stats));
+            newstat->user = (User *)query_user_by_id(*requester, i).Result;
+            memset(&newstat->routes, 0, sizeof(LList));
+
+            int user_routes = llist_size(&newstat->user->queued_routes);
+
+            int atLeastOne = 0;
+            for (int j = 0; j < user_routes; j++)
+            {
+                Route *route = (Route *)llist_get(&newstat->user->queued_routes, j);
+
+                if (route->state == COMPLETED)
+                {
+                    llist_add(&newstat->routes, route);
+                    atLeastOne = 1;
+                }
+            }
+
+            if (atLeastOne)
+                llist_add(&users, newstat);
+        }
+
+        nusers = llist_size(&users);
+
+        MENU menu;
+        wchar_t opciones[nusers + 1][ROUTE_NAME_MAX_LENGTH + 1];
+        wchar_t descripciones[nusers + 1][ROUTE_DESCRIPTION_MAX_LENGTH + 1];
+
+        for (int i = 0; i < nusers; i++)
+        {
+            struct stats *user = ((struct stats *)llist_get(&users, i))->user;
+            Route *route = llist_get(&user->routes, 0);
+
+            wcscpy(opciones[i], user->user->name);
+            wcscpy(descripciones[i], (route != NULL) ? route->name : L"");
+        }
+
+        wcscpy(opciones[nusers], L"Regresar al menú principal");
+        wcscpy(descripciones[nusers], L"Regresar al menú principal");
+
+        setMenuData(&menu, NULL, 5, 4, 1, nusers, (wchar_t **)opciones, (wchar_t **)descripciones, (int (*)(void *)) & help, L"Selecciona la ruta a consultar 🚧 " BOLD);
+
+        focusMenu(&menu);
+
+        if (menu.selected == nusers)
+            break;
+
+        assertm(1, "Not implemented yet");
     }
 }
 
@@ -759,18 +1176,18 @@ void queryLog(User *user)
         L"Consultar por usuario",
         L"Organizar por rutas más solicitadas",
         L"Organizar por rutas menos solicitadas",
-        L"Listar usuarios que solo han solicitado una ruta",
-        L"Listar usuarios que no han solicitado ninguna ruta",
-        L"Listar usuarios que hayan completado una ruta",
+        L"Listar rutas cuyos usuarios no se han bajado",
+        L"Listar rutas cuyos usuarios no se han subido",
+        L"Listar rutas cuyos usuarios completaron el recorrido",
         L"Regresar al menú principal"};
 
     wchar_t *descripciones[] = {
         L"Consulta los registros de un usuario en específico",
         L"Consulta las rutas más solicitadas",
         L"Consulta las rutas menos solicitadas",
-        L"Consulta los usuarios que solo han solicitado una ruta",
-        L"Consulta los usuarios que no han solicitado ninguna ruta",
-        L"Consulta los usuarios que hayan completado una ruta",
+        L"Listado de las rutas cuyos usuarios no se han bajado",
+        L"Listado de las rutas cuyos usuarios no se han subido",
+        L"Listado de las rutas cuyos usuarios completaron el recorrido",
         L"Regresa al menú principal"};
 
     setMenuData(&menu, NULL, 5, 4, 1, 7, opciones, descripciones, (int (*)(void *)) & help, L"Selecciona una actividad a realizar 📊 " BOLD);

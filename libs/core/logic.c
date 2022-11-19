@@ -701,7 +701,96 @@ void manageRoutes(User *user)
     }
 }
 
-void queryLog(User *user) {}
+void queryLogByUser(User *requester)
+{
+    if (requester->type != ADMIN)
+    {
+        printMessage(L"Acceso denegado, solo los administradores pueden acceder a esta sección");
+        return;
+    }
+
+    while (1)
+    {
+        User *user;
+        // select user to query
+        Result nusers = number_of_users();
+        if (nusers.Error_state != OK)
+        {
+            printMessage(L"Ocurrio un error desconocido");
+            return;
+        }
+
+        MENU menu;
+        wchar_t opciones[*(int *)nusers.Result + 1][USERNAME_MAX_LENGTH + 1];
+        wchar_t descripciones[*(int *)nusers.Result + 1][USERNAME_MAX_LENGTH + 50];
+        for (int i = 0; i < *(int *)nusers.Result; i++)
+        {
+            Result UserResult = query_user_by_id(*requester, i);
+            if (UserResult.Error_state != OK)
+            {
+                printMessage(L"Ocurrio un error desconocido");
+                return;
+            }
+
+            user = (User *)UserResult.Result;
+            wcscpy(opciones[i], user->name);
+            swprintf(descripciones[i], USERNAME_MAX_LENGTH, DIM ITALIC L"ID: %lc%lc%lc%lc" RESET,
+            (user->type == PASSANGER) ? L'P' : (user->type == ADMIN) ? L'A': L'U',
+                     ((wint_t)user->name >> 24) & 0xFF, ((wint_t)user->name >> 16) & 0xFF, ((wint_t)user->name >> 8) & 0xFF);
+        }
+
+        wcscpy(opciones[*(int *)nusers.Result + 1], L"Regresar al menú principal");
+        wcscpy(descripciones[*(int *)nusers.Result + 1], L"Regresar al menú principal");
+
+        setMenuData(&menu, NULL, 5, 4, 1, *(int *)nusers.Result, (wchar_t **)opciones, (wchar_t **)descripciones, (int (*)(void *)) & help, L"Selecciona el usuario a consultar 🧑‍🔬 " BOLD);
+        focusMenu(&menu);
+
+        if (menu.selected == *(int *)nusers.Result + 1)
+            break;
+
+        user = (User *)query_user_by_id(*requester, menu.selected).Result;
+    }
+}
+
+void queryLog(User *user)
+{
+    MENU menu;
+    wchar_t *opciones[] = {
+        L"Consultar por usuario",
+        L"Organizar por rutas más solicitadas",
+        L"Organizar por rutas menos solicitadas",
+        L"Listar usuarios que solo han solicitado una ruta",
+        L"Listar usuarios que no han solicitado ninguna ruta",
+        L"Listar usuarios que hayan completado una ruta",
+        L"Regresar al menú principal"};
+
+    wchar_t *descripciones[] = {
+        L"Consulta los registros de un usuario en específico",
+        L"Consulta las rutas más solicitadas",
+        L"Consulta las rutas menos solicitadas",
+        L"Consulta los usuarios que solo han solicitado una ruta",
+        L"Consulta los usuarios que no han solicitado ninguna ruta",
+        L"Consulta los usuarios que hayan completado una ruta",
+        L"Regresa al menú principal"};
+
+    setMenuData(&menu, NULL, 5, 4, 1, 7, opciones, descripciones, (int (*)(void *)) & help, L"Selecciona una actividad a realizar 📊 " BOLD);
+    focusMenu(&menu);
+
+    Funciones logman[] = {
+        (void *)&queryLogByUser,
+        (void *)&queryLogByMostRequestedRoutes,
+        (void *)&queryLogByLeastRequestedRoutes,
+        (void *)&queryLogByUsersWithOneRequest,
+        (void *)&queryLogByUsersWithNoRequests,
+        (void *)&queryLogByUsersWithCompletedRoutes,
+    };
+
+    if (menu.selected >= 0 && menu.selected < 6)
+        logman[menu.selected](user);
+
+    if (menu.selected == 6)
+        return;
+}
 
 void registerNextRoute(User *user) {}
 

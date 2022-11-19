@@ -40,12 +40,20 @@ typedef enum Type
     ADMIN
 } Type;
 
+/*
+    User ID:
+    The user ID is a 4 character string that is unique to each user.
+    The first character is the type of user [P]assanger, [A]dmin, [U]nknown
+    The next 3 characters are the ascci code each character of the username
+*/
+
 typedef struct
 {
     wchar_t *name;
     wchar_t *pass;
     Type type;
     State state;
+    // wchar_t id[10];
     // if the user is an admin, this field will be 0
     LList queued_routes;
 } User;

@@ -44,6 +44,12 @@ typedef struct Route
     LList scheduled_times;
 } Route;
 
+typedef enum RouteState{
+    REQUESTED,
+    TAKEN,
+    COMPLETED    
+};
+
 typedef struct _UserRoute{
     // The UseRoute is a compressed version of the Route wich consists of the first 2 leters of the name and the destination and the time
     // the time is in the format "XX:XX" where XX is a maximum of 2 digits
@@ -53,6 +59,8 @@ typedef struct _UserRoute{
     // Day (0 - 7)
     // ':'
     // Hour (0 - 23)
+    Route* SelectedRoute;
+    Time* SelectedTime;
 } UserRoute;
 
 Result loadAllRoutes();

@@ -99,3 +99,21 @@ int llist_set(LList* list, int index, void* data){
 int llist_size(LList* list){
     return list->size;
 }
+
+LList* llist_clone(LList* source){
+    LList* list = (LList*)malloc(sizeof(LList));
+    { // Error checking and data assignment
+        if(list == NULL){
+            return NULL;
+        }
+        list->head = NULL;
+        list->last_accessed_index = 0;
+        list->size = 0;
+    }
+    Node* current = source->head;
+    while(current != NULL){
+        llist_append(list, current->data);
+        current = current->next;
+    }
+    return list;
+}

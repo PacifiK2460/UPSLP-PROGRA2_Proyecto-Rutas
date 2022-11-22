@@ -63,6 +63,12 @@ void focusMenu(MENU *menu)
     if(menu->__before != NULL)
         menu->__before(menu->__before_args);
 
+    if(menu->ROWS == 0)
+    {
+        wprintf(BOLD L"Error: " RESET L"El menu no tiene opciones.\n");
+        return;
+    }
+
     // fflush(stdout);
     // Leemos el teclado non-canonical mode
 

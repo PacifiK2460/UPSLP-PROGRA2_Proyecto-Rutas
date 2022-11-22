@@ -44,11 +44,11 @@ typedef struct Route
     LList scheduled_times;
 } Route;
 
-typedef enum RouteState{
+typedef enum _RouteState{
     REQUESTED,
     TAKEN,
     COMPLETED    
-};
+} RouteState;
 
 typedef struct _UserRoute{
     // The UseRoute is a compressed version of the Route wich consists of the first 2 leters of the name and the destination and the time

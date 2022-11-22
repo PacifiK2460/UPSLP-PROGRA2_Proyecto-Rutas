@@ -1,28 +1,35 @@
 #include "logic.h"
 #include <stdlib.h>
 #include <wchar.h>
+#include <stdint.h>
 
 Route *selectRoute(LList *route_source, wchar_t *title, wchar_t *subtitle,
-                   Funciones __before, void *__before_args) {
-
-  Result nroutes;
-  if (route_source == NULL) {
-    nroutes = number_of_routes();
-    if (nroutes.Error_state != OK) {
+                   Funciones __before, void *__before_args)
+{
+  // Result nroutes;
+  int nrts;
+  if (route_source == NULL)
+  {
+    // nroutes = number_of_routes();
+    if (number_of_routes().Error_state != OK)
+    {
       printMessage(L"Ocurrio un error desconocido");
       return NULL;
     }
-  } else {
-    nroutes.Result = (void *)llist_length(route_source);
+  }
+  else
+  {
+    nrts = llist_size(route_source);
   }
 
   MENU menu;
-  wchar_t opciones[*(int *)nroutes.Result + 1][ROUTE_NAME_MAX_LENGTH + 1];
-  wchar_t descripciones[*(int *)nroutes.Result + 1]
-                       [ROUTE_DESCRIPTION_MAX_LENGTH + 1];
-  for (int i = 0; i < *(int *)nroutes.Result; i++) {
+  wchar_t opciones[nrts + 1][ROUTE_NAME_MAX_LENGTH + 1];
+  wchar_t descripciones[nrts + 1][ROUTE_DESCRIPTION_MAX_LENGTH + 1];
+  for (int i = 0; i < nrts; i++)
+  {
     Result RouteResult = query_route_by_id(i);
-    if (RouteResult.Error_state != OK) {
+    if (RouteResult.Error_state != OK)
+    {
       printMessage(L"Ocurrio un error desconocido");
       return NULL;
     }
@@ -32,66 +39,97 @@ Route *selectRoute(LList *route_source, wchar_t *title, wchar_t *subtitle,
     wcscpy(descripciones[i], route->destination);
   }
 
-  wcscpy(opciones[*(int *)nroutes.Result + 1], title);
-  wcscpy(descripciones[*(int *)nroutes.Result + 1], subtitle);
+  wcscpy(opciones[nrts + 1], title);
+  wcscpy(descripciones[nrts + 1], subtitle);
 
-  setMenuData(&menu, NULL, 5, 4, 1, *(int *)nroutes.Result,
-              (wchar_t **)opciones, (wchar_t **)descripciones, __before,
-              __before_args);
+  setMenuData(&menu, NULL, 5, 4, 1, nrts, (wchar_t **)opciones,
+              (wchar_t **)descripciones, __before, __before_args);
 
   focusMenu(&menu);
 
   return (Route *)query_route_by_id(menu.selected).Result;
 }
 
-User *selectUser(User *requester, Funciones __before, void *__before_args) {
+User *selectUser(User *requester, Funciones __before, void *__before_args)
+{
   int nusers = 0;
 
   Result nUsers = number_of_users();
-  if (nUsers.Error_state != OK) {
+
+  if (nUsers.Error_state != OK)
+  {
     printMessage(L"Ocurrio un error desconocido");
     return NULL;
   }
 
-  wchar_t usuarios[nusers][USERNAME_MAX_LENGTH + 1];
-  wchar_t descrpciones[nusers][USERNAME_MAX_LENGTH + 1];
+  // folow nUsers.Result pointer to get the number of users
+  nusers = (*(int *)(nUsers.Result));
+  free(nUsers.Result);
+
+  // wchar_t usuarios[nusers][USERNAME_MAX_LENGTH + 1];
+  // wchar_t descrpciones[nusers][USERNAME_MAX_LENGTH + 1];i++
+
+  wchar_t *usuarios[nusers];
+  wchar_t *descrpciones[nusers];
+
+  for (int i = 0; i < nusers; i++)
+  {
+    usuarios[i] = (wchar_t *)malloc(sizeof(wchar_t) * USERNAME_MAX_LENGTH + 1);
+    descrpciones[i] =
+        (wchar_t *)malloc(sizeof(wchar_t) * USERNAME_MAX_LENGTH + 1);
+  }
 
   User *user;
 
-  for (int i = 0; i < nusers; i++) {
+  for (int i = 0; i < nusers; i++)
+  {
     Result query = query_user_by_id(*requester, i);
-    if (query.Error_state != OK) {
+    if (query.Error_state != OK)
+    {
       printMessage(L"Ocurrio un error desconocido");
       return NULL;
     }
 
     user = (User *)query.Result;
     wcscpy(usuarios[i], user->name);
-    if (user->type == PASSANGER) {
+    if (user->type == PASSANGER)
+    {
       wcscpy(descrpciones[i], L"Pasajero");
-    } else if (user->type == ADMIN) {
+    }
+    else if (user->type == ADMIN)
+    {
       wcscpy(descrpciones[i], L"Administrador");
-    } else {
+    }
+    else
+    {
       wcscpy(descrpciones[i], L"Privilegios desconocidos");
     }
   }
 
   MENU users;
-  setMenuData(&users, NULL, 5, 4, 1, nusers, (wchar_t **)usuarios,
-              (wchar_t **)descrpciones, __before, __before_args);
+  setMenuData(&users, NULL, 5, 4, 1, nusers, usuarios, descrpciones, __before,
+              __before_args);
 
   focusMenu(&users);
+
+  for (int i = 0; i < nusers; i++)
+  {
+    free(usuarios[i]);
+    free(descrpciones[i]);
+  }
 
   return (User *)query_user_by_id(*requester, users.selected).Result;
 }
 
-int makeHandShake(void *data) {
+int makeHandShake(void *data)
+{
   Handshake *handshake = (Handshake *)data;
   handshake->text = calloc(handshake->length, sizeof(wchar_t));
   return evaluarText(handshake->text, handshake->length);
 }
 
-void help(wchar_t *text) {
+void help(wchar_t *text)
+{
   printHelp(RESET FRGB(185, 251, 192) L"↕" RESET DIM L" Sig/Ant " RESET FRGB(
                 185, 251, 192) L"↵" RESET DIM L" Escoger ",
             4, getrows(STDOUTPUT) - 2);
@@ -101,7 +139,8 @@ void help(wchar_t *text) {
            DIM L"Escoge alguna actividad a realizar..." RESET "\0");
 }
 
-void createUser(void *data) {
+void createUser(void *data)
+{
   User requester = *(User *)data;
   Handshake username = {.length = USERNAME_MAX_LENGTH + 1, .text = NULL};
 
@@ -109,7 +148,8 @@ void createUser(void *data) {
 
   Handshake tipo = {.length = 5, .text = NULL};
 
-  while (1) {
+  while (1)
+  {
     if (input(L"Ingresa el nombre del nuevo usuario a crear",
               L"Nombre del nuevo usuario", (void *)&username,
               makeHandShake) == 1)
@@ -119,7 +159,8 @@ void createUser(void *data) {
         L"Por favor sigue las indicaciones para crear el nombre usuario");
   }
 
-  while (1) {
+  while (1)
+  {
     if (input(L"Ingresa la contraseña del nuevo usuario a crear",
               L"Contraseña del nuevo usuario", (void *)&password,
               makeHandShake) == 1)
@@ -159,18 +200,19 @@ void createUser(void *data) {
   }
 }
 
-void deleteUser(User *requester) {
-  if (requester->type != PASSANGER) {
-    printMessage(
-        L"No tienes los permisos necesarios para realizar esta accion");
-    return;
-  }
-
+void deleteUser(User *requester)
+{
   User *user = selectUser(requester, (int (*)(void *)) & help,
                           L"Selecciona el usuario a eliminar 🗑 " BOLD);
 
-  if (user == NULL) {
+  if (user == NULL)
+  {
     printMessage(L"Ocurrio un error desconocido");
+    return;
+  }
+  else if (user->state == DISABLED)
+  {
+    printMessage(L"El usuario ya esta deshabilitado");
     return;
   }
 
@@ -178,17 +220,14 @@ void deleteUser(User *requester) {
   printMessage(L"Usuario eliminado correctamente");
 }
 
-void modifyUser(User *requester) {
-  if (requester->type != PASSANGER) {
-    printMessage(
-        L"No tienes los permisos necesarios para realizar esta accion");
-    return;
-  }
+void modifyUser(User *requester)
+{
 
   User *user = selectUser(requester, (int (*)(void *)) & help,
                           L"Selecciona el usuario a modificar 📝 " BOLD);
 
-  if (user == NULL) {
+  if (user == NULL)
+  {
     printMessage(L"Ocurrio un error desconocido");
     return;
   }
@@ -211,7 +250,8 @@ void modifyUser(User *requester) {
 
   if (toModify.selected == 0) // Change Name
   {
-    while (1) {
+    while (1)
+    {
       if (input(L"Introduzca el nuevo nombre de usuario",
                 L"Nuevo nombre de usuario", (void *)&username,
                 makeHandShake) == 1)
@@ -219,16 +259,19 @@ void modifyUser(User *requester) {
 
       printMessage(L"El nombre de usuario no puede estar vacio");
     }
-  } else if (toModify.selected == 1) // Change pass
+  }
+  else if (toModify.selected == 1) // Change pass
   {
-    while (1) {
+    while (1)
+    {
       if (input(L"Introduzca la nueva contraseña", L"Nueva contraseña",
                 (void *)&password, makeHandShake) == 1)
         break;
 
       printMessage(L"La contraseña no puede estar vacia");
     }
-  } else if (toModify.selected == 2) // Change type
+  }
+  else if (toModify.selected == 2) // Change type
   {
     MENU tipoDeUsuario;
     wchar_t *opciones[] = {L"Pasajero", L"Administrador"};
@@ -242,19 +285,18 @@ void modifyUser(User *requester) {
     focusMenu(&tipoDeUsuario);
 
     newType = tipoDeUsuario.selected;
-  } else {
+  }
+  else
+  {
     printMessage(L"Ocurrio un error desconocido");
   }
 
-  modify_user(*requester, username.text, password.text, newType);
+  modify_user(*requester, user->name, username.text, password.text, newType);
+  writeAllUsers();
 }
 
-void listUsers(User *requester) {
-  if (requester->type != PASSANGER) {
-    printMessage(
-        L"No tienes los permisos necesarios para realizar esta accion");
-    return;
-  }
+void listUsers(User *requester)
+{
 
   User *user = selectUser(requester, (int (*)(void *)) & help,
                           L"Selecciona el usuario a listar 📝 " BOLD);
@@ -262,7 +304,8 @@ void listUsers(User *requester) {
   assertm(1, L"Unimplemented");
 }
 
-void manageUsersUI(User *user) {
+void manageUsersUI(User *user)
+{
   printHelp(RESET FRGB(185, 251, 192) L"↕" RESET DIM L" Sig/Ant " RESET FRGB(
                 185, 251, 192) L"↵" RESET DIM L" Escoger ",
             4, getrows(STDOUTPUT) - 2);
@@ -276,12 +319,8 @@ void manageUsersUI(User *user) {
            DIM L"Escoge alguna actividad a realizar..." RESET "\0");
 }
 
-void manageUsers(User *user) {
-  if (user->type != ADMIN) {
-    printMessage(L"Acceso denegado, solo los administradores pueden acceder a "
-                 L"esta sección");
-    return;
-  }
+void manageUsers(User *user)
+{
 
   wchar_t *options[] = {L"Crear nuevo usuario", L"Eliminar usuario",
                         L"Modificar usuario", L"Enlistar usuario", L"Regresar"};
@@ -302,26 +341,24 @@ void manageUsers(User *user) {
       (void *)&listUsers,
   };
 
-  while (1) {
+  while (1)
+  {
     focusMenu(&menu);
     if (menu.selected == 4)
       break;
-    if (menu.selected >= 0 && menu.selected < 3)
+    if (menu.selected >= 0 && menu.selected <= 3)
       userman[menu.selected](user);
   }
 }
 
-void createRoute(User *user) {
-  if (user->type != ADMIN) {
-    printMessage(L"Acceso denegado, solo los administradores pueden acceder a "
-                 L"esta sección");
-    return;
-  }
+void createRoute(User *user)
+{
 
   Handshake routerName = {ROUTE_NAME_MAX_LENGTH + 1, 0};
   Handshake routerDescription = {ROUTE_DESCRIPTION_MAX_LENGTH + 1, 0};
 
-  while (1) {
+  while (1)
+  {
     if (input(L"Ingresa el nombre de la nueva ruta a crear",
               L"Nombre de la ruta", (void *)&routerName, makeHandShake) == 1)
       break;
@@ -330,7 +367,8 @@ void createRoute(User *user) {
         L"Por favor sigue las indicaciones para crear el nombre de la ruta");
   }
 
-  while (1) {
+  while (1)
+  {
     if (input(L"Ingresa una descripción de la ruta a crear",
               L"Descripción de la ruta", (void *)&routerDescription,
               makeHandShake) == 1)
@@ -341,13 +379,15 @@ void createRoute(User *user) {
   }
 
   Result appendRoute = add_route(routerName.text, routerDescription.text, 1);
-  if (appendRoute.Error_state != OK) {
+  if (appendRoute.Error_state != OK)
+  {
     printMessage(L"Ocurrio un error desconocido");
   }
 
   Route *newRoute = (Route *)appendRoute.Result;
 
-  while (1) {
+  while (1)
+  {
     MENU agregarHorario;
     wchar_t *opciones[] = {L"Si", L"No"};
     wchar_t *descripciones[] = {L"Si, agregar horario",
@@ -362,25 +402,28 @@ void createRoute(User *user) {
       break;
 
     MENU dia;
-    wchar_t *dias[] = {L"Lunes",   L"Martes", L"Miercoles", L"Jueves",
+    wchar_t *dias[] = {L"Lunes", L"Martes", L"Miercoles", L"Jueves",
                        L"Viernes", L"Sabado", L"Domingo"};
     wchar_t *descripcionesDias[] = {
-        L"Día lunes",   L"Día martes", L"Día miercoles", L"Día jueves",
+        L"Día lunes", L"Día martes", L"Día miercoles", L"Día jueves",
         L"Día viernes", L"Día sabado", L"Día domingo"};
     setMenuData(&dia, NULL, 5, 4, 1, 7, dias, descripcionesDias,
                 (int (*)(void *)) & help,
                 L"Selecciona el día de la semana 📅 " BOLD);
 
+    focusMenu(&dia);
+
     Weekday diaSeleccionado = dia.selected;
 
     Handshake horario = {ROUTE_HORARIO_MAX_LENGTH + 1, 0};
     int hour, minute;
-    while (1) {
+    while (1)
+    {
       int r = input(L"Ingresa el horario de la ruta a crear con el siguiente "
                     L"formato HH:MM siendo un horario de 24 horas",
                     L"Horario de la ruta (Eg. 15:52)", (void *)&horario,
                     makeHandShake);
-      int c = swscanf(horario.text, L"%d:%d", &hour, &minute);
+      int c = swscanf(horario.text, L"%2d:%2d", &hour, &minute);
       if (r == 1 && c == 2)
         break;
 
@@ -388,7 +431,11 @@ void createRoute(User *user) {
           L"Por favor sigue las indicaciones para crear el horario de la ruta");
     }
 
-    Time time = {diaSeleccionado, hour, minute};
+    Time *time = calloc(1, sizeof(Time));
+    time->day = diaSeleccionado;
+    time->time.hour = hour;
+    time->time.minute = minute;
+    // *time = {diaSeleccionado, hour, minute};
     llist_append(&newRoute->scheduled_times, &time);
 
     printMessage(L"Horario agregado correctamente");
@@ -397,18 +444,15 @@ void createRoute(User *user) {
   printMessage(L"Ruta agregada correctamente");
 }
 
-void deleteRoute(User *user) {
-  if (user->type != ADMIN) {
-    printMessage(L"Acceso denegado, solo los administradores pueden acceder a "
-                 L"esta sección");
-    return;
-  }
+void deleteRoute(User *user)
+{
 
   Route *route = selectRoute(
       NULL, L"Selecciona la ruta a eliminar 🚧 " BOLD,
       L"La ruta ah eliminar sera deshabilitada temporalmente",
       (int (*)(void *)) & help, L"Selecciona la ruta a eliminar 🗑 " BOLD);
-  if (route == NULL) {
+  if (route == NULL)
+  {
     printMessage(L"Error desconocido");
     return;
   }
@@ -418,31 +462,30 @@ void deleteRoute(User *user) {
   printMessage(L"Ruta eliminada correctamente");
 }
 
-void modifyRoute(User *user) {
-  while (1) {
+void modifyRoute(User *user)
+{
+  while (1)
+  {
     // select route to modify
-    if (user->type != ADMIN) {
-      printMessage(L"Acceso denegado, solo los administradores pueden acceder "
-                   L"a esta sección");
-      return;
-    }
 
     Route *route = selectRoute(
         NULL, L"Selecciona la ruta a modificar 🚧 " BOLD,
         L"A continuación seleccionaras la ruta a modificar permantemente",
         (int (*)(void *)) & help, L"Selecciona la ruta a modificar 🖋 " BOLD);
 
-    while (1) { // select Time to modify
+    while (1)
+    { // select Time to modify
       MENU menu;
       wchar_t opciones[route->scheduled_times.size + 1]
                       [ROUTE_NAME_MAX_LENGTH + 1];
       wchar_t descripciones[route->scheduled_times.size + 1]
                            [ROUTE_DESCRIPTION_MAX_LENGTH + 1];
 
-      wchar_t *days[] = {L"Lunes",   L"Martes", L"Miercoles", L"Jueves",
+      wchar_t *days[] = {L"Lunes", L"Martes", L"Miercoles", L"Jueves",
                          L"Viernes", L"Sabado", L"Domingo"};
 
-      for (int i = 0; i < route->scheduled_times.size; i++) {
+      for (int i = 0; i < route->scheduled_times.size; i++)
+      {
         Time *time = (Time *)llist_get(&route->scheduled_times, i);
         swprintf(opciones[i], ROUTE_NAME_MAX_LENGTH + 1, L"%s",
                  days[time->day]);
@@ -465,7 +508,8 @@ void modifyRoute(User *user) {
 
       Time *time = (Time *)llist_get(&route->scheduled_times, menu.selected);
 
-      while (1) { // select what to modify
+      while (1)
+      { // select what to modify
         MENU menu;
         wchar_t *opciones[] = {L"Modificar día", L"Modificar hora",
                                L"Terminar"};
@@ -477,12 +521,13 @@ void modifyRoute(User *user) {
                     L"¿Qué deseas modificar? 🕐 " BOLD);
         focusMenu(&menu);
 
-        if (menu.selected == 0) { // modify weekday
+        if (menu.selected == 0)
+        { // modify weekday
           MENU menu;
-          wchar_t *opciones[] = {L"Lunes",   L"Martes", L"Miercoles", L"Jueves",
+          wchar_t *opciones[] = {L"Lunes", L"Martes", L"Miercoles", L"Jueves",
                                  L"Viernes", L"Sabado", L"Domingo"};
           wchar_t *descripciones[] = {
-              L"Día lunes",   L"Día martes", L"Día miercoles", L"Día jueves",
+              L"Día lunes", L"Día martes", L"Día miercoles", L"Día jueves",
               L"Día viernes", L"Día sabado", L"Día domingo"};
 
           setMenuData(&menu, NULL, 5, 4, 1, 7, opciones, descripciones,
@@ -491,22 +536,28 @@ void modifyRoute(User *user) {
           focusMenu(&menu);
 
           time->day = menu.selected;
-        } else if (menu.selected == 1) { // modigy hour
-          while (1) {
+        }
+        else if (menu.selected == 1)
+        { // modigy hour
+          while (1)
+          {
             Handshake _time = {ROUTE_HORARIO_MAX_LENGTH, 0};
             if (input(L"Ingresa el nuevo tiempo a insertar", L"Nuevo tiempo",
-                      (void *)&_time, makeHandShake) == 0) {
+                      (void *)&_time, makeHandShake) == 0)
+            {
               printMessage(L"Ingresa un tiempo válido");
               return;
             }
 
             int hour, minute;
-            if (swscanf(_time.text, L"%d:%d", &hour, &minute) != 2) {
+            if (swscanf(_time.text, L"%d:%d", &hour, &minute) != 2)
+            {
               printMessage(L"Ingresa un tiempo válido");
               return;
             }
 
-            if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+            if (hour < 0 || hour > 23 || minute < 0 || minute > 59)
+            {
               printMessage(L"Ingresa un tiempo válido");
               return;
             }
@@ -514,7 +565,9 @@ void modifyRoute(User *user) {
             time->time.hour = hour;
             time->time.minute = minute;
           }
-        } else {
+        }
+        else
+        {
           printMessage(L"Horario modificado correctamente");
           break;
           ;
@@ -525,14 +578,12 @@ void modifyRoute(User *user) {
   }
 }
 
-void listRoutes(User *user) {
-  while (1) {
+void listRoutes(User *user)
+{
+  while (1)
+  {
     // select route to modify
-    if (user->type != ADMIN) {
-      printMessage(L"Acceso denegado, solo los administradores pueden acceder "
-                   L"a esta sección");
-      return;
-    }
+
     Route *route =
         selectRoute(NULL, L"Selecciona una ruta a visualizar 🔍" BOLD,
                     L"Selecciona alguna ruta a inspeccionar 🕵️‍♂️",
@@ -542,7 +593,8 @@ void listRoutes(User *user) {
   }
 }
 
-void manageRoutes(User *user) {
+void manageRoutes(User *user)
+{
   wchar_t *options[] = {L"Crear ruta", L"Eliminar ruta", L"Modificar ruta",
                         L"Consultar", L"Regresar"};
   wchar_t *descriptions[] = {
@@ -562,7 +614,8 @@ void manageRoutes(User *user) {
       (void *)&listRoutes,
   };
 
-  while (1) {
+  while (1)
+  {
     focusMenu(&menu);
     if (menu.selected == 4)
       break;
@@ -571,19 +624,23 @@ void manageRoutes(User *user) {
   }
 }
 
-void queryLogByUser(User *requester) {
-  if (requester->type != ADMIN) {
+void queryLogByUser(User *requester)
+{
+  if (requester->type != ADMIN)
+  {
     printMessage(L"Acceso denegado, solo los administradores pueden acceder a "
                  L"esta sección");
     return;
   }
 
-  while (1) {
+  while (1)
+  {
     User *user =
         selectUser(requester, (int (*)(void *)) & help,
                    L"Selecciona un usuario a inspeccionar 🕵️‍♂️");
 
-    if (user == NULL) {
+    if (user == NULL)
+    {
       break;
     }
 
@@ -595,38 +652,47 @@ void queryLogByUser(User *requester) {
   }
 }
 
-void queryLogByMostRequestedRoutes(User *requester) {
-  if (requester->type != ADMIN) {
+void queryLogByMostRequestedRoutes(User *requester)
+{
+  if (requester->type != ADMIN)
+  {
     printMessage(L"Acceso denegado, solo los administradores pueden acceder a "
                  L"esta sección");
     return;
   }
 
-  while (1) {
-    int nrutes = (int)(number_of_routes().Result);
-    int nusers = (int)(number_of_users().Result);
+  while (1)
+  {
+    int nrutes = (intptr_t)(number_of_routes().Result);
+    int nusers = (intptr_t)(number_of_users().Result);
 
-    struct tmp {
+    struct tmp
+    {
       Route *route;
       int count;
     } routes[nrutes];
 
-    for (int i = 0; i < nrutes; i++) {
+    for (int i = 0; i < nrutes; i++)
+    {
       routes[i].route = (Route *)query_route_by_id(i).Result;
       routes[i].count = 0;
     }
 
-    for (int i = 0; i < nusers; i++) {
+    for (int i = 0; i < nusers; i++)
+    {
       User *user = (User *)query_user_by_id(*requester, i).Result;
 
       int user_routes = llist_size(&user->queued_routes);
 
-      for (int j = 0; j < user_routes; j++) {
+      for (int j = 0; j < user_routes; j++)
+      {
         Route *route = (Route *)llist_get(&user->queued_routes, j);
 
         int found = 0;
-        for (int k = 0; k < nrutes; k++) {
-          if (routes[k].route == route) {
+        for (int k = 0; k < nrutes; k++)
+        {
+          if (routes[k].route == route)
+          {
             routes[k].count++;
             found = 1;
             break;
@@ -636,9 +702,12 @@ void queryLogByMostRequestedRoutes(User *requester) {
     }
 
     { // Sort routes by most requested
-      for (int i = 0; i < nrutes; i++) {
-        for (int j = 0; j < nrutes; j++) {
-          if (routes[i].count > routes[j].count) {
+      for (int i = 0; i < nrutes; i++)
+      {
+        for (int j = 0; j < nrutes; j++)
+        {
+          if (routes[i].count > routes[j].count)
+          {
             // swap them
             struct tmp temp = routes[i];
             routes[i] = routes[j];
@@ -652,7 +721,8 @@ void queryLogByMostRequestedRoutes(User *requester) {
     wchar_t opciones[nrutes + 1][ROUTE_NAME_MAX_LENGTH + 1];
     wchar_t descripciones[nrutes + 1][ROUTE_DESCRIPTION_MAX_LENGTH + 1];
 
-    for (int i = 0; i < nrutes; i++) {
+    for (int i = 0; i < nrutes; i++)
+    {
       wcscpy(opciones[i], routes[i].route->name);
       wcscpy(descripciones[i], routes[i].route->destination);
     }
@@ -673,38 +743,47 @@ void queryLogByMostRequestedRoutes(User *requester) {
   }
 }
 
-void queryLogByLeastRequestedRoutes(User *requester) {
-  if (requester->type != ADMIN) {
+void queryLogByLeastRequestedRoutes(User *requester)
+{
+  if (requester->type != ADMIN)
+  {
     printMessage(L"Acceso denegado, solo los administradores pueden acceder a "
                  L"esta sección");
     return;
   }
 
-  while (1) {
-    int nrutes = (int)(number_of_routes().Result);
-    int nusers = (int)(number_of_users().Result);
+  while (1)
+  {
+    int nrutes = (intptr_t)(number_of_routes().Result);
+    int nusers = (intptr_t)(number_of_users().Result);
 
-    struct tmp {
+    struct tmp
+    {
       Route *route;
       int count;
     } routes[nrutes];
 
-    for (int i = 0; i < nrutes; i++) {
+    for (int i = 0; i < nrutes; i++)
+    {
       routes[i].route = (Route *)query_route_by_id(i).Result;
       routes[i].count = 0;
     }
 
-    for (int i = 0; i < nusers; i++) {
+    for (int i = 0; i < nusers; i++)
+    {
       User *user = (User *)query_user_by_id(*requester, i).Result;
 
       int user_routes = llist_size(&user->queued_routes);
 
-      for (int j = 0; j < user_routes; j++) {
+      for (int j = 0; j < user_routes; j++)
+      {
         Route *route = (Route *)llist_get(&user->queued_routes, j);
 
         int found = 0;
-        for (int k = 0; k < nrutes; k++) {
-          if (routes[k].route == route) {
+        for (int k = 0; k < nrutes; k++)
+        {
+          if (routes[k].route == route)
+          {
             routes[k].count++;
             found = 1;
             break;
@@ -714,9 +793,12 @@ void queryLogByLeastRequestedRoutes(User *requester) {
     }
 
     { // Sort routes by least requested
-      for (int i = 0; i < nrutes; i++) {
-        for (int j = 0; j < nrutes; j++) {
-          if (routes[i].count < routes[j].count) {
+      for (int i = 0; i < nrutes; i++)
+      {
+        for (int j = 0; j < nrutes; j++)
+        {
+          if (routes[i].count < routes[j].count)
+          {
             // swap them
             struct tmp temp = routes[i];
             routes[i] = routes[j];
@@ -730,7 +812,8 @@ void queryLogByLeastRequestedRoutes(User *requester) {
     wchar_t opciones[nrutes + 1][ROUTE_NAME_MAX_LENGTH + 1];
     wchar_t descripciones[nrutes + 1][ROUTE_DESCRIPTION_MAX_LENGTH + 1];
 
-    for (int i = 0; i < nrutes; i++) {
+    for (int i = 0; i < nrutes; i++)
+    {
       wcscpy(opciones[i], routes[i].route->name);
       wcscpy(descripciones[i], routes[i].route->destination);
     }
@@ -751,23 +834,28 @@ void queryLogByLeastRequestedRoutes(User *requester) {
   }
 }
 
-void queryLogByUsersWithOneRequest(User *requester) {
-  if (requester->type != ADMIN) {
+void queryLogByUsersWithOneRequest(User *requester)
+{
+  if (requester->type != ADMIN)
+  {
     printMessage(L"Acceso denegado, solo los administradores pueden acceder a "
                  L"esta sección");
     return;
   }
 
-  while (1) {
-    int nusers = (int)(number_of_users().Result);
-    struct stats {
+  while (1)
+  {
+    int nusers = (intptr_t)(number_of_users().Result);
+    struct stats
+    {
       User *user;
       LList routes;
     };
 
     LList users;
 
-    for (int i = 0; i < nusers; i++) {
+    for (int i = 0; i < nusers; i++)
+    {
       struct stats *newstat = calloc(1, sizeof(struct stats));
       newstat->user = (User *)query_user_by_id(*requester, i).Result;
       memset(&newstat->routes, 0, sizeof(LList));
@@ -775,17 +863,19 @@ void queryLogByUsersWithOneRequest(User *requester) {
       int user_routes = llist_size(&newstat->user->queued_routes);
 
       int atLeastOne = 0;
-      for (int j = 0; j < user_routes; j++) {
+      for (int j = 0; j < user_routes; j++)
+      {
         Route *route = (Route *)llist_get(&newstat->user->queued_routes, j);
 
-        if (route->state == TAKEN) {
-          llist_add(&newstat->routes, route);
+        if (route->state == TAKEN)
+        {
+          llist_append(&newstat->routes, route);
           atLeastOne = 1;
         }
       }
 
       if (atLeastOne)
-        llist_add(&users, newstat);
+        llist_append(&users, newstat);
     }
 
     nusers = llist_size(&users);
@@ -794,11 +884,12 @@ void queryLogByUsersWithOneRequest(User *requester) {
     wchar_t opciones[nusers + 1][ROUTE_NAME_MAX_LENGTH + 1];
     wchar_t descripciones[nusers + 1][ROUTE_DESCRIPTION_MAX_LENGTH + 1];
 
-    for (int i = 0; i < nusers; i++) {
-      struct stats *user = ((struct stats *)llist_get(&users, i))->user;
-      Route *route = llist_get(&user->routes, 0);
+    for (int i = 0; i < nusers; i++)
+    {
+      User *user = llist_get(&users, i);
+      Route *route = llist_get(&user->queued_routes, 0);
 
-      wcscpy(opciones[i], user->user->name);
+      wcscpy(opciones[i], user->name);
       wcscpy(descripciones[i], (route != NULL) ? route->name : L"");
     }
 
@@ -818,41 +909,48 @@ void queryLogByUsersWithOneRequest(User *requester) {
   }
 }
 
-void queryLogByUsersWithNoRequests(User *requester) {
-  if (requester->type != ADMIN) {
+void queryLogByUsersWithNoRequests(User *requester)
+{
+  if (requester->type != ADMIN)
+  {
     printMessage(L"Acceso denegado, solo los administradores pueden acceder a "
                  L"esta sección");
     return;
   }
 
-  while (1) {
-    int nusers = (int)(number_of_users().Result);
-    struct stats {
+  while (1)
+  {
+    int nusers = (intptr_t)(number_of_users().Result);
+    struct stats
+    {
       User *user;
       LList routes;
     };
 
     LList users;
 
-    for (int i = 0; i < nusers; i++) {
-      struct stats *newstat = callco(1, sizeof(struct stats));
+    for (int i = 0; i < nusers; i++)
+    {
+      struct stats *newstat = calloc(1, sizeof(struct stats));
       newstat->user = (User *)query_user_by_id(*requester, i).Result;
       memset(&newstat->routes, 0, sizeof(LList));
 
       int user_routes = llist_size(&newstat->user->queued_routes);
 
       int atLeastOne = 0;
-      for (int j = 0; j < user_routes; j++) {
+      for (int j = 0; j < user_routes; j++)
+      {
         Route *route = (Route *)llist_get(&newstat->user->queued_routes, j);
 
-        if (route->state == REQUESTED) {
-          llist_add(&newstat->routes, route);
+        if (route->state == REQUESTED)
+        {
+          llist_append(&newstat->routes, route);
           atLeastOne = 1;
         }
       }
 
       if (atLeastOne)
-        llist_add(&users, newstat);
+        llist_append(&users, newstat);
     }
 
     nusers = llist_size(&users);
@@ -861,11 +959,12 @@ void queryLogByUsersWithNoRequests(User *requester) {
     wchar_t opciones[nusers + 1][ROUTE_NAME_MAX_LENGTH + 1];
     wchar_t descripciones[nusers + 1][ROUTE_DESCRIPTION_MAX_LENGTH + 1];
 
-    for (int i = 0; i < nusers; i++) {
-      struct stats *user = ((struct stats *)llist_get(&users, i))->user;
-      Route *route = llist_get(&user->routes, 0);
+    for (int i = 0; i < nusers; i++)
+    {
+      User *user = llist_get(&users, i);
+      Route *route = llist_get(&user->queued_routes, 0);
 
-      wcscpy(opciones[i], user->user->name);
+      wcscpy(opciones[i], user->name);
       wcscpy(descripciones[i], (route != NULL) ? route->name : L"");
     }
 
@@ -885,41 +984,48 @@ void queryLogByUsersWithNoRequests(User *requester) {
   }
 }
 
-void queryLogByUsersWithCompletedRoutes(User *requester) {
-  if (requester->type != ADMIN) {
+void queryLogByUsersWithCompletedRoutes(User *requester)
+{
+  if (requester->type != ADMIN)
+  {
     printMessage(L"Acceso denegado, solo los administradores pueden acceder a "
                  L"esta sección");
     return;
   }
 
-  while (1) {
-    int nusers = (int)(number_of_users().Result);
-    struct stats {
+  while (1)
+  {
+    int nusers = (intptr_t)(number_of_users().Result);
+    struct stats
+    {
       User *user;
       LList routes;
     };
 
     LList users;
 
-    for (int i = 0; i < nusers; i++) {
-      struct stats *newstat = callco(1, sizeof(struct stats));
+    for (int i = 0; i < nusers; i++)
+    {
+      struct stats *newstat = calloc(1, sizeof(struct stats));
       newstat->user = (User *)query_user_by_id(*requester, i).Result;
       memset(&newstat->routes, 0, sizeof(LList));
 
       int user_routes = llist_size(&newstat->user->queued_routes);
 
       int atLeastOne = 0;
-      for (int j = 0; j < user_routes; j++) {
+      for (int j = 0; j < user_routes; j++)
+      {
         Route *route = (Route *)llist_get(&newstat->user->queued_routes, j);
 
-        if (route->state == COMPLETED) {
-          llist_add(&newstat->routes, route);
+        if (route->state == COMPLETED)
+        {
+          llist_append(&newstat->routes, route);
           atLeastOne = 1;
         }
       }
 
       if (atLeastOne)
-        llist_add(&users, newstat);
+        llist_append(&users, newstat);
     }
 
     nusers = llist_size(&users);
@@ -928,11 +1034,12 @@ void queryLogByUsersWithCompletedRoutes(User *requester) {
     wchar_t opciones[nusers + 1][ROUTE_NAME_MAX_LENGTH + 1];
     wchar_t descripciones[nusers + 1][ROUTE_DESCRIPTION_MAX_LENGTH + 1];
 
-    for (int i = 0; i < nusers; i++) {
-      struct stats *user = ((struct stats *)llist_get(&users, i))->user;
-      Route *route = llist_get(&user->routes, 0);
+    for (int i = 0; i < nusers; i++)
+    {
+      User *user = llist_get(&users, i);
+      Route *route = llist_get(&user->queued_routes, 0);
 
-      wcscpy(opciones[i], user->user->name);
+      wcscpy(opciones[i], user->name);
       wcscpy(descripciones[i], (route != NULL) ? route->name : L"");
     }
 
@@ -952,7 +1059,8 @@ void queryLogByUsersWithCompletedRoutes(User *requester) {
   }
 }
 
-void queryLog(User *user) {
+void queryLog(User *user)
+{
   MENU menu;
   wchar_t *opciones[] = {
       L"Consultar por usuario",
@@ -993,10 +1101,13 @@ void queryLog(User *user) {
     return;
 }
 
-void registerNextRoute(User *user) {
-  while (1) {
+void registerNextRoute(User *user)
+{
+  while (1)
+  {
     Route *userRoute = malloc(sizeof(Route));
-    if (userRoute == NULL) {
+    if (userRoute == NULL)
+    {
       printMessage(L"Error al crear la ruta");
       return;
     }
@@ -1015,9 +1126,10 @@ void registerNextRoute(User *user) {
       int nschedules = llist_size(&route->scheduled_times);
       wchar_t opciones[nschedules + 1][ROUTE_NAME_MAX_LENGTH + 1];
       wchar_t descripciones[nschedules + 1][ROUTE_DESCRIPTION_MAX_LENGTH + 1];
-      wchar_t *days[] = {L"Lunes",   L"Martes", L"Miercoles", L"Jueves",
+      wchar_t *days[] = {L"Lunes", L"Martes", L"Miercoles", L"Jueves",
                          L"Viernes", L"Sabado", L"Domingo"};
-      for (int i = 0; i < nschedules; i++) {
+      for (int i = 0; i < nschedules; i++)
+      {
         Time *time = (Time *)llist_get(&route->scheduled_times, i);
         wcscpy(opciones[i], days[time->day]);
         // coopy formated time to description
@@ -1033,24 +1145,28 @@ void registerNextRoute(User *user) {
                   L"Selecciona el horario de la ruta a registrar 🚧 " BOLD);
 
       focusMenu(&menu);
-      if (menu.selected == nschedules) {
+      if (menu.selected == nschedules)
+      {
         return;
       }
     }
 
     userRoute->state = REQUESTED;
-    while (llist_size(&userRoute->scheduled_times) > 0) {
+    while (llist_size(&userRoute->scheduled_times) > 0)
+    {
       llist_remove(&userRoute->scheduled_times, 0);
     }
 
     Time *userTime = llist_get(&route->scheduled_times, menu.selected);
 
-    if (llist_append(&userRoute->scheduled_times, userTime) != 0) {
+    if (llist_append(&userRoute->scheduled_times, userTime) != 0)
+    {
       printMessage(L"Error al registrar la ruta");
       continue;
     }
 
-    if (llist_append(&user->queued_routes, userRoute) != 0) {
+    if (llist_append(&user->queued_routes, userRoute) != 0)
+    {
       printMessage(L"Error al registrar la ruta");
       continue;
     }
@@ -1059,8 +1175,10 @@ void registerNextRoute(User *user) {
 }
 
 // Remove from listing the already taken routes
-void checkIn(User *user) {
-  while (1) {
+void checkIn(User *user)
+{
+  while (1)
+  {
     Route *route = selectRoute(
         &user->queued_routes, L"Selecciona la ruta a registrar 🚧 " BOLD,
         L"Selecciona la proxima ruta a tomar", (int (*)(void *)) & help,
@@ -1069,11 +1187,13 @@ void checkIn(User *user) {
     if (route == NULL)
       return;
 
-    if (route->state == COMPLETED) {
+    if (route->state == COMPLETED)
+    {
       printMessage(L"La ruta ya ha sido completada");
       continue;
     }
-    if (route->state == TAKEN) {
+    if (route->state == TAKEN)
+    {
       printMessage(L"La ruta esta en curso de completarse");
       continue;
     }
@@ -1084,8 +1204,10 @@ void checkIn(User *user) {
   }
 }
 
-void checkOut(User *user) {
-  while (1) {
+void checkOut(User *user)
+{
+  while (1)
+  {
     Route *route = selectRoute(
         &user->queued_routes, L"Selecciona la ruta a registrar 🚧 " BOLD,
         L"Selecciona la proxima ruta a tomar", (int (*)(void *)) & help,
@@ -1094,11 +1216,13 @@ void checkOut(User *user) {
     if (route == NULL)
       return;
 
-    if (route->state == COMPLETED) {
+    if (route->state == COMPLETED)
+    {
       printMessage(L"La ruta ya ha sido completada");
       continue;
     }
-    if (route->state == REQUESTED) {
+    if (route->state == REQUESTED)
+    {
       printMessage(L"No puedes terminar una ruta que no se ah empezado");
       continue;
     }
@@ -1109,8 +1233,10 @@ void checkOut(User *user) {
   }
 }
 
-void DebugData(User *user) {
-  while (1) {
+void DebugData(User *user)
+{
+  while (1)
+  {
     MENU menu;
     wchar_t *opciones[] = {
         L"Usuarios",
@@ -1135,32 +1261,42 @@ void DebugData(User *user) {
     int nitems = 0;
 
     Result n;
-    if (menu.selected == 0) {
+    if (menu.selected == 0)
+    {
       n = number_of_users();
-    } else if (menu.selected == 1) {
+    }
+    else if (menu.selected == 1)
+    {
       n = number_of_routes();
     }
 
-    if (n.Result != OK) {
+    if (n.Result != OK)
+    {
       printMessage(L"Error al obtener el número de elementos");
       continue;
-    } else {
-      nitems = (int)n.Result;
+    }
+    else
+    {
+      nitems = (intptr_t)n.Result;
     }
 
     wchar_t *items[nitems + 1];
     wchar_t *descriptions[nitems + 1];
 
-    for (int i = 0; i < nitems; i++) {
+    for (int i = 0; i < nitems; i++)
+    {
       descriptions[i] = malloc(sizeof(wchar_t) * 50);
       items[i] = malloc(sizeof(wchar_t) * 50);
       void *pointer;
 
-      if (menu.selected == 0) {
+      if (menu.selected == 0)
+      {
         User *tmp = query_user_by_id(*user, i).Result;
         pointer = tmp;
         swprintf(items[i], 49, L"%s", tmp->name);
-      } else if (menu.selected == 1) {
+      }
+      else if (menu.selected == 1)
+      {
         Route *tmp = query_route_by_id(i).Result;
         pointer = tmp;
         swprintf(items[i], 49, L"%s", tmp->name);
@@ -1175,14 +1311,16 @@ void DebugData(User *user) {
 
     focusMenu(&menu);
 
-    for (int i = 0; i < nitems; i++) {
+    for (int i = 0; i < nitems; i++)
+    {
       free(items[i]);
       free(descriptions[i]);
     }
   }
 }
 
-void mainScreenUI(void *data) {
+void mainScreenUI(void *data)
+{
   printHelp(RESET FRGB(185, 251, 192) L"↕" RESET DIM L" Sig/Ant " RESET FRGB(
                 185, 251, 192) L"↵" RESET DIM L" Escoger ",
             4, getrows(STDOUTPUT) - 2);
@@ -1197,12 +1335,14 @@ void mainScreenUI(void *data) {
            DIM L"Escoge alguna actividad a realizar..." RESET "\0");
 }
 
-void mainScreen(User *user) {
-  if (user->type == ADMIN) {
+void mainScreen(User *user)
+{
+  if (user->type == ADMIN)
+  {
     wint_t opcion;
-    wchar_t *options[] = {L"Administrar Usuarios",  L"Administrar Rutas",
+    wchar_t *options[] = {L"Administrar Usuarios", L"Administrar Rutas",
                           L"Enlistar Estadisticas", L"Debug Data",
-                          L"Cerrar Sesión",         L"Cerrar Aplicación"};
+                          L"Cerrar Sesión", L"Cerrar Aplicación"};
     wchar_t *descriptions[] = {
         L"Agrega, elimina, u modifica los usuarios registrados",
         L"Agrega, elimina, u modifica las rutas registradas",
@@ -1211,13 +1351,14 @@ void mainScreen(User *user) {
         L"Cierra sesión para que otro usuario pueda usar el sitema",
         L"Cierra el sistema y las bases de datos"};
     MENU mainscreen;
-    setMenuData(&mainscreen, NULL, 5, 4, 1, 9, options, descriptions,
+    setMenuData(&mainscreen, NULL, 5, 4, 1, 6, options, descriptions,
                 (int (*)(void *)) & mainScreenUI, user);
 
     Funciones mainFuncs[] = {(void *)&manageUsers, (void *)&manageRoutes,
                              (void *)&queryLog, (void *)&DebugData};
 
-    while (1) {
+    while (1)
+    {
       focusMenu(&mainscreen);
       if (mainscreen.selected == 4)
         break;
@@ -1230,7 +1371,9 @@ void mainScreen(User *user) {
 
       mainFuncs[mainscreen.selected](user);
     }
-  } else {
+  }
+  else
+  {
     wint_t opcion;
     wchar_t *options[] = {L"Registrar proxima ruta", L"Registrar entrada",
                           L"Registrar salida", L"Cerrar Sesión",
@@ -1241,13 +1384,14 @@ void mainScreen(User *user) {
         L"Cierra sesión para que otro usuario pueda usar el sitema",
         L"Cierra el sistema y las bases de datos"};
     MENU mainscreen;
-    setMenuData(&mainscreen, NULL, 5, 4, 1, 9, options, descriptions,
+    setMenuData(&mainscreen, NULL, 5, 4, 1, 5, options, descriptions,
                 (int (*)(void *)) & mainScreenUI, user);
 
     Funciones mainFuncs[] = {(void *)&registerNextRoute, (void *)&checkIn,
                              (void *)&checkOut};
 
-    while (1) {
+    while (1)
+    {
       focusMenu(&mainscreen);
       if (mainscreen.selected == 3)
         break;
@@ -1263,8 +1407,10 @@ void mainScreen(User *user) {
   }
 }
 
-int TuiLogin() {
-  while (1) {
+int TuiLogin()
+{
+  while (1)
+  {
     wprintf(CLEAR);
     Handshake username = {.length = USERNAME_MAX_LENGTH + 1, .text = NULL};
 
@@ -1280,26 +1426,31 @@ int TuiLogin() {
 
     Result loginAttempt = login(username.text, password.text);
 
-    switch (loginAttempt.Error_state) {
-    case OK: {
+    switch (loginAttempt.Error_state)
+    {
+    case OK:
+    {
       free(username.text);
       free(password.text);
       mainScreen(loginAttempt.Result);
       break;
     }
-    case USER_NOT_FOUND: {
+    case USER_NOT_FOUND:
+    {
       free(username.text);
       free(password.text);
       printMessage(L"Usuario no encontrado");
       break;
     }
-    case INCORRECT_PASSWORD: {
+    case INCORRECT_PASSWORD:
+    {
       free(username.text);
       free(password.text);
       printMessage(L"Contraseña incorrecta");
       break;
     }
-    case USER_DISABLED: {
+    case USER_DISABLED:
+    {
       free(username.text);
       free(password.text);
       printMessage(L"Usuario deshabilitado");

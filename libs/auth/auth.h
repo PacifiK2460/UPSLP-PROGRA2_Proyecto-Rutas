@@ -93,8 +93,7 @@ Result add_user(const User Requester, const wchar_t *NewUserName, const wchar_t 
 
     If the user does not exists, the function returns USER_NOT_FOUND.
 */
-Result modify_user(const User Requester, const wchar_t *UserName, const wchar_t *NewUserPass, Type NewUserType);
-
+Result modify_user(User Requester, wchar_t *UserName, wchar_t *NewUserName, wchar_t *NewUserPass, Type NewUserType);
 /*
     Attempts to disable the user with the given credentials.
     If the user is deleted successfully, the function returns the deleted user.
@@ -113,7 +112,7 @@ Result query_user(const User Requester, const wchar_t *UserName);
 
 /**
  * @brief Attempts to queue a route for the given user.
- * 
+ *
  * @param Requester The user whom is requesting the action. If the requested does not have enough permissions, the function will return USER_NOT_ALLOWED.
  * @param id The id of the user to request
  * @return Result The result of the operation. Either the user or USER_NOT_FOUND.
@@ -130,8 +129,8 @@ Result number_of_users();
 
 /**
  * @brief Frees all user routes
- * 
- * @param user 
+ *
+ * @param user
  */
 void freeUserRoutes(User user);
 

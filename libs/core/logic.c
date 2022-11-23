@@ -307,7 +307,6 @@ void listUsers(User *requester)
   User *user = selectUser(requester, (int (*)(void *)) & help,
                           L"Selecciona el usuario a listar 📝 " BOLD);
 
-  assertm(1, L"Unimplemented");
 }
 
 void manageUsersUI(User *user)
@@ -596,17 +595,13 @@ void modifyRoute(User *user)
 
 void listRoutes(User *user)
 {
-  while (1)
-  {
     // select route to modify
 
     Route *route =
-        selectRoute(NULL, L"Selecciona una ruta a visualizar 🔍" BOLD,
-                    L"Selecciona alguna ruta a inspeccionar 🕵️‍♂️",
+        selectRoute(NULL, L"Regresar" BOLD,
+                    L"Regresar al menu principal",
                     (int (*)(void *)) & help,
                     L"Selecciona la ruta a inspeccionar a detalle 🖋 " BOLD);
-    assertm(1, L"Unimplemented");
-  }
 }
 
 void manageRoutes(User *user)
@@ -635,7 +630,7 @@ void manageRoutes(User *user)
     focusMenu(&menu);
     if (menu.selected == 4)
       break;
-    if (menu.selected >= 0 && menu.selected < 3)
+    if (menu.selected >= 0 && menu.selected < 4)
       routeman[menu.selected](user);
   }
 }
@@ -661,8 +656,8 @@ void queryLogByUser(User *requester)
     }
 
     selectRoute(&user->queued_routes,
-                L"Selecciona una ruta a visualizar 🔍" BOLD,
-                L"Selecciona alguna ruta a inspeccionar 🕵️‍♂️",
+                L"Regresar" BOLD,
+                L"Regresar al menu principal",
                 (int (*)(void *)) & help,
                 L"Selecciona la ruta a inspeccionar a detalle 🖋 " BOLD);
   }
@@ -1202,8 +1197,8 @@ void checkIn(User *user)
   while (1)
   {
     Route *route = selectRoute(
-        &user->queued_routes, L"Selecciona la ruta a registrar 🚧 " BOLD,
-        L"Selecciona la proxima ruta a tomar", (int (*)(void *)) & help,
+        &user->queued_routes, L"Regresar " ,
+        L"Regresar al menu principal", (int (*)(void *)) & help,
         L"Selecciona tu proxima ruta a tomar 🚧 " BOLD);
 
     if (route == NULL)
@@ -1231,8 +1226,8 @@ void checkOut(User *user)
   while (1)
   {
     Route *route = selectRoute(
-        &user->queued_routes, L"Selecciona la ruta a registrar 🚧 " BOLD,
-        L"Selecciona la proxima ruta a tomar", (int (*)(void *)) & help,
+        &user->queued_routes, L"Regresar" ,
+        L"Regresar al menu principal", (int (*)(void *)) & help,
         L"Selecciona tu proxima ruta a tomar 🚧 " BOLD);
 
     if (route == NULL)

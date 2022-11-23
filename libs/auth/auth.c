@@ -135,6 +135,7 @@ Result query_user_by_id(const User Requester, const int id)
 
 Result loadAllUsers()
 {
+    memset(&users, 0, sizeof(LList));
     Result result = {OK, NULL};
 
     FILE *file = fopen(USERS_FILE, "r, ccs=UTF-8");
@@ -287,7 +288,7 @@ Result loadAllUsers()
                     return result;
                 }
 
-                if (fwscanf(file, L" %d:%d", tmp->time.hour, tmp->time.minute != 1))
+                if (fwscanf(file, L" %d:%d", tmp->hour, tmp->minute != 1))
                 {
                     result.Error_state = FILE_READ_ERROR;
                     freeUsers();
@@ -335,7 +336,7 @@ Result writeAllUsers()
                 fwprintf(file, L" %ls %ls %d", route->name, route->destination, route->state);
                 Time *tmp = llist_get(&route->scheduled_times, 0);
 
-                fwprintf(file, L" %d %d:%d", tmp->day, tmp->time.hour, tmp->time.minute);
+                fwprintf(file, L" %d %d:%d", tmp->day, tmp->hour, tmp->minute);
             }
         }
         fwprintf(file, L"\n");

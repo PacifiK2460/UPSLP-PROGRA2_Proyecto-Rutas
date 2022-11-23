@@ -11,8 +11,8 @@
 
 // [!] User Management structures
 
-#define USERNAME_MAX_LENGTH 20
-#define PASSWORD_MAX_LENGTH 20
+#define USERNAME_MAX_LENGTH 100
+#define PASSWORD_MAX_LENGTH 100
 
 enum UserErrors
 {
@@ -139,3 +139,4 @@ void freeUserRoutes(User user);
  *
  */
 void freeUsers();
+Result writeAllUsers();

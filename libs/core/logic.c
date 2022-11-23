@@ -16,6 +16,8 @@ Route *selectRoute(LList *route_source, wchar_t *title, wchar_t *subtitle,
       printMessage(L"Ocurrio un error desconocido");
       return NULL;
     }
+    nrts = *(int *)number_of_routes().Result;
+    free(number_of_routes().Result);
   }
   else
   {
@@ -23,8 +25,8 @@ Route *selectRoute(LList *route_source, wchar_t *title, wchar_t *subtitle,
   }
 
   MENU menu;
-  wchar_t opciones[nrts + 1][ROUTE_NAME_MAX_LENGTH + 1];
-  wchar_t descripciones[nrts + 1][ROUTE_DESCRIPTION_MAX_LENGTH + 1];
+  wchar_t *opciones[nrts + 1];
+  wchar_t *descripciones[nrts + 1];
   for (int i = 0; i < nrts; i++)
   {
     Result RouteResult = query_route_by_id(i);
@@ -34,16 +36,21 @@ Route *selectRoute(LList *route_source, wchar_t *title, wchar_t *subtitle,
       return NULL;
     }
 
-    Route *route = (Route *)RouteResult.Result;
-    wcscpy(opciones[i], route->name);
-    wcscpy(descripciones[i], route->destination);
+    opciones[i] = ((Route *)RouteResult.Result)->name;
+    descripciones[i] = ((Route *)RouteResult.Result)->destination;
+
+    // Route *route = (Route *)RouteResult.Result;
+    // wcscpy(opciones[i], route->name);
+    // wcscpy(descripciones[i], route->destination);
   }
 
-  wcscpy(opciones[nrts + 1], title);
-  wcscpy(descripciones[nrts + 1], subtitle);
+  opciones[nrts] = title;
+  descripciones[nrts] = subtitle;
 
-  setMenuData(&menu, NULL, 5, 4, 1, nrts, (wchar_t **)opciones,
-              (wchar_t **)descripciones, __before, __before_args);
+  // wcscpy(opciones[nrts], title);
+  // wcscpy(descripciones[nrts], subtitle);
+
+  setMenuData(&menu, NULL, 5, 4, 1, nrts + 1, opciones, descripciones, __before, __before_args);
 
   focusMenu(&menu);
 
@@ -69,15 +76,8 @@ User *selectUser(User *requester, Funciones __before, void *__before_args)
   // wchar_t usuarios[nusers][USERNAME_MAX_LENGTH + 1];
   // wchar_t descrpciones[nusers][USERNAME_MAX_LENGTH + 1];i++
 
-  wchar_t *usuarios[nusers];
-  wchar_t *descrpciones[nusers];
-
-  for (int i = 0; i < nusers; i++)
-  {
-    usuarios[i] = (wchar_t *)malloc(sizeof(wchar_t) * USERNAME_MAX_LENGTH + 1);
-    descrpciones[i] =
-        (wchar_t *)malloc(sizeof(wchar_t) * USERNAME_MAX_LENGTH + 1);
-  }
+  wchar_t *usuarios[nusers + 1];
+  wchar_t *descrpciones[nusers + 1];
 
   User *user;
 
@@ -91,7 +91,10 @@ User *selectUser(User *requester, Funciones __before, void *__before_args)
     }
 
     user = (User *)query.Result;
-    wcscpy(usuarios[i], user->name);
+
+    descrpciones[i] = (wchar_t *)calloc(USERNAME_MAX_LENGTH + 1, sizeof(wchar_t));
+
+    usuarios[i] = user->name;
     if (user->type == PASSANGER)
     {
       wcscpy(descrpciones[i], L"Pasajero");
@@ -106,8 +109,11 @@ User *selectUser(User *requester, Funciones __before, void *__before_args)
     }
   }
 
+  usuarios[nusers] = L"Regresar";
+  descrpciones[nusers] = L"Regresar al menu anterior";
+
   MENU users;
-  setMenuData(&users, NULL, 5, 4, 1, nusers, usuarios, descrpciones, __before,
+  setMenuData(&users, NULL, 5, 4, 1, nusers + 1, usuarios, descrpciones, __before,
               __before_args);
 
   focusMenu(&users);
@@ -124,7 +130,7 @@ User *selectUser(User *requester, Funciones __before, void *__before_args)
 int makeHandShake(void *data)
 {
   Handshake *handshake = (Handshake *)data;
-  handshake->text = calloc(handshake->length, sizeof(wchar_t));
+  handshake->text = calloc(handshake->length + 1, sizeof(wchar_t));
   return evaluarText(handshake->text, handshake->length);
 }
 
@@ -378,13 +384,9 @@ void createRoute(User *user)
                  L"de la ruta");
   }
 
-  Result appendRoute = add_route(routerName.text, routerDescription.text, 1);
-  if (appendRoute.Error_state != OK)
-  {
-    printMessage(L"Ocurrio un error desconocido");
-  }
-
-  Route *newRoute = (Route *)appendRoute.Result;
+  Route *newRoute = calloc(1, sizeof(Route));
+  newRoute->destination = routerDescription.text;
+  newRoute->name = routerName.text;
 
   while (1)
   {
@@ -399,7 +401,9 @@ void createRoute(User *user)
     focusMenu(&agregarHorario);
 
     if (agregarHorario.selected == 1)
+    {
       break;
+    }
 
     MENU dia;
     wchar_t *dias[] = {L"Lunes", L"Martes", L"Miercoles", L"Jueves",
@@ -412,8 +416,6 @@ void createRoute(User *user)
                 L"Selecciona el día de la semana 📅 " BOLD);
 
     focusMenu(&dia);
-
-    Weekday diaSeleccionado = dia.selected;
 
     Handshake horario = {ROUTE_HORARIO_MAX_LENGTH + 1, 0};
     int hour, minute;
@@ -432,34 +434,40 @@ void createRoute(User *user)
     }
 
     Time *time = calloc(1, sizeof(Time));
-    time->day = diaSeleccionado;
-    time->time.hour = hour;
-    time->time.minute = minute;
+    time->day = dia.selected;
+    time->hour = hour;
+    time->minute = minute;
     // *time = {diaSeleccionado, hour, minute};
-    llist_append(&newRoute->scheduled_times, &time);
+    llist_append(&newRoute->scheduled_times, time);
 
     printMessage(L"Horario agregado correctamente");
   }
 
   printMessage(L"Ruta agregada correctamente");
+  add_route(newRoute);
 }
 
 void deleteRoute(User *user)
 {
 
   Route *route = selectRoute(
-      NULL, L"Selecciona la ruta a eliminar 🚧 " BOLD,
-      L"La ruta ah eliminar sera deshabilitada temporalmente",
+      NULL, L"Regresar al menu",
+      L"Regresa al menu principal",
       (int (*)(void *)) & help, L"Selecciona la ruta a eliminar 🗑 " BOLD);
   if (route == NULL)
   {
-    printMessage(L"Error desconocido");
+    // printMessage(L"Error desconocido");
     return;
   }
 
+  if (route->state == DISABLED)
+  {
+    printMessage(L"La ruta seleccionada ya se encuentra deshabilitada");
+    return;
+  }
   route->state = DISABLED;
-
   printMessage(L"Ruta eliminada correctamente");
+  writeAllRoutes();
 }
 
 void modifyRoute(User *user)
@@ -469,35 +477,39 @@ void modifyRoute(User *user)
     // select route to modify
 
     Route *route = selectRoute(
-        NULL, L"Selecciona la ruta a modificar 🚧 " BOLD,
-        L"A continuación seleccionaras la ruta a modificar permantemente",
-        (int (*)(void *)) & help, L"Selecciona la ruta a modificar 🖋 " BOLD);
+        NULL, L"Regresar al menu principal",
+        L"Regresa al menu principal",
+        (int (*)(void *)) & help, L"Selecciona la ruta a modificar 🖋 ");
 
     while (1)
     { // select Time to modify
       MENU menu;
-      wchar_t opciones[route->scheduled_times.size + 1]
-                      [ROUTE_NAME_MAX_LENGTH + 1];
-      wchar_t descripciones[route->scheduled_times.size + 1]
-                           [ROUTE_DESCRIPTION_MAX_LENGTH + 1];
+      int horarios = llist_size(&route->scheduled_times);
+      wchar_t *opciones[horarios + 1];
+      wchar_t *descripciones[horarios + 1];
 
       wchar_t *days[] = {L"Lunes", L"Martes", L"Miercoles", L"Jueves",
                          L"Viernes", L"Sabado", L"Domingo"};
 
-      for (int i = 0; i < route->scheduled_times.size; i++)
+      for (int i = 0; i < horarios; i++)
       {
         Time *time = (Time *)llist_get(&route->scheduled_times, i);
-        swprintf(opciones[i], ROUTE_NAME_MAX_LENGTH + 1, L"%s",
-                 days[time->day]);
+        opciones[i] = days[time->day];
+        // swprintf(opciones[i], ROUTE_NAME_MAX_LENGTH + 1, L"%s",
+        //  days[time->day]);
+        descripciones[i] = calloc(ROUTE_DESCRIPTION_MAX_LENGTH + 1, sizeof(wchar_t));
         swprintf(descripciones[i], ROUTE_DESCRIPTION_MAX_LENGTH + 1,
-                 L"%02d:%02d", time->time.hour, time->time.minute);
+                 L"%02d:%02d", time->hour, time->minute);
       }
 
-      wcscpy(opciones[route->scheduled_times.size + 1], L"Regresar");
-      wcscpy(descripciones[route->scheduled_times.size + 1],
-             L"Regresar al menu anterior");
+      opciones[horarios] = L"Regresar al menu principal";
+      descripciones[horarios] = L"Regresa al menu principal";
 
-      setMenuData(&menu, NULL, 5, 4, 1, route->scheduled_times.size,
+      // wcscpy(opciones[route->scheduled_times.size + 1], L"Regresar");
+      // wcscpy(descripciones[route->scheduled_times.size + 1],
+      //        L"Regresar al menu anterior");
+
+      setMenuData(&menu, NULL, 5, 4, 1, horarios + 1,
                   (wchar_t **)opciones, (wchar_t **)descripciones,
                   (int (*)(void *)) & help,
                   L"Selecciona el horario a modificar 🕐 " BOLD);
@@ -536,6 +548,8 @@ void modifyRoute(User *user)
           focusMenu(&menu);
 
           time->day = menu.selected;
+          printMessage(L"Día modificado correctamente");
+          writeAllRoutes();
         }
         else if (menu.selected == 1)
         { // modigy hour
@@ -546,24 +560,26 @@ void modifyRoute(User *user)
                       (void *)&_time, makeHandShake) == 0)
             {
               printMessage(L"Ingresa un tiempo válido");
-              return;
+              continue;
             }
 
             int hour, minute;
-            if (swscanf(_time.text, L"%d:%d", &hour, &minute) != 2)
+            if (swscanf(_time.text, L"%02d:%02d", &hour, &minute) != 2)
             {
               printMessage(L"Ingresa un tiempo válido");
-              return;
+              continue;
             }
 
-            if (hour < 0 || hour > 23 || minute < 0 || minute > 59)
+            if ((hour < 0 || hour >= 24) || (minute < 0 || minute >= 61))
             {
               printMessage(L"Ingresa un tiempo válido");
-              return;
+              continue;
             }
 
-            time->time.hour = hour;
-            time->time.minute = minute;
+            time->hour = hour;
+            time->minute = minute;
+            printMessage(L"Tiempo modificado correctamente");
+            writeAllRoutes();
           }
         }
         else
@@ -1111,8 +1127,8 @@ void registerNextRoute(User *user)
       printMessage(L"Error al crear la ruta");
       return;
     }
-    Route *route = selectRoute(NULL, L"Selecciona la ruta a registrar 🚧 " BOLD,
-                               L"Selecciona la proxima ruta a tomar",
+    Route *route = selectRoute(NULL, L"Regresar",
+                               L"Regresar al menu principal",
                                (int (*)(void *)) & help,
                                L"Selecciona tu proxima ruta a tomar 🚧 " BOLD);
     if (route == NULL)
@@ -1122,36 +1138,42 @@ void registerNextRoute(User *user)
 
     // List available schedules
     MENU menu;
+    int horarios = llist_size(&route->scheduled_times);
+    wchar_t *opciones[horarios + 1];
+    wchar_t *descripciones[horarios + 1];
+
+    wchar_t *days[] = {L"Lunes", L"Martes", L"Miercoles", L"Jueves",
+                       L"Viernes", L"Sabado", L"Domingo"};
+
+    for (int i = 0; i < horarios; i++)
     {
-      int nschedules = llist_size(&route->scheduled_times);
-      wchar_t opciones[nschedules + 1][ROUTE_NAME_MAX_LENGTH + 1];
-      wchar_t descripciones[nschedules + 1][ROUTE_DESCRIPTION_MAX_LENGTH + 1];
-      wchar_t *days[] = {L"Lunes", L"Martes", L"Miercoles", L"Jueves",
-                         L"Viernes", L"Sabado", L"Domingo"};
-      for (int i = 0; i < nschedules; i++)
-      {
-        Time *time = (Time *)llist_get(&route->scheduled_times, i);
-        wcscpy(opciones[i], days[time->day]);
-        // coopy formated time to description
-        swprintf(descripciones[i], ROUTE_DESCRIPTION_MAX_LENGTH, L"%02d:%02d",
-                 time->time.hour, time->time.minute);
-      }
-
-      wcscpy(opciones[nschedules], L"Regresar al menú principal");
-      wcscpy(descripciones[nschedules], L"Regresar al menú principal");
-
-      setMenuData(&menu, NULL, 5, 4, 1, nschedules, (wchar_t **)opciones,
-                  (wchar_t **)descripciones, (int (*)(void *)) & help,
-                  L"Selecciona el horario de la ruta a registrar 🚧 " BOLD);
-
-      focusMenu(&menu);
-      if (menu.selected == nschedules)
-      {
-        return;
-      }
+      Time *time = (Time *)llist_get(&route->scheduled_times, i);
+      opciones[i] = days[time->day];
+      // swprintf(opciones[i], ROUTE_NAME_MAX_LENGTH + 1, L"%s",
+      //  days[time->day]);
+      descripciones[i] = calloc(ROUTE_DESCRIPTION_MAX_LENGTH + 1, sizeof(wchar_t));
+      swprintf(descripciones[i], ROUTE_DESCRIPTION_MAX_LENGTH + 1,
+               L"%02d:%02d", time->hour, time->minute);
     }
 
+    opciones[horarios] = L"Regresar al menu principal";
+    descripciones[horarios] = L"Regresa al menu principal";
+
+    // wcscpy(opciones[route->scheduled_times.size + 1], L"Regresar");
+    // wcscpy(descripciones[route->scheduled_times.size + 1],
+    //        L"Regresar al menu anterior");
+
+    setMenuData(&menu, NULL, 5, 4, 1, horarios + 1,
+                (wchar_t **)opciones, (wchar_t **)descripciones,
+                (int (*)(void *)) & help,
+                L"Selecciona el horario a modificar 🕐 " BOLD);
+    focusMenu(&menu);
+
+    if (menu.selected == route->scheduled_times.size + 1)
+      break;
+
     userRoute->state = REQUESTED;
+    
     while (llist_size(&userRoute->scheduled_times) > 0)
     {
       llist_remove(&userRoute->scheduled_times, 0);
@@ -1256,7 +1278,7 @@ void DebugData(User *user)
 
     focusMenu(&menu);
 
-    if (menu.selected == 3)
+    if (menu.selected == 2)
       return;
     int nitems = 0;
 
@@ -1270,52 +1292,71 @@ void DebugData(User *user)
       n = number_of_routes();
     }
 
-    if (n.Result != OK)
+    if (n.Error_state != OK)
     {
       printMessage(L"Error al obtener el número de elementos");
       continue;
     }
     else
     {
-      nitems = (intptr_t)n.Result;
+      nitems = *(int *)n.Result;
     }
+
+    MENU menu2;
 
     wchar_t *items[nitems + 1];
     wchar_t *descriptions[nitems + 1];
 
+    memset(items, 0, sizeof(items));
+    memset(descriptions, 0, sizeof(descriptions));
+
     for (int i = 0; i < nitems; i++)
     {
-      descriptions[i] = malloc(sizeof(wchar_t) * 50);
-      items[i] = malloc(sizeof(wchar_t) * 50);
+
       void *pointer;
 
       if (menu.selected == 0)
       {
         User *tmp = query_user_by_id(*user, i).Result;
         pointer = tmp;
-        swprintf(items[i], 49, L"%s", tmp->name);
+        items[i] = tmp->name;
+        // swprintf(items[i], 49, L"%s", tmp->name);
       }
       else if (menu.selected == 1)
       {
         Route *tmp = query_route_by_id(i).Result;
         pointer = tmp;
-        swprintf(items[i], 49, L"%s", tmp->name);
+        items[i] = tmp->name;
+        // swprintf(items[i], 49, L"%s", tmp->name);
       }
 
-      swprintf(descriptions[i], 49, ITALIC DIM L"Dirección %p" RESET, pointer);
+      descriptions[i] = calloc(100, sizeof(wchar_t));
+      // memset(descriptions[i], 0, sizeof(wchar_t) * 100);
+      swprintf(descriptions[i], 49, L"Dirección %p", pointer);
     }
 
-    setMenuData(&menu, NULL, 5, 4, 1, nitems, (wchar_t **)items,
-                (wchar_t **)descriptions, (int (*)(void *)) & help,
+    items[nitems] = L"Regresar";
+    descriptions[nitems] = L"Regresar al menú principal";
+
+    // items[nitems + 1] = calloc(100, sizeof(wchar_t));
+    // swprintf(items[nitems + 1], 49, L"Regresar");
+    // descriptions[nitems + 1] = calloc(100, sizeof(wchar_t));
+    // swprintf(descriptions[nitems + 1], 49, L"Regresar al menú principal");
+
+    setMenuData(&menu2, NULL, 5, 4, 1, nitems + 1, items,
+                descriptions, (int (*)(void *)) & help,
                 L"Selecciona una opción 🚧 " BOLD);
 
-    focusMenu(&menu);
+    focusMenu(&menu2);
 
     for (int i = 0; i < nitems; i++)
     {
-      free(items[i]);
+      // free(items[i]);
       free(descriptions[i]);
     }
+
+    if (menu2.selected == nitems)
+      continue;
   }
 }
 
@@ -1366,7 +1407,7 @@ void mainScreen(User *user)
       if (mainscreen.selected == 5)
         exit(EXIT_SUCCESS);
 
-      if (mainscreen.selected < 0 || mainscreen.selected > 2)
+      if (mainscreen.selected < 0 || mainscreen.selected > 3)
         continue;
 
       mainFuncs[mainscreen.selected](user);
